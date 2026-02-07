@@ -64,15 +64,30 @@ const DraggableModule = ({ module }) => {
       }
       setIsMaximized(false);
     } else {
-      // Save current state and maximize
+      // Save current state and maximize to fit workspace
       setPreviousState({
         position: { ...module.position },
         size: { ...module.size }
       });
-      updateModulePosition(module.id, { x: 20, y: 20 });
+      
+      // Workspace dimensions:
+      // - Header: 64px (h-16)
+      // - Right sidebar: 320px (w-80)
+      // - Bottom toolbar: 80px (h-20)
+      // - Padding around: 16px each side for breathing room
+      
+      const padding = 16;
+      const headerHeight = 64;
+      const rightSidebarWidth = 320;
+      const bottomToolbarHeight = 80;
+      
+      updateModulePosition(module.id, { 
+        x: padding, 
+        y: headerHeight + padding 
+      });
       updateModuleSize(module.id, {
-        width: window.innerWidth - 420,
-        height: window.innerHeight - 140
+        width: window.innerWidth - rightSidebarWidth - (padding * 2),
+        height: window.innerHeight - headerHeight - bottomToolbarHeight - (padding * 2)
       });
       setIsMaximized(true);
     }
