@@ -19,7 +19,7 @@ const RightSidebar = () => {
   return (
     <div className="w-80 bg-[#0a1628]/80 backdrop-blur-lg border-l border-cyan-500/20 flex flex-col">
       <div className="p-6 border-b border-cyan-500/20">
-        <h2 className="text-lg font-semibold text-white mb-1">Canvas</h2>
+        <h2 className="text-lg font-semibold text-white mb-1">CANVAS</h2>
         <p className="text-sm text-gray-400">
           {modules.length > 0 
             ? `${modules.length} ${modules.length === 1 ? 'modul' : modules.length < 5 ? 'moduly' : 'modulů'} aktivních` 
