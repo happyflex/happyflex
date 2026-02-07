@@ -1,0 +1,64 @@
+import React from 'react';
+import { useWorkspace } from '../context/WorkspaceContext';
+import DraggableModule from './DraggableModule';
+
+const Canvas = () => {
+  const { modules } = useWorkspace();
+
+  return (
+    <div className="flex-1 relative overflow-hidden">
+      {/* Futuristic background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0a1628] via-[#0d1b3a] to-[#1a1f3a]">
+        {/* Grid overlay */}
+        <div 
+          className="absolute inset-0 opacity-10"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(6, 182, 212, 0.3) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(6, 182, 212, 0.3) 1px, transparent 1px)
+            `,
+            backgroundSize: '50px 50px'
+          }}
+        />
+        
+        {/* Animated glow effects */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+      </div>
+
+      {/* Empty state */}
+      {modules.length === 0 && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center">
+            <div className="mb-6">
+              <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-2xl flex items-center justify-center border border-cyan-500/30">
+                <svg viewBox="0 0 24 24" className="w-12 h-12 text-cyan-400" fill="currentColor">
+                  <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-2">Vítejte v S.T.E.W.A.R.D. Workspace</h2>
+            <p className="text-gray-400 mb-6">Klikněte na nástroj v dolním panelu pro přidání modulu</p>
+            <div className="flex items-center justify-center gap-4 text-sm text-cyan-400">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
+                <span>100% Připraven</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                <span>{modules.length} modulů</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modules */}
+      {modules.map((module) => (
+        <DraggableModule key={module.id} module={module} />
+      ))}
+    </div>
+  );
+};
+
+export default Canvas;
