@@ -88,18 +88,19 @@ const DraggableModule = ({ module }) => {
     <div
       ref={moduleRef}
       className={`absolute bg-[#0f1d35]/95 backdrop-blur-lg rounded-xl border border-cyan-500/30 shadow-2xl overflow-hidden transition-shadow ${
-        isDragging ? 'shadow-cyan-500/50' : ''
+        isDragging ? 'shadow-cyan-500/50 select-none' : ''
       }`}
       style={{
         left: module.position.x,
         top: module.position.y,
         width: module.size.width,
         height: module.size.height,
-        zIndex: module.zIndex
+        zIndex: module.zIndex,
+        userSelect: isDragging ? 'none' : 'auto'
       }}
     >
       <div
-        className="h-12 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-b border-cyan-500/30 flex items-center justify-between px-4 cursor-move"
+        className="h-12 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-b border-cyan-500/30 flex items-center justify-between px-4 cursor-move select-none"
         onMouseDown={handleMouseDown}
       >
         <div className="flex items-center gap-2">
