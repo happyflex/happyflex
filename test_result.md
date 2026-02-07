@@ -101,3 +101,203 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Test S.T.E.W.A.R.D. Workspace Dashboard na URL: https://stark-dashboard-1.preview.emergentagent.com. Proveď následující testy: 1. Načtení stránky. 2. Bottom Toolbar. 3. Přidávání modulů. 4. Right Sidebar. 5. Header. 6. Toast Notifikace. 7. Moduly - Obsah. 8. Zavření modulu. 9. Responzivita."
+
+frontend:
+  - task: "Dashboard Loading"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/Canvas.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "Initial setup for testing dashboard loading with welcome message and empty canvas"
+
+  - task: "Bottom Toolbar"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/BottomToolbar.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "Need to test bottom toolbar buttons: Graf, Poznámky, Úkoly, Kontakty, Projekty, Časovač"
+
+  - task: "Module Addition"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/context/WorkspaceContext.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "Testing adding modules to the canvas when toolbar buttons are clicked"
+
+  - task: "Right Sidebar"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/RightSidebar.jsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "Verify that sidebar shows count of active modules"
+
+  - task: "Header Components"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/Header.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "Verify header contains STEWARD logo, search bar, notification bell with red dot, and settings icon"
+
+  - task: "Toast Notifications"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/hooks/use-toast.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "Test that toast notifications appear when modules are added"
+
+  - task: "Module Content - Notes"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/modules/NotesModule.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "Verify Notes module has 'Nová' button and displays mock notes"
+
+  - task: "Module Content - Tasks"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/modules/TasksModule.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "Verify Tasks module shows active and completed tasks with priorities"
+
+  - task: "Module Content - Contacts"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/modules/ContactsModule.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "Verify Contacts module displays contacts with avatars"
+
+  - task: "Module Content - Projects"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/modules/ProjectsModule.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "Verify Projects module has progress bars and project info"
+
+  - task: "Module Content - Chart"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/modules/ChartModule.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "Verify Chart module shows bar chart with data"
+
+  - task: "Module Content - Timer"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/modules/TimerModule.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "Verify Timer module has Start/Reset buttons"
+
+  - task: "Module Close"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/DraggableModule.jsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "Test X button for closing modules"
+
+  - task: "Responsive Design"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "Check that all elements display properly at different screen sizes"
+
+metadata:
+  created_by: "testing_agent"
+  version: "1.0"
+  test_sequence: 0
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Dashboard Loading"
+    - "Bottom Toolbar"
+    - "Module Addition"
+    - "Module Content - Notes"
+    - "Module Content - Tasks"
+    - "Module Content - Contacts"
+    - "Module Content - Projects"
+    - "Module Content - Chart"
+    - "Module Content - Timer"
+    - "Header Components"
+    - "Toast Notifications"
+    - "Module Close"
+    - "Right Sidebar"
+  stuck_tasks: []
+  test_all: true
+  test_priority: "sequential"
+
+agent_communication:
+    - agent: "testing"
+    - message: "Initial setup for testing the S.T.E.W.A.R.D. Workspace Dashboard. Will execute tests according to the user's request."
