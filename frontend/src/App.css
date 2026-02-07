@@ -56,3 +56,16 @@ button {
   -moz-user-select: none;
   -ms-user-select: none;
 }
+
+/* Resize handles - subtle hover effect */
+.resize-handle {
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.resize-handle:hover,
+div:hover > .resize-handle {
+  opacity: 0.3;
+  background-color: rgba(6, 182, 212, 0.5);
+}
