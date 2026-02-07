@@ -47,14 +47,24 @@ const ProjectsModule = () => {
               className="group p-4 bg-[#0a1628] rounded-lg border border-cyan-500/20 hover:border-cyan-500/40 transition-all"
             >
               <div className="flex items-start justify-between mb-3">
-                <div>
+                <div className="flex-1">
                   <h4 className="font-semibold text-white mb-1">{project.name}</h4>
                   <span className={`text-xs px-2 py-1 rounded border ${statusColors[project.status]}`}>
                     {statusLabels[project.status]}
                   </span>
                 </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-cyan-400">{project.progress}%</div>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-cyan-400">{project.progress}%</div>
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={() => setSelectedProject(project)}
+                    className="bg-cyan-500 hover:bg-cyan-400 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <ExternalLink className="h-4 w-4 mr-1" />
+                    Otevřít
+                  </Button>
                 </div>
               </div>
 
