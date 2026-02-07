@@ -1,11 +1,24 @@
-import React from 'react';
-import { TrendingUp, Users, Calendar } from 'lucide-react';
+import React, { useState } from 'react';
+import { TrendingUp, Users, Calendar, ExternalLink } from 'lucide-react';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import { ScrollArea } from '../ui/scroll-area';
 import { Progress } from '../ui/progress';
+import { Button } from '../ui/button';
+import ProjectWorldModule from './ProjectWorldModule';
 
 const ProjectsModule = () => {
   const { projects } = useWorkspace();
+  const [selectedProject, setSelectedProject] = useState(null);
+
+  // If project is selected, show Project World
+  if (selectedProject) {
+    return (
+      <ProjectWorldModule 
+        project={selectedProject} 
+        onBack={() => setSelectedProject(null)} 
+      />
+    );
+  }
 
   const statusColors = {
     active: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/30',
