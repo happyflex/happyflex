@@ -46,6 +46,8 @@ const DraggableModule = ({ module }) => {
     const handleMouseMove = (e) => {
       if (!isDragging) return;
       
+      e.preventDefault();
+      
       const newX = e.clientX - dragOffset.x;
       const newY = e.clientY - dragOffset.y;
       
@@ -60,13 +62,23 @@ const DraggableModule = ({ module }) => {
     };
 
     if (isDragging) {
+      // Add user-select none to body during drag
+      document.body.style.userSelect = 'none';
+      document.body.style.webkitUserSelect = 'none';
+      
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
+    } else {
+      // Remove user-select none when not dragging
+      document.body.style.userSelect = '';
+      document.body.style.webkitUserSelect = '';
     }
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = '';
+      document.body.style.webkitUserSelect = '';
     };
   }, [isDragging, dragOffset, module.id, module.size, updateModulePosition]);
 
