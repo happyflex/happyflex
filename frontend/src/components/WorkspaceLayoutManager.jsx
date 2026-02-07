@@ -84,44 +84,61 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
 
   const loadLayout = (layout) => {
     try {
-      // Nejdřív zavřeme všechny moduly
-      workspace.modules.forEach(m => workspace.removeModule(m.id));
+      // Zavřeme všechny současné moduly
+      const currentModules = [...workspace.modules];
+      currentModules.forEach(m => workspace.removeModule(m.id));
       
-      // Načteme data
-      workspace.notes.forEach(n => workspace.deleteNote(n.id));
-      layout.data.notes.forEach(n => workspace.addNote(n));
+      // Vymažeme současná data
+      const currentNotes = [...workspace.notes];
+      currentNotes.forEach(n => workspace.deleteNote(n.id));
 
-      workspace.tasks.forEach(t => workspace.deleteTask(t.id));
-      layout.data.tasks.forEach(t => workspace.addTask(t));
+      const currentTasks = [...workspace.tasks];
+      currentTasks.forEach(t => workspace.deleteTask(t.id));
 
-      // Obnovíme moduly
-      layout.modules.forEach(m => {
-        workspace.addModule(m.type, m.position);
-        // Aktualizujeme velikost a zIndex
-        setTimeout(() => {
-          workspace.updateModuleSize(m.id, m.size);
-          workspace.bringToFront(m.id);
-        }, 50);
-      });
+      // Načteme data z layoutu - postupně přidáme
+      setTimeout(() => {
+        layout.data.notes.forEach(note => {
+          workspace.addNote({
+            title: note.title,
+            content: note.content,
+            color: note.color
+          });
+        });
 
-      // Obnovíme odložené moduly
-      layout.deferredModules.forEach(m => {
-        const module = {
-          id: m.id,
-          type: m.type,
-          position: m.position,
-          size: m.size,
-          zIndex: m.zIndex
-        };
-        workspace.deferredModules.push(module);
-      });
+        layout.data.tasks.forEach(task => {
+          workspace.addTask({
+            title: task.title,
+            priority: task.priority,
+            dueDate: task.dueDate,
+            completed: task.completed
+          });
+        });
 
-      workspace.setTimerSeconds(layout.data.timerSeconds || 0);
+        // Obnovíme moduly s jejich původní pozicí a velikostí
+        layout.modules.forEach((moduleData, index) => {
+          setTimeout(() => {
+            const newModule = {
+              id: `module-${Date.now()}-${index}`,
+              type: moduleData.type,
+              position: moduleData.position,
+              size: moduleData.size,
+              zIndex: moduleData.zIndex
+            };
+            workspace.addModule(moduleData.type, moduleData.position);
+            // Aktualizujeme velikost po přidání
+            setTimeout(() => {
+              workspace.updateModuleSize(newModule.id, moduleData.size);
+            }, 100);
+          }, index * 100);
+        });
+
+        workspace.setTimerSeconds(layout.data.timerSeconds || 0);
+      }, 300);
 
       onClose();
       toast({
         title: 'Layout načten',
-        description: `"${layout.name}" byl obnoven`
+        description: `"${layout.name}" byl obnoven s ${layout.modules.length} moduly`
       });
     } catch (error) {
       console.error('Error loading layout:', error);
