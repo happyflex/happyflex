@@ -29,6 +29,9 @@ const DraggableModule = ({ module }) => {
   const handleMouseDown = (e) => {
     if (e.target.closest('.module-content')) return;
     
+    // Prevent text selection during drag
+    e.preventDefault();
+    
     setIsDragging(true);
     bringToFront(module.id);
     
