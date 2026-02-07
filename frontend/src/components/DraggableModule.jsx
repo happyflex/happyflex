@@ -19,15 +19,20 @@ const moduleComponents = {
 };
 
 const DraggableModule = ({ module }) => {
-  const { removeModule, updateModulePosition, bringToFront, deferModule } = useWorkspace();
+  const { removeModule, updateModulePosition, updateModuleSize, bringToFront, deferModule } = useWorkspace();
   const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeHandle, setResizeHandle] = useState(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [isMaximized, setIsMaximized] = useState(false);
+  const [previousState, setPreviousState] = useState(null);
   const moduleRef = useRef(null);
 
   const ModuleComponent = moduleComponents[module.type];
 
   const handleMouseDown = (e) => {
     if (e.target.closest('.module-content')) return;
+    if (e.target.closest('.resize-handle')) return;
     
     // Prevent text selection during drag
     e.preventDefault();
@@ -42,36 +47,99 @@ const DraggableModule = ({ module }) => {
     });
   };
 
+  const handleResizeStart = (e, handle) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsResizing(true);
+    setResizeHandle(handle);
+    bringToFront(module.id);
+  };
+
+  const handleMaximize = () => {
+    if (isMaximized) {
+      // Restore to previous state
+      if (previousState) {
+        updateModulePosition(module.id, previousState.position);
+        updateModuleSize(module.id, previousState.size);
+      }
+      setIsMaximized(false);
+    } else {
+      // Save current state and maximize
+      setPreviousState({
+        position: { ...module.position },
+        size: { ...module.size }
+      });
+      updateModulePosition(module.id, { x: 20, y: 20 });
+      updateModuleSize(module.id, {
+        width: window.innerWidth - 420,
+        height: window.innerHeight - 140
+      });
+      setIsMaximized(true);
+    }
+  };
+
   useEffect(() => {
     const handleMouseMove = (e) => {
-      if (!isDragging) return;
-      
-      e.preventDefault();
-      
-      const newX = e.clientX - dragOffset.x;
-      const newY = e.clientY - dragOffset.y;
-      
-      updateModulePosition(module.id, {
-        x: Math.max(0, Math.min(newX, window.innerWidth - module.size.width)),
-        y: Math.max(0, Math.min(newY, window.innerHeight - module.size.height - 80))
-      });
+      if (isDragging) {
+        e.preventDefault();
+        
+        const newX = e.clientX - dragOffset.x;
+        const newY = e.clientY - dragOffset.y;
+        
+        updateModulePosition(module.id, {
+          x: Math.max(0, Math.min(newX, window.innerWidth - module.size.width)),
+          y: Math.max(0, Math.min(newY, window.innerHeight - module.size.height - 80))
+        });
+      } else if (isResizing && resizeHandle) {
+        e.preventDefault();
+        
+        const rect = moduleRef.current.getBoundingClientRect();
+        let newWidth = module.size.width;
+        let newHeight = module.size.height;
+        let newX = module.position.x;
+        let newY = module.position.y;
+
+        if (resizeHandle.includes('e')) {
+          newWidth = Math.max(300, e.clientX - rect.left);
+        }
+        if (resizeHandle.includes('s')) {
+          newHeight = Math.max(200, e.clientY - rect.top);
+        }
+        if (resizeHandle.includes('w')) {
+          const deltaX = e.clientX - rect.left;
+          newWidth = Math.max(300, module.size.width - deltaX);
+          newX = module.position.x + deltaX;
+        }
+        if (resizeHandle.includes('n')) {
+          const deltaY = e.clientY - rect.top;
+          newHeight = Math.max(200, module.size.height - deltaY);
+          newY = module.position.y + deltaY;
+        }
+
+        updateModuleSize(module.id, { width: newWidth, height: newHeight });
+        if (newX !== module.position.x || newY !== module.position.y) {
+          updateModulePosition(module.id, { x: newX, y: newY });
+        }
+      }
     };
 
     const handleMouseUp = () => {
       setIsDragging(false);
+      setIsResizing(false);
+      setResizeHandle(null);
     };
 
-    if (isDragging) {
-      // Add user-select none to body during drag
+    if (isDragging || isResizing) {
       document.body.style.userSelect = 'none';
       document.body.style.webkitUserSelect = 'none';
+      document.body.style.cursor = isResizing ? (resizeHandle || 'nwse-resize') + '-resize' : 'grabbing';
       
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
     } else {
-      // Remove user-select none when not dragging
       document.body.style.userSelect = '';
       document.body.style.webkitUserSelect = '';
+      document.body.style.cursor = '';
     }
 
     return () => {
@@ -79,8 +147,9 @@ const DraggableModule = ({ module }) => {
       document.removeEventListener('mouseup', handleMouseUp);
       document.body.style.userSelect = '';
       document.body.style.webkitUserSelect = '';
+      document.body.style.cursor = '';
     };
-  }, [isDragging, dragOffset, module.id, module.size, updateModulePosition]);
+  }, [isDragging, isResizing, resizeHandle, dragOffset, module.id, module.size, module.position, updateModulePosition, updateModuleSize]);
 
   if (!ModuleComponent) return null;
 
@@ -88,17 +157,27 @@ const DraggableModule = ({ module }) => {
     <div
       ref={moduleRef}
       className={`absolute bg-[#0f1d35]/95 backdrop-blur-lg rounded-xl border border-cyan-500/30 shadow-2xl overflow-hidden transition-shadow ${
-        isDragging ? 'shadow-cyan-500/50 select-none' : ''
-      }`}
+        isDragging || isResizing ? 'shadow-cyan-500/50 select-none' : ''
+      } ${isMaximized ? 'transition-all duration-300' : ''}`}
       style={{
         left: module.position.x,
         top: module.position.y,
         width: module.size.width,
         height: module.size.height,
         zIndex: module.zIndex,
-        userSelect: isDragging ? 'none' : 'auto'
+        userSelect: isDragging || isResizing ? 'none' : 'auto'
       }}
     >
+      {/* Resize handles */}
+      <div className="resize-handle absolute top-0 left-0 w-3 h-3 cursor-nw-resize" onMouseDown={(e) => handleResizeStart(e, 'nw')} />
+      <div className="resize-handle absolute top-0 right-0 w-3 h-3 cursor-ne-resize" onMouseDown={(e) => handleResizeStart(e, 'ne')} />
+      <div className="resize-handle absolute bottom-0 left-0 w-3 h-3 cursor-sw-resize" onMouseDown={(e) => handleResizeStart(e, 'sw')} />
+      <div className="resize-handle absolute bottom-0 right-0 w-3 h-3 cursor-se-resize" onMouseDown={(e) => handleResizeStart(e, 'se')} />
+      <div className="resize-handle absolute top-0 left-3 right-3 h-1 cursor-n-resize" onMouseDown={(e) => handleResizeStart(e, 'n')} />
+      <div className="resize-handle absolute bottom-0 left-3 right-3 h-1 cursor-s-resize" onMouseDown={(e) => handleResizeStart(e, 's')} />
+      <div className="resize-handle absolute left-0 top-3 bottom-3 w-1 cursor-w-resize" onMouseDown={(e) => handleResizeStart(e, 'w')} />
+      <div className="resize-handle absolute right-0 top-3 bottom-3 w-1 cursor-e-resize" onMouseDown={(e) => handleResizeStart(e, 'e')} />
+
       <div
         className="h-12 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-b border-cyan-500/30 flex items-center justify-between px-4 cursor-move select-none"
         onMouseDown={handleMouseDown}
@@ -127,6 +206,7 @@ const DraggableModule = ({ module }) => {
             variant="ghost"
             size="icon"
             className="h-7 w-7 text-gray-400 hover:text-cyan-400 hover:bg-cyan-500/10"
+            onClick={handleMaximize}
           >
             <Maximize2 className="h-4 w-4" />
           </Button>
