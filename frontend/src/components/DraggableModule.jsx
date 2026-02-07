@@ -70,23 +70,25 @@ const DraggableModule = ({ module }) => {
         size: { ...module.size }
       });
       
-      // Workspace dimensions:
-      // - Header: 64px (h-16)
+      // Workspace dimensions (modules are positioned relative to Canvas, not window):
+      // - Canvas starts after Header (64px in window coordinates)
       // - Right sidebar: 320px (w-80)
       // - Bottom toolbar: 80px (h-20)
       // - Padding around: 16px each side for breathing room
       
       const padding = 16;
-      const headerHeight = 64;
       const rightSidebarWidth = 320;
       const bottomToolbarHeight = 80;
+      const headerHeight = 64;
       
+      // Position is relative to Canvas (which starts after header)
       updateModulePosition(module.id, { 
         x: padding, 
-        y: headerHeight + padding 
+        y: padding  // Just padding from top of Canvas
       });
       updateModuleSize(module.id, {
         width: window.innerWidth - rightSidebarWidth - (padding * 2),
+        // Height: full Canvas height minus bottom toolbar and paddings
         height: window.innerHeight - headerHeight - bottomToolbarHeight - (padding * 2)
       });
       setIsMaximized(true);
