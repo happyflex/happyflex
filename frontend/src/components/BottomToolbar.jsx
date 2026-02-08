@@ -43,7 +43,7 @@ const BottomToolbar = () => {
   const [layoutManagerOpen, setLayoutManagerOpen] = useState(false);
 
   const handleToolClick = (item) => {
-    if (['notes', 'tasks', 'contacts', 'projects', 'chart', 'timer'].includes(item.type)) {
+    if (['notes', 'tasks', 'people', 'projects', 'chart', 'timer'].includes(item.type)) {
       addModule(item.type);
       toast({
         title: 'Modul přidán',
