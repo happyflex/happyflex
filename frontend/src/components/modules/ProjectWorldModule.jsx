@@ -353,6 +353,18 @@ const ProjectWorldModule = ({ project, onBack }) => {
           >
             {/* SVG for connections */}
             <svg className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }}>
+              <defs>
+                <marker
+                  id="arrowhead"
+                  markerWidth="10"
+                  markerHeight="7"
+                  refX="9"
+                  refY="3.5"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 10 3.5, 0 7" fill="#06b6d4" />
+                </marker>
+              </defs>
               {connections.map(conn => {
                 const fromItem = items.find(item => item.id === conn.from);
                 const toItem = items.find(item => item.id === conn.to);
@@ -363,20 +375,59 @@ const ProjectWorldModule = ({ project, onBack }) => {
                 const toX = toItem.position.x + toItem.size.width / 2;
                 const toY = toItem.position.y + toItem.size.height / 2;
 
+                // Calculate midpoint for label
+                const midX = (fromX + toX) / 2;
+                const midY = (fromY + toY) / 2;
+
+                // Get relationship type label and color
+                const relationshipLabels = {
+                  'part-of': { label: 'součástí', color: '#3b82f6' },
+                  'influences': { label: 'ovlivňuje', color: '#a855f7' },
+                  'depends-on': { label: 'závisí', color: '#eab308' },
+                  'blocks': { label: 'blokuje', color: '#ef4444' },
+                  'relates-to': { label: 'souvisí', color: '#06b6d4' }
+                };
+                const relType = relationshipLabels[conn.type] || relationshipLabels['relates-to'];
+
                 return (
                   <g key={conn.id}>
+                    {/* Connection line with arrow */}
                     <line
                       x1={fromX}
                       y1={fromY}
                       x2={toX}
                       y2={toY}
-                      stroke="#06b6d4"
+                      stroke={relType.color}
                       strokeWidth="2"
                       strokeDasharray="5,5"
-                      opacity="0.6"
+                      opacity="0.7"
+                      markerEnd="url(#arrowhead)"
                     />
-                    <circle cx={fromX} cy={fromY} r="4" fill="#06b6d4" />
-                    <circle cx={toX} cy={toY} r="4" fill="#06b6d4" />
+                    {/* Connection points */}
+                    <circle cx={fromX} cy={fromY} r="5" fill={relType.color} />
+                    <circle cx={toX} cy={toY} r="5" fill={relType.color} />
+                    {/* Relationship type label */}
+                    <rect
+                      x={midX - 35}
+                      y={midY - 10}
+                      width="70"
+                      height="20"
+                      rx="4"
+                      fill="#0f1d35"
+                      stroke={relType.color}
+                      strokeWidth="1"
+                      opacity="0.95"
+                    />
+                    <text
+                      x={midX}
+                      y={midY + 4}
+                      textAnchor="middle"
+                      fill={relType.color}
+                      fontSize="10"
+                      fontWeight="500"
+                    >
+                      {relType.label}
+                    </text>
                   </g>
                 );
               })}
