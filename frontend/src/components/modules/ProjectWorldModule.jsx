@@ -174,16 +174,16 @@ const ProjectWorldModule = ({ project, onBack }) => {
   };
 
   const updateItemPosition = (id, position) => {
-    setItems(items.map(item => item.id === id ? { ...item, position } : item));
+    updateCurrentNodeItems(items.map(item => item.id === id ? { ...item, position } : item));
   };
 
   const updateItemData = (id, data) => {
-    setItems(items.map(item => item.id === id ? { ...item, data } : item));
+    updateCurrentNodeItems(items.map(item => item.id === id ? { ...item, data } : item));
   };
 
   const deleteItem = (id) => {
-    setItems(items.filter(item => item.id !== id));
-    setConnections(connections.filter(conn => conn.from !== id && conn.to !== id));
+    updateCurrentNodeItems(items.filter(item => item.id !== id));
+    updateCurrentNodeConnections(connections.filter(conn => conn.from !== id && conn.to !== id));
     setSelectedItem(null);
   };
 
@@ -200,7 +200,7 @@ const ProjectWorldModule = ({ project, onBack }) => {
         to: itemId,
         label: ''
       };
-      setConnections([...connections, newConnection]);
+      updateCurrentNodeConnections([...connections, newConnection]);
       toast({
         title: 'Propojení vytvořeno',
         description: 'Elementy byly propojeny'
@@ -211,12 +211,12 @@ const ProjectWorldModule = ({ project, onBack }) => {
   };
 
   const deleteConnection = (id) => {
-    setConnections(connections.filter(conn => conn.id !== id));
+    updateCurrentNodeConnections(connections.filter(conn => conn.id !== id));
   };
 
   const bringToFront = (id) => {
     const maxZ = Math.max(...items.map(item => item.zIndex), 0);
-    setItems(items.map(item => item.id === id ? { ...item, zIndex: maxZ + 1 } : item));
+    updateCurrentNodeItems(items.map(item => item.id === id ? { ...item, zIndex: maxZ + 1 } : item));
   };
 
   return (
