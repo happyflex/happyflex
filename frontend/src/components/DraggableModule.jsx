@@ -4,25 +4,15 @@ import { useWorkspace } from '../context/WorkspaceContext';
 import { Button } from './ui/button';
 import NotesModule from './modules/NotesModule';
 import TasksModule from './modules/TasksModule';
-// import PeopleModule from './modules/PeopleModule'; // Temporarily disabled due to babel plugin issue
+import PeopleModule from './modules/PeopleModule';
 import ProjectsModule from './modules/ProjectsModule';
 import ChartModule from './modules/ChartModule';
 import TimerModule from './modules/TimerModule';
 
-// Placeholder for PeopleModule
-const PeopleModulePlaceholder = () => (
-  <div className="h-full flex items-center justify-center">
-    <div className="text-center text-gray-400">
-      <p className="text-lg mb-2">Lidi modul je dočasně nedostupný</p>
-      <p className="text-sm">Probíhá oprava technického problému</p>
-    </div>
-  </div>
-);
-
 const moduleComponents = {
   notes: NotesModule,
   tasks: TasksModule,
-  people: PeopleModulePlaceholder, // Temporarily using placeholder
+  people: PeopleModule,
   projects: ProjectsModule,
   chart: ChartModule,
   timer: TimerModule
