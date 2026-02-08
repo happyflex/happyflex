@@ -64,6 +64,83 @@ const ProjectWorldModule = ({ project, onBack }) => {
   const items = currentNode.items || [];
   const connections = currentNode.connections || [];
 
+  // Add subproject
+  const addSubproject = () => {
+    if (!newSubprojectName.trim()) {
+      toast({
+        title: 'Chybí název',
+        description: 'Zadejte název podprojektu',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    const newSubproject = {
+      id: `sub-${Date.now()}`,
+      name: newSubprojectName.trim(),
+      children: [],
+      items: [],
+      connections: []
+    };
+
+    setStructure(prev => {
+      const updated = { ...prev };
+      let node = updated.root;
+      for (let i = 1; i < currentPath.length; i++) {
+        node = node.children.find(child => child.id === currentPath[i]);
+      }
+      node.children.push(newSubproject);
+      return updated;
+    });
+
+    setNewSubprojectName('');
+    setShowAddSubproject(false);
+    toast({
+      title: 'Podprojekt vytvořen',
+      description: `"${newSubproject.name}" byl přidán`
+    });
+  };
+
+  // Navigate to subproject
+  const navigateToSubproject = (subprojectId) => {
+    setCurrentPath([...currentPath, subprojectId]);
+    setSelectedItem(null);
+  };
+
+  // Navigate up
+  const navigateUp = () => {
+    if (currentPath.length > 1) {
+      setCurrentPath(currentPath.slice(0, -1));
+      setSelectedItem(null);
+    }
+  };
+
+  // Update items in current node
+  const updateCurrentNodeItems = (newItems) => {
+    setStructure(prev => {
+      const updated = JSON.parse(JSON.stringify(prev));
+      let node = updated.root;
+      for (let i = 1; i < currentPath.length; i++) {
+        node = node.children.find(child => child.id === currentPath[i]);
+      }
+      node.items = newItems;
+      return updated;
+    });
+  };
+
+  // Update connections in current node
+  const updateCurrentNodeConnections = (newConnections) => {
+    setStructure(prev => {
+      const updated = JSON.parse(JSON.stringify(prev));
+      let node = updated.root;
+      for (let i = 1; i < currentPath.length; i++) {
+        node = node.children.find(child => child.id === currentPath[i]);
+      }
+      node.connections = newConnections;
+      return updated;
+    });
+  };
+
   const addItem = (type) => {
     const newItem = {
       id: `item-${Date.now()}`,
@@ -73,7 +150,7 @@ const ProjectWorldModule = ({ project, onBack }) => {
       data: getDefaultData(type),
       zIndex: items.length
     };
-    setItems([...items, newItem]);
+    updateCurrentNodeItems([...items, newItem]);
     setShowAddMenu(false);
   };
 
