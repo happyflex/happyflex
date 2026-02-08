@@ -7,6 +7,8 @@ import { ScrollArea } from '../ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { toast } from '../../hooks/use-toast';
 import ProjectTree from './ProjectTree';
+import ItemDetailPanel from './ItemDetailPanel';
+import RelationshipTypeDialog from './RelationshipTypeDialog';
 
 const ProjectWorldModule = ({ project, onBack }) => {
   const [structure, setStructure] = useState({ 
@@ -22,6 +24,8 @@ const ProjectWorldModule = ({ project, onBack }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isAddingConnection, setIsAddingConnection] = useState(false);
   const [connectionStart, setConnectionStart] = useState(null);
+  const [connectionTarget, setConnectionTarget] = useState(null);
+  const [showRelationshipDialog, setShowRelationshipDialog] = useState(false);
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [showAddSubproject, setShowAddSubproject] = useState(false);
   const [newSubprojectName, setNewSubprojectName] = useState('');
