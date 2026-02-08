@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { ChevronRight, ChevronDown, Folder, FolderOpen, Home } from 'lucide-react';
 
-const ProjectTree = ({ node, currentPath, onNavigate, level = 0 }) => {
+function ProjectTree({ node, currentPath, onNavigate, level = 0 }) {
   const [isExpanded, setIsExpanded] = useState(true);
   const isActive = currentPath[currentPath.length - 1] === node.id;
-  const hasChildren = node.children && node.children.length > 0;
+  const hasChildren = node && node.children && node.children.length > 0;
+
+  if (!node) return null;
 
   return (
     <div>
@@ -48,9 +50,9 @@ const ProjectTree = ({ node, currentPath, onNavigate, level = 0 }) => {
 
       {hasChildren && isExpanded && (
         <div>
-          {node.children.map((child) => (
+          {node.children.map((child, index) => (
             <ProjectTree
-              key={child.id}
+              key={child.id || index}
               node={child}
               currentPath={currentPath}
               onNavigate={onNavigate}
@@ -61,6 +63,6 @@ const ProjectTree = ({ node, currentPath, onNavigate, level = 0 }) => {
       )}
     </div>
   );
-};
+}
 
 export default ProjectTree;
