@@ -30,7 +30,7 @@ const toolbarItems = [
   { id: 'edit', icon: Edit3, label: 'Poznámky', type: 'notes' },
   { id: 'trend', icon: TrendingUp, label: 'Projekty', type: 'projects' },
   { id: 'file', icon: FileText, label: 'Úkoly', type: 'tasks' },
-  { id: 'users', icon: Users, label: 'Kontakty', type: 'contacts' },
+  { id: 'people', icon: Users, label: 'Lidi', type: 'people' },
   { id: 'key', icon: Key, label: 'Přístup', type: 'access' },
   { id: 'maximize', icon: Maximize2, label: 'Rozšířit', type: 'expand' },
   { id: 'clock', icon: Clock, label: 'Čas', type: 'clock' },
