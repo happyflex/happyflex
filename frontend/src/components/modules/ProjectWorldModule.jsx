@@ -218,11 +218,22 @@ const ProjectWorldModule = ({ project, onBack }) => {
 
   const completeConnection = (itemId) => {
     if (connectionStart && connectionStart !== itemId) {
+      // Show dialog to select relationship type
+      setConnectionTarget(itemId);
+      setShowRelationshipDialog(true);
+    } else {
+      setIsAddingConnection(false);
+      setConnectionStart(null);
+    }
+  };
+
+  const createConnectionWithType = (type) => {
+    if (connectionStart && connectionTarget) {
       const newConnection = {
         id: `conn-${Date.now()}`,
         from: connectionStart,
-        to: itemId,
-        label: ''
+        to: connectionTarget,
+        type: type
       };
       updateCurrentNodeConnections([...connections, newConnection]);
       toast({
@@ -232,6 +243,8 @@ const ProjectWorldModule = ({ project, onBack }) => {
     }
     setIsAddingConnection(false);
     setConnectionStart(null);
+    setConnectionTarget(null);
+    setShowRelationshipDialog(false);
   };
 
   const bringToFront = (id) => {
