@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, ArrowLeft, Save, Trash2, Link as LinkIcon, X } from 'lucide-react';
+import { Plus, ArrowLeft, Save, Trash2, Link as LinkIcon, X, ChevronRight, ChevronDown, FolderPlus, Home } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
@@ -7,27 +7,42 @@ import { ScrollArea } from '../ui/scroll-area';
 import { toast } from '../../hooks/use-toast';
 
 const ProjectWorldModule = ({ project, onBack }) => {
-  const [items, setItems] = useState([]);
-  const [connections, setConnections] = useState([]);
+  const [structure, setStructure] = useState({ root: { id: 'root', name: 'Hlavní projekt', children: [], items: [], connections: [] } });
+  const [currentPath, setCurrentPath] = useState(['root']);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isAddingConnection, setIsAddingConnection] = useState(false);
   const [connectionStart, setConnectionStart] = useState(null);
   const [showAddMenu, setShowAddMenu] = useState(false);
+  const [showAddSubproject, setShowAddSubproject] = useState(false);
+  const [newSubprojectName, setNewSubprojectName] = useState('');
   const canvasRef = useRef(null);
 
   // Load project data from localStorage
   useEffect(() => {
     const saved = localStorage.getItem(`project_world_${project.id}`);
     if (saved) {
-      const data = JSON.parse(saved);
-      setItems(data.items || []);
-      setConnections(data.connections || []);
+      try {
+        const data = JSON.parse(saved);
+        if (data.structure) {
+          setStructure(data.structure);
+        }
+      } catch (e) {
+        console.error('Error loading project:', e);
+      }
     }
   }, [project.id]);
 
-  // Save to localStorage
+  // Auto-save
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const data = { structure };
+      localStorage.setItem(`project_world_${project.id}`, JSON.stringify(data));
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [structure, project.id]);
+
   const saveProject = () => {
-    const data = { items, connections };
+    const data = { structure };
     localStorage.setItem(`project_world_${project.id}`, JSON.stringify(data));
     toast({
       title: 'Uloženo',
@@ -35,16 +50,19 @@ const ProjectWorldModule = ({ project, onBack }) => {
     });
   };
 
-  // Auto-save
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (items.length > 0 || connections.length > 0) {
-        const data = { items, connections };
-        localStorage.setItem(`project_world_${project.id}`, JSON.stringify(data));
-      }
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, [items, connections, project.id]);
+  // Get current node based on path
+  const getCurrentNode = () => {
+    let node = structure.root;
+    for (let i = 1; i < currentPath.length; i++) {
+      node = node.children.find(child => child.id === currentPath[i]);
+      if (!node) return structure.root;
+    }
+    return node;
+  };
+
+  const currentNode = getCurrentNode();
+  const items = currentNode.items || [];
+  const connections = currentNode.connections || [];
 
   const addItem = (type) => {
     const newItem = {
