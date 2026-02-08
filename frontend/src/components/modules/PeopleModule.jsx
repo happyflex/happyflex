@@ -66,6 +66,16 @@ const PeopleModule = () => {
     }
   }, [people]);
 
+  // Sync selectedPerson with people changes
+  useEffect(() => {
+    if (selectedPerson) {
+      const updatedPerson = people.find(p => p.id === selectedPerson.id);
+      if (updatedPerson) {
+        setSelectedPerson(updatedPerson);
+      }
+    }
+  }, [people]);
+
   const initializeDefaultPeople = () => {
     const defaults = [
       {
