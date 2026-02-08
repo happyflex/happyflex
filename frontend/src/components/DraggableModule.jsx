@@ -4,7 +4,7 @@ import { useWorkspace } from '../context/WorkspaceContext';
 import { Button } from './ui/button';
 import NotesModule from './modules/NotesModule';
 import TasksModule from './modules/TasksModule';
-import ContactsModule from './modules/ContactsModule';
+import PeopleModule from './modules/PeopleModule';
 import ProjectsModule from './modules/ProjectsModule';
 import ChartModule from './modules/ChartModule';
 import TimerModule from './modules/TimerModule';
@@ -12,7 +12,7 @@ import TimerModule from './modules/TimerModule';
 const moduleComponents = {
   notes: NotesModule,
   tasks: TasksModule,
-  contacts: ContactsModule,
+  people: PeopleModule,
   projects: ProjectsModule,
   chart: ChartModule,
   timer: TimerModule
