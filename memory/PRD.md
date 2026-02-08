@@ -154,4 +154,4 @@ project_world_{projectId}: {
 - Testing agent iteration_2: 100% (Modul Lidi)
 
 ## Preview URL
-https://modular-dashboard-8.preview.emergentagent.com
+https://github-happyflex.preview.emergentagent.com
