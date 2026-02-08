@@ -8,9 +8,14 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { ScrollArea } from '../ui/scroll-area';
 import { Badge } from '../ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
+import * as DialogPrimitive from '../ui/dialog';
 import { Checkbox } from '../ui/checkbox';
 import { toast } from '../../hooks/use-toast';
+
+const Dialog = DialogPrimitive.Dialog;
+const DialogContent = DialogPrimitive.DialogContent;
+const DialogHeader = DialogPrimitive.DialogHeader;
+const DialogTitle = DialogPrimitive.DialogTitle;
 
 // Typy osob pro větvení
 const PERSON_TYPES = {
