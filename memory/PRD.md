@@ -10,7 +10,7 @@ Celé rozhraní aplikace je v **češtině**.
 
 ### 1. Modular Dashboard
 - Drag & drop canvas systém
-- Přizpůsobitelné moduly (poznámky, úkoly, kontakty, projekty, časovač, grafy)
+- Přizpůsobitelné moduly (poznámky, úkoly, lidi, projekty, časovač, grafy)
 - Resize, maximize, minimize okna
 - Workspace layouts - ukládání a načítání konfigurace
 
@@ -21,16 +21,37 @@ Celé rozhraní aplikace je v **češtině**.
 
 ### 3. Relationship Logic (Fáze 1 & 2) - IMPLEMENTOVÁNO
 - **ItemDetailPanel**: Pravý panel zobrazující detail vybraného objektu
-  - Sekce "Použito v" - kde se objekt nachází
-  - Sekce "Související s" - propojené objekty s typy vztahů
-  - Sekce "Informace" - ID a typ objektu
 - **RelationshipTypeDialog**: Dialog pro výběr typu vztahu při vytváření spojení
-  - Je součástí (modrá)
-  - Ovlivňuje (fialová)
-  - Závisí na (žlutá)
-  - Blokuje (červená)
-  - Souvisí s (cyan)
 - **SVG Connection Lines**: Vizuální spojnice mezi objekty s popisky typů vztahů
+
+### 4. Modul "Lidi" (People) - NOVĚ IMPLEMENTOVÁNO
+Centrální databáze osob sloužící jako zdroj pro projekty, procesy a plánování práce.
+
+**Základní profil osoby:**
+- Jméno
+- Role v týmu
+- Dovednosti / silné stránky  
+- Dostupnost (Dostupný/Zaneprázdněný/Nepřítomen/Neznámá)
+- Kontaktní údaje (email, telefon)
+
+**Osobní pracovní kontext:**
+- Pro členy týmu: osobní to-do list, kalendář (placeholder)
+- Pro investory/dodavatele/klienty: checklist úkolů vůči té osobě
+
+**Větvení typů osob:**
+- Tým (cyan badge)
+- Dodavatel (oranžová badge)
+- Investor (zelená badge)
+- Klient (fialová badge)
+- Ostatní (šedá badge)
+
+**Funkce:**
+- Vyhledávání osob
+- Filtrování podle typu
+- Sbalitelné/rozbalitelné kategorie
+- Drag & drop ready pro přetažení do projektů/procesů
+- Přidání/editace/mazání osob
+- Persistence do localStorage
 
 ## Tech Stack
 - **Frontend**: React.js, Tailwind CSS, shadcn/ui
@@ -39,19 +60,28 @@ Celé rozhraní aplikace je v **češtině**.
 - **Interaktivity**: react-draggable, custom resize handlers
 
 ## Data Schema (localStorage)
+
 ```javascript
-// Workspace modules
-modules: [{ id, type, position: {x, y}, size: {width, height}, zIndex }]
+// People data
+steward_people: [{
+  id: string,
+  name: string,
+  type: 'team' | 'supplier' | 'investor' | 'client' | 'other',
+  role: string,
+  skills: string[],
+  availability: 'available' | 'busy' | 'away' | 'unknown',
+  email: string,
+  phone: string,
+  todos: [{ id, text, completed }],      // Pro členy týmu
+  calendar: [{ id, title, date, recurring }],  // Pro členy týmu
+  checklist: [{ id, text, completed }]   // Pro ostatní typy
+}]
 
 // Project World data
 project_world_{projectId}: {
   structure: {
     root: {
-      id: 'root',
-      name: 'Hlavní projekt',
-      children: [...subprojects],
-      items: [...canvasItems],
-      connections: [{ id, from, to, type }]
+      id, name, children, items, connections
     }
   }
 }
@@ -62,13 +92,14 @@ project_world_{projectId}: {
 /app/frontend/src/
 ├── components/
 │   ├── modules/
-│   │   ├── ProjectWorldModule.jsx  # Hlavní komponenta Project World
-│   │   ├── ItemDetailPanel.jsx     # Panel detailu objektu
-│   │   ├── RelationshipTypeDialog.jsx  # Dialog typu vztahu
-│   │   ├── ProjectTree.jsx         # Stromová navigace
+│   │   ├── PeopleModule.jsx        # NOVÝ - Modul Lidi
+│   │   ├── ProjectWorldModule.jsx
+│   │   ├── ItemDetailPanel.jsx
+│   │   ├── RelationshipTypeDialog.jsx
 │   │   └── ...other modules
-│   ├── ui/                         # shadcn/ui komponenty
+│   ├── ui/
 │   ├── Canvas.jsx
+│   ├── DraggableModule.jsx
 │   ├── BottomToolbar.jsx
 │   └── ...
 ├── context/
@@ -76,60 +107,51 @@ project_world_{projectId}: {
 └── ...
 ```
 
-## Co bylo implementováno (Prosinec 2025)
+## Co bylo implementováno
 
 ### Session 1 - Core Dashboard
 - [x] Modular dashboard s drag & drop
 - [x] Window management (resize, maximize, fit)
 - [x] Workspace layouts (save/load)
-- [x] Bug fix: text selection during drag
 
 ### Session 2 - Project World MVP
 - [x] Project World jako fullscreen modul
 - [x] Stromová struktura podprojektů
 - [x] Canvas pro přidávání položek
-- [x] Build fix: rekurzivní komponenta
 
 ### Session 3 - Relationship Logic (Fáze 1 & 2)
 - [x] ItemDetailPanel s detaily objektu
 - [x] RelationshipTypeDialog pro výběr typu vztahu
 - [x] SVG spojnice s popisky typů
-- [x] Vylepšená viditelnost spojnic (opacity 0.9, strokeWidth 3)
+
+### Session 4 - Modul Lidi (Prosinec 2025)
+- [x] Přejmenování "Kontakty" na "Lidi"
+- [x] Rozšířený profil osoby (role, dovednosti, dostupnost)
+- [x] Větvení typů: Tým, Dodavatel, Investor, Klient, Ostatní
+- [x] Osobní to-do list pro členy týmu
+- [x] Checklist úkolů vůči externím osobám
+- [x] Vyhledávání a filtrování
+- [x] Drag & drop připraveno pro přetažení do projektů
 
 ## Upcoming Tasks
 
+### P1: Integrace Lidi do Project World
+- Přetažení osoby z modulu Lidi do projektu
+- Vytvoření vztahu "člověk se podílí na procesu"
+- Přiřazení úkolů konkrétním lidem
+
 ### P1: Fáze 3 - Kontextuální projekce
 - Zobrazení relevantních položek z jiných podprojektů
-- Read-only odkazy na související objekty
 
-### P1: Backend implementace
+### P2: Backend implementace
 - Migrace z localStorage na FastAPI + MongoDB
-- API design dle contracts.md
 
-### P2: Sdílení objektů
-- Reference objektů bez duplikace dat
-- Synchronizace změn across podprojektů
-
-### P2: Pokročilé typy obsahu
-- Visual sketchpady
-- Flow diagram editory
-- Embedded média
-
-### P3: Alternativní pohledy
-- High-level dashboard
-- Timeline/roadmap view
-- Grafy a metriky
+### P2: Kalendář pro členy týmu
+- Plná implementace osobního kalendáře
 
 ## Testing Status
-- Testing agent: 95% frontend success rate
-- ItemDetailPanel: PASS
-- RelationshipTypeDialog: PASS
-- SVG connections: PASS (improved visibility)
-- Connection flow: PASS
-
-## Known Issues
-- Žádné kritické issues
-- UX suggestion: Connection lines můžou být ještě výraznější v určitých barevných schématech
+- Testing agent iteration_1: 95% (Relationship Logic)
+- Testing agent iteration_2: 100% (Modul Lidi)
 
 ## Preview URL
 https://modular-dashboard-8.preview.emergentagent.com
