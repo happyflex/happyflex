@@ -204,7 +204,7 @@ const DraggableModule = ({ module }) => {
           <span className="text-sm font-medium text-white">
             {module.type === 'notes' && 'Poznámky'}
             {module.type === 'tasks' && 'Úkoly'}
-            {module.type === 'contacts' && 'Kontakty'}
+            {module.type === 'people' && 'Lidi'}
             {module.type === 'projects' && 'Projekty'}
             {module.type === 'chart' && 'Statistiky'}
             {module.type === 'timer' && 'Časovač'}
