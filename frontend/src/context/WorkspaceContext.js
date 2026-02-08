@@ -22,14 +22,33 @@ export const WorkspaceProvider = ({ children }) => {
   const [timerSeconds, setTimerSeconds] = useState(0);
 
   const addModule = useCallback((type, position = null) => {
+    // Pro modul Projekty použít maximalizovanou velikost
+    const isProjectsModule = type === 'projects';
+    
+    const padding = 16;
+    const rightSidebarWidth = 320;
+    const bottomToolbarHeight = 80;
+    const headerHeight = 64;
+    
+    const defaultSize = isProjectsModule 
+      ? {
+          width: window.innerWidth - rightSidebarWidth - (padding * 2),
+          height: window.innerHeight - headerHeight - bottomToolbarHeight - (padding * 2)
+        }
+      : { width: 400, height: 300 };
+    
+    const defaultPosition = isProjectsModule
+      ? { x: padding, y: padding }
+      : {
+          x: Math.random() * 400 + 100,
+          y: Math.random() * 300 + 100
+        };
+    
     const newModule = {
       id: `module-${Date.now()}`,
       type,
-      position: position || {
-        x: Math.random() * 400 + 100,
-        y: Math.random() * 300 + 100
-      },
-      size: { width: 400, height: 300 },
+      position: position || defaultPosition,
+      size: defaultSize,
       zIndex: modules.length
     };
     setModules(prev => [...prev, newModule]);
