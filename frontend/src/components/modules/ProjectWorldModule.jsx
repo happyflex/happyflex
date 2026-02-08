@@ -1,13 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Plus, ArrowLeft, Save, Trash2, Link as LinkIcon, X, ChevronRight, ChevronDown, FolderPlus, Home } from 'lucide-react';
+import { Plus, ArrowLeft, Save, Trash2, Link as LinkIcon, X, FolderPlus } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { ScrollArea } from '../ui/scroll-area';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { toast } from '../../hooks/use-toast';
+import ProjectTree from './ProjectTree';
 
 const ProjectWorldModule = ({ project, onBack }) => {
-  const [structure, setStructure] = useState({ root: { id: 'root', name: 'Hlavní projekt', children: [], items: [], connections: [] } });
+  const [structure, setStructure] = useState({ 
+    root: { 
+      id: 'root', 
+      name: 'Hlavní projekt', 
+      children: [], 
+      items: [], 
+      connections: [] 
+    } 
+  });
   const [currentPath, setCurrentPath] = useState(['root']);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isAddingConnection, setIsAddingConnection] = useState(false);
@@ -84,7 +94,7 @@ const ProjectWorldModule = ({ project, onBack }) => {
     };
 
     setStructure(prev => {
-      const updated = { ...prev };
+      const updated = JSON.parse(JSON.stringify(prev));
       let node = updated.root;
       for (let i = 1; i < currentPath.length; i++) {
         node = node.children.find(child => child.id === currentPath[i]);
@@ -101,17 +111,27 @@ const ProjectWorldModule = ({ project, onBack }) => {
     });
   };
 
-  // Navigate to subproject
-  const navigateToSubproject = (subprojectId) => {
-    setCurrentPath([...currentPath, subprojectId]);
-    setSelectedItem(null);
-  };
-
-  // Navigate up
-  const navigateUp = () => {
-    if (currentPath.length > 1) {
-      setCurrentPath(currentPath.slice(0, -1));
-      setSelectedItem(null);
+  // Navigate to node
+  const navigateToNode = (nodeId) => {
+    if (nodeId === 'root') {
+      setCurrentPath(['root']);
+    } else {
+      // Find path to node
+      const findPath = (node, targetId, path = ['root']) => {
+        if (node.id === targetId) return path;
+        if (node.children) {
+          for (const child of node.children) {
+            const result = findPath(child, targetId, [...path, child.id]);
+            if (result) return result;
+          }
+        }
+        return null;
+      };
+      const newPath = findPath(structure.root, nodeId);
+      if (newPath) {
+        setCurrentPath(newPath);
+        setSelectedItem(null);
+      }
     }
   };
 
@@ -141,19 +161,6 @@ const ProjectWorldModule = ({ project, onBack }) => {
     });
   };
 
-  const addItem = (type) => {
-    const newItem = {
-      id: `item-${Date.now()}`,
-      type,
-      position: { x: 100 + Math.random() * 200, y: 100 + Math.random() * 200 },
-      size: { width: 300, height: 200 },
-      data: getDefaultData(type),
-      zIndex: items.length
-    };
-    updateCurrentNodeItems([...items, newItem]);
-    setShowAddMenu(false);
-  };
-
   const getDefaultData = (type) => {
     switch (type) {
       case 'note':
@@ -171,6 +178,19 @@ const ProjectWorldModule = ({ project, onBack }) => {
       default:
         return {};
     }
+  };
+
+  const addItem = (type) => {
+    const newItem = {
+      id: `item-${Date.now()}`,
+      type,
+      position: { x: 100 + Math.random() * 200, y: 100 + Math.random() * 200 },
+      size: { width: 300, height: 200 },
+      data: getDefaultData(type),
+      zIndex: items.length
+    };
+    updateCurrentNodeItems([...items, newItem]);
+    setShowAddMenu(false);
   };
 
   const updateItemPosition = (id, position) => {
@@ -210,13 +230,24 @@ const ProjectWorldModule = ({ project, onBack }) => {
     setConnectionStart(null);
   };
 
-  const deleteConnection = (id) => {
-    updateCurrentNodeConnections(connections.filter(conn => conn.id !== id));
-  };
-
   const bringToFront = (id) => {
     const maxZ = Math.max(...items.map(item => item.zIndex), 0);
     updateCurrentNodeItems(items.map(item => item.id === id ? { ...item, zIndex: maxZ + 1 } : item));
+  };
+
+  // Get breadcrumb path
+  const getBreadcrumbs = () => {
+    const crumbs = [];
+    let node = structure.root;
+    crumbs.push({ id: 'root', name: node.name });
+    
+    for (let i = 1; i < currentPath.length; i++) {
+      node = node.children?.find(child => child.id === currentPath[i]);
+      if (node) {
+        crumbs.push({ id: node.id, name: node.name });
+      }
+    }
+    return crumbs;
   };
 
   return (
@@ -234,7 +265,19 @@ const ProjectWorldModule = ({ project, onBack }) => {
           </Button>
           <div>
             <h2 className="text-xl font-bold text-white">{project.name}</h2>
-            <p className="text-sm text-gray-400">Project World</p>
+            <div className="flex items-center gap-1 text-sm text-gray-400">
+              {getBreadcrumbs().map((crumb, index) => (
+                <React.Fragment key={crumb.id}>
+                  {index > 0 && <span className="mx-1">/</span>}
+                  <button
+                    onClick={() => navigateToNode(crumb.id)}
+                    className="hover:text-cyan-400 transition-colors"
+                  >
+                    {crumb.name}
+                  </button>
+                </React.Fragment>
+              ))}
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -248,148 +291,210 @@ const ProjectWorldModule = ({ project, onBack }) => {
         </div>
       </div>
 
-      {/* Canvas */}
-      <div className="flex-1 relative overflow-hidden">
-        <div
-          ref={canvasRef}
-          className="absolute inset-0 bg-gradient-to-br from-[#0a1628] via-[#0d1b3a] to-[#1a1f3a]"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(6, 182, 212, 0.1) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(6, 182, 212, 0.1) 1px, transparent 1px)
-            `,
-            backgroundSize: '40px 40px'
-          }}
-          onClick={(e) => {
-            if (e.target === canvasRef.current) {
-              setSelectedItem(null);
-            }
-          }}
-        >
-          {/* SVG for connections */}
-          <svg className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }}>
-            {connections.map(conn => {
-              const fromItem = items.find(item => item.id === conn.from);
-              const toItem = items.find(item => item.id === conn.to);
-              if (!fromItem || !toItem) return null;
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Sidebar - Tree View */}
+        <div className="w-72 bg-[#0f1d35] border-r border-cyan-500/30 flex flex-col">
+          <div className="p-4 border-b border-cyan-500/20">
+            <h3 className="text-sm font-semibold text-cyan-400 mb-3">Struktura projektu</h3>
+            <Button
+              onClick={() => setShowAddSubproject(true)}
+              size="sm"
+              className="w-full bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
+            >
+              <FolderPlus className="h-4 w-4 mr-2" />
+              Nový podprojekt
+            </Button>
+          </div>
 
-              const fromX = fromItem.position.x + fromItem.size.width / 2;
-              const fromY = fromItem.position.y + fromItem.size.height / 2;
-              const toX = toItem.position.x + toItem.size.width / 2;
-              const toY = toItem.position.y + toItem.size.height / 2;
-
-              return (
-                <g key={conn.id}>
-                  <line
-                    x1={fromX}
-                    y1={fromY}
-                    x2={toX}
-                    y2={toY}
-                    stroke="#06b6d4"
-                    strokeWidth="2"
-                    strokeDasharray="5,5"
-                    opacity="0.6"
-                  />
-                  <circle cx={fromX} cy={fromY} r="4" fill="#06b6d4" />
-                  <circle cx={toX} cy={toY} r="4" fill="#06b6d4" />
-                </g>
-              );
-            })}
-          </svg>
-
-          {/* Items */}
-          {items.map(item => (
-            <ProjectItem
-              key={item.id}
-              item={item}
-              isSelected={selectedItem === item.id}
-              isConnecting={isAddingConnection}
-              onSelect={() => {
-                setSelectedItem(item.id);
-                bringToFront(item.id);
-              }}
-              onMove={updateItemPosition}
-              onUpdate={updateItemData}
-              onDelete={deleteItem}
-              onConnect={isAddingConnection ? completeConnection : startConnection}
+          <ScrollArea className="flex-1 p-2">
+            <ProjectTree
+              node={structure.root}
+              currentPath={currentPath}
+              onNavigate={navigateToNode}
+              level={0}
             />
-          ))}
-
-          {/* Empty state */}
-          {items.length === 0 && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <div className="w-20 h-20 mx-auto mb-4 bg-cyan-500/10 rounded-2xl flex items-center justify-center">
-                  <Plus className="h-10 w-10 text-cyan-400" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2">Prázdný Project Canvas</h3>
-                <p className="text-gray-400 mb-4">Začněte přidáním prvního elementu</p>
-              </div>
-            </div>
-          )}
+          </ScrollArea>
         </div>
 
-        {/* Add Menu FAB */}
-        <div className="absolute bottom-8 right-8">
-          {showAddMenu && (
-            <div className="absolute bottom-20 right-0 bg-[#0f1d35] border border-cyan-500/30 rounded-lg p-2 shadow-2xl mb-2 w-64">
-              <div className="space-y-1">
-                <button
-                  onClick={() => addItem('note')}
-                  className="w-full text-left px-4 py-3 hover:bg-cyan-500/10 rounded text-white text-sm"
-                >
-                  📝 Poznámka
-                </button>
-                <button
-                  onClick={() => addItem('task')}
-                  className="w-full text-left px-4 py-3 hover:bg-cyan-500/10 rounded text-white text-sm"
-                >
-                  ✅ Úkol
-                </button>
-                <button
-                  onClick={() => addItem('contact')}
-                  className="w-full text-left px-4 py-3 hover:bg-cyan-500/10 rounded text-white text-sm"
-                >
-                  👤 Kontakt
-                </button>
-                <button
-                  onClick={() => addItem('milestone')}
-                  className="w-full text-left px-4 py-3 hover:bg-cyan-500/10 rounded text-white text-sm"
-                >
-                  🎯 Milestone
-                </button>
-                <button
-                  onClick={() => addItem('media')}
-                  className="w-full text-left px-4 py-3 hover:bg-cyan-500/10 rounded text-white text-sm"
-                >
-                  🖼️ Media (placeholder)
-                </button>
-                <button
-                  onClick={() => addItem('flow')}
-                  className="w-full text-left px-4 py-3 hover:bg-cyan-500/10 rounded text-white text-sm"
-                >
-                  🔄 Flow Diagram (placeholder)
-                </button>
-              </div>
-            </div>
-          )}
-          <Button
-            onClick={() => setShowAddMenu(!showAddMenu)}
-            className="h-16 w-16 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 shadow-lg shadow-cyan-500/50"
+        {/* Canvas */}
+        <div className="flex-1 relative overflow-hidden">
+          <div
+            ref={canvasRef}
+            className="absolute inset-0 bg-gradient-to-br from-[#0a1628] via-[#0d1b3a] to-[#1a1f3a]"
+            style={{
+              backgroundImage: `
+                linear-gradient(rgba(6, 182, 212, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(6, 182, 212, 0.1) 1px, transparent 1px)
+              `,
+              backgroundSize: '40px 40px'
+            }}
+            onClick={(e) => {
+              if (e.target === canvasRef.current) {
+                setSelectedItem(null);
+              }
+            }}
           >
-            {showAddMenu ? <X className="h-6 w-6" /> : <Plus className="h-6 w-6" />}
-          </Button>
+            {/* SVG for connections */}
+            <svg className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }}>
+              {connections.map(conn => {
+                const fromItem = items.find(item => item.id === conn.from);
+                const toItem = items.find(item => item.id === conn.to);
+                if (!fromItem || !toItem) return null;
+
+                const fromX = fromItem.position.x + fromItem.size.width / 2;
+                const fromY = fromItem.position.y + fromItem.size.height / 2;
+                const toX = toItem.position.x + toItem.size.width / 2;
+                const toY = toItem.position.y + toItem.size.height / 2;
+
+                return (
+                  <g key={conn.id}>
+                    <line
+                      x1={fromX}
+                      y1={fromY}
+                      x2={toX}
+                      y2={toY}
+                      stroke="#06b6d4"
+                      strokeWidth="2"
+                      strokeDasharray="5,5"
+                      opacity="0.6"
+                    />
+                    <circle cx={fromX} cy={fromY} r="4" fill="#06b6d4" />
+                    <circle cx={toX} cy={toY} r="4" fill="#06b6d4" />
+                  </g>
+                );
+              })}
+            </svg>
+
+            {/* Items */}
+            {items.map(item => (
+              <ProjectItem
+                key={item.id}
+                item={item}
+                isSelected={selectedItem === item.id}
+                isConnecting={isAddingConnection}
+                onSelect={() => {
+                  setSelectedItem(item.id);
+                  bringToFront(item.id);
+                }}
+                onMove={updateItemPosition}
+                onUpdate={updateItemData}
+                onDelete={deleteItem}
+                onConnect={isAddingConnection ? completeConnection : startConnection}
+              />
+            ))}
+
+            {/* Empty state */}
+            {items.length === 0 && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="w-20 h-20 mx-auto mb-4 bg-cyan-500/10 rounded-2xl flex items-center justify-center">
+                    <Plus className="h-10 w-10 text-cyan-400" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">{currentNode.name}</h3>
+                  <p className="text-gray-400 mb-4">Začněte přidáním prvního elementu</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Add Menu FAB */}
+          <div className="absolute bottom-8 right-8">
+            {showAddMenu && (
+              <div className="absolute bottom-20 right-0 bg-[#0f1d35] border border-cyan-500/30 rounded-lg p-2 shadow-2xl mb-2 w-64">
+                <div className="space-y-1">
+                  <button
+                    onClick={() => addItem('note')}
+                    className="w-full text-left px-4 py-3 hover:bg-cyan-500/10 rounded text-white text-sm"
+                  >
+                    📝 Poznámka
+                  </button>
+                  <button
+                    onClick={() => addItem('task')}
+                    className="w-full text-left px-4 py-3 hover:bg-cyan-500/10 rounded text-white text-sm"
+                  >
+                    ✅ Úkol
+                  </button>
+                  <button
+                    onClick={() => addItem('contact')}
+                    className="w-full text-left px-4 py-3 hover:bg-cyan-500/10 rounded text-white text-sm"
+                  >
+                    👤 Kontakt
+                  </button>
+                  <button
+                    onClick={() => addItem('milestone')}
+                    className="w-full text-left px-4 py-3 hover:bg-cyan-500/10 rounded text-white text-sm"
+                  >
+                    🎯 Milestone
+                  </button>
+                  <button
+                    onClick={() => addItem('media')}
+                    className="w-full text-left px-4 py-3 hover:bg-cyan-500/10 rounded text-white text-sm"
+                  >
+                    🖼️ Media (placeholder)
+                  </button>
+                  <button
+                    onClick={() => addItem('flow')}
+                    className="w-full text-left px-4 py-3 hover:bg-cyan-500/10 rounded text-white text-sm"
+                  >
+                    🔄 Flow Diagram (placeholder)
+                  </button>
+                </div>
+              </div>
+            )}
+            <Button
+              onClick={() => setShowAddMenu(!showAddMenu)}
+              className="h-16 w-16 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 shadow-lg shadow-cyan-500/50"
+            >
+              {showAddMenu ? <X className="h-6 w-6" /> : <Plus className="h-6 w-6" />}
+            </Button>
+          </div>
         </div>
       </div>
+
+      {/* Add Subproject Dialog */}
+      <Dialog open={showAddSubproject} onOpenChange={setShowAddSubproject}>
+        <DialogContent className="bg-[#0f1d35] border-cyan-500/30">
+          <DialogHeader>
+            <DialogTitle className="text-white">Nový podprojekt</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              placeholder="např. Marketing, Produkt, Finance..."
+              value={newSubprojectName}
+              onChange={(e) => setNewSubprojectName(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && addSubproject()}
+              className="bg-[#0a1628] border-cyan-500/30 text-white"
+              autoFocus
+            />
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setShowAddSubproject(false);
+                  setNewSubprojectName('');
+                }}
+                className="text-gray-400"
+              >
+                Zrušit
+              </Button>
+              <Button
+                onClick={addSubproject}
+                className="bg-cyan-500 hover:bg-cyan-400 text-white"
+              >
+                Vytvořit
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
-// ProjectItem component
+// ProjectItem component (zůstává stejný jako předtím)
 const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdate, onDelete, onConnect }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [isEditing, setIsEditing] = useState(false);
   const itemRef = useRef(null);
 
   const handleMouseDown = (e) => {
