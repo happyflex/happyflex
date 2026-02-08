@@ -466,7 +466,34 @@ const ProjectWorldModule = ({ project, onBack }) => {
             </Button>
           </div>
         </div>
+
+        {/* Right Panel - Item Detail (FÁZE 1) */}
+        {selectedItem && (
+          <ItemDetailPanel
+            item={items.find(i => i.id === selectedItem)}
+            connections={connections}
+            allItems={items}
+            currentPath={currentPath}
+            structure={structure}
+            onClose={() => setSelectedItem(null)}
+            onNavigate={navigateToNode}
+          />
+        )}
       </div>
+
+      {/* Relationship Type Dialog (FÁZE 2) */}
+      <RelationshipTypeDialog
+        isOpen={showRelationshipDialog}
+        onClose={() => {
+          setShowRelationshipDialog(false);
+          setIsAddingConnection(false);
+          setConnectionStart(null);
+          setConnectionTarget(null);
+        }}
+        onSelect={createConnectionWithType}
+        fromItem={items.find(i => i.id === connectionStart)}
+        toItem={items.find(i => i.id === connectionTarget)}
+      />
 
       {/* Add Subproject Dialog */}
       <Dialog open={showAddSubproject} onOpenChange={setShowAddSubproject}>
