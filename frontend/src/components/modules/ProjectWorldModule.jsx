@@ -398,33 +398,31 @@ const ProjectWorldModule = ({ project, onBack }) => {
                       x2={toX}
                       y2={toY}
                       stroke={relType.color}
-                      strokeWidth="2"
-                      strokeDasharray="5,5"
-                      opacity="0.7"
+                      strokeWidth="3"
+                      opacity="0.9"
                       markerEnd="url(#arrowhead)"
                     />
                     {/* Connection points */}
-                    <circle cx={fromX} cy={fromY} r="5" fill={relType.color} />
-                    <circle cx={toX} cy={toY} r="5" fill={relType.color} />
+                    <circle cx={fromX} cy={fromY} r="6" fill={relType.color} />
+                    <circle cx={toX} cy={toY} r="6" fill={relType.color} />
                     {/* Relationship type label */}
                     <rect
-                      x={midX - 35}
-                      y={midY - 10}
-                      width="70"
-                      height="20"
-                      rx="4"
-                      fill="#0f1d35"
+                      x={midX - 40}
+                      y={midY - 12}
+                      width="80"
+                      height="24"
+                      rx="6"
+                      fill="#0a1628"
                       stroke={relType.color}
-                      strokeWidth="1"
-                      opacity="0.95"
+                      strokeWidth="2"
                     />
                     <text
                       x={midX}
-                      y={midY + 4}
+                      y={midY + 5}
                       textAnchor="middle"
                       fill={relType.color}
-                      fontSize="10"
-                      fontWeight="500"
+                      fontSize="12"
+                      fontWeight="600"
                     >
                       {relType.label}
                     </text>
