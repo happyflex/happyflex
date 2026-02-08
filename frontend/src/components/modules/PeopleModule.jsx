@@ -70,10 +70,11 @@ const PeopleModule = () => {
   useEffect(() => {
     if (selectedPerson) {
       const updatedPerson = people.find(p => p.id === selectedPerson.id);
-      if (updatedPerson) {
+      if (updatedPerson && JSON.stringify(updatedPerson) !== JSON.stringify(selectedPerson)) {
         setSelectedPerson(updatedPerson);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [people]);
 
   const initializeDefaultPeople = () => {
