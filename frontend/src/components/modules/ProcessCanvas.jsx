@@ -123,7 +123,7 @@ const ProcessCanvas = ({ process, plan, goal, onClose, onUpdate }) => {
   };
 
   // Add keyboard listener for ESC key to cancel connection
-  React.useEffect(() => {
+  useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && connectionStart) {
         setConnectionStart(null);
