@@ -420,32 +420,45 @@ const StepNode = ({
 
         {/* Actions */}
         <div className="flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Button
-            size="icon"
-            variant="ghost"
-            className="h-6 w-6"
-            onClick={(e) => { e.stopPropagation(); onEdit(); }}
-          >
-            <Edit2 className="h-3 w-3" />
-          </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            className="h-6 w-6"
-            onClick={(e) => { e.stopPropagation(); onConnectionStart(); }}
-            title="Vytvořit propojení"
-          >
-            <GitBranch className="h-3 w-3" />
-          </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            className="h-6 w-6 text-red-400"
-            onClick={(e) => { e.stopPropagation(); onDelete(); }}
-          >
-            <Trash2 className="h-3 w-3" />
-          </Button>
+          {!isConnectionMode && (
+            <>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-6 w-6"
+                onClick={(e) => { e.stopPropagation(); onEdit(); }}
+              >
+                <Edit2 className="h-3 w-3" />
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-6 w-6"
+                onClick={(e) => { e.stopPropagation(); onConnectionStart(); }}
+                title="Vytvořit propojení"
+              >
+                <GitBranch className="h-3 w-3" />
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-6 w-6 text-red-400"
+                onClick={(e) => { e.stopPropagation(); onDelete(); }}
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </>
+          )}
         </div>
+
+        {/* Connection mode hint */}
+        {isConnectionMode && !isConnectionStart && (
+          <div className="mt-2 text-center">
+            <p className="text-xs text-green-400 font-semibold animate-pulse">
+              Klikněte pro propojení
+            </p>
+          </div>
+        )}
 
         {/* Connection target */}
         {isConnectionStart && (
