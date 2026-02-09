@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { 
   ArrowLeft, Plus, Trash2, Edit2, Save, GitBranch,
   Circle, Square, Diamond, Users, Target, FileText,
-  Lightbulb, GripVertical
+  Lightbulb, GripVertical, X
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
