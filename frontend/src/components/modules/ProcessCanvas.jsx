@@ -185,9 +185,20 @@ const ProcessCanvas = ({ process, plan, goal, onClose, onUpdate }) => {
             Přidat krok
           </Button>
           {connectionStart && (
-            <Badge variant="outline" className="text-xs text-orange-400 border-orange-500/40 animate-pulse">
-              Klikněte na cílový krok pro propojení
-            </Badge>
+            <>
+              <Badge variant="outline" className="text-xs text-orange-400 border-orange-500/40 animate-pulse">
+                Klikněte na cílový krok pro propojení
+              </Badge>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={cancelConnection}
+                className="text-xs text-red-400 hover:text-red-300 h-7"
+              >
+                <X className="h-3 w-3 mr-1" />
+                Zrušit (ESC)
+              </Button>
+            </>
           )}
         </div>
       </div>
