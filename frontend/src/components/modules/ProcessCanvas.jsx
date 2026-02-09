@@ -312,6 +312,7 @@ const StepNode = ({
   isSelected, 
   isEditing, 
   isConnectionStart,
+  isConnectionMode,
   onSelect, 
   onEdit, 
   onSave, 
@@ -326,6 +327,15 @@ const StepNode = ({
   const [editData, setEditData] = useState({ name: step.name, description: step.description, type: step.type });
   const typeInfo = STEP_TYPES[step.type];
   const TypeIcon = typeInfo.icon;
+
+  // Handle click - if in connection mode, complete connection, otherwise select
+  const handleClick = () => {
+    if (isConnectionMode && !isConnectionStart) {
+      onConnectionEnd();
+    } else if (!isConnectionMode) {
+      onSelect();
+    }
+  };
 
   if (isEditing) {
     return (
