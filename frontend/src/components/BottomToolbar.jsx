@@ -14,7 +14,8 @@ import {
   Clock, 
   Video,
   Sparkles,
-  Layers
+  Layers,
+  Target
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { useWorkspace } from '../context/WorkspaceContext';
@@ -28,6 +29,7 @@ const toolbarItems = [
   { id: 'timer', icon: Timer, label: 'Časovač', type: 'timer' },
   { id: 'search', icon: Search, label: 'Hledat', type: 'search' },
   { id: 'edit', icon: Edit3, label: 'Poznámky', type: 'notes' },
+  { id: 'goals', icon: Target, label: 'Cíle', type: 'goals' },
   { id: 'trend', icon: TrendingUp, label: 'Projekty', type: 'projects' },
   { id: 'file', icon: FileText, label: 'Úkoly', type: 'tasks' },
   { id: 'people', icon: Users, label: 'Lidi', type: 'people' },
@@ -43,7 +45,7 @@ const BottomToolbar = () => {
   const [layoutManagerOpen, setLayoutManagerOpen] = useState(false);
 
   const handleToolClick = (item) => {
-    if (['notes', 'tasks', 'people', 'projects', 'chart', 'timer'].includes(item.type)) {
+    if (['notes', 'tasks', 'people', 'projects', 'goals', 'chart', 'timer'].includes(item.type)) {
       addModule(item.type);
       toast({
         title: 'Modul přidán',
