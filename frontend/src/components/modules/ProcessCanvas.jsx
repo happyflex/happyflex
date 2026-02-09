@@ -126,7 +126,7 @@ const ProcessCanvas = ({ process, plan, goal, onClose, onUpdate }) => {
   React.useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && connectionStart) {
-        cancelConnection();
+        setConnectionStart(null);
         toast({ title: 'Propojení zrušeno' });
       }
     };
