@@ -118,6 +118,22 @@ const ProcessCanvas = ({ process, plan, goal, onClose, onUpdate }) => {
     setDraggedStep(null);
   };
 
+  const cancelConnection = () => {
+    setConnectionStart(null);
+  };
+
+  // Add keyboard listener for ESC key to cancel connection
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && connectionStart) {
+        cancelConnection();
+        toast({ title: 'Propojení zrušeno' });
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [connectionStart]);
+
   return (
     <div className="h-full flex flex-col bg-transparent">
       {/* Top Bar */}
