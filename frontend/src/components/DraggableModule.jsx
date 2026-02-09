@@ -6,6 +6,7 @@ import NotesModule from './modules/NotesModule';
 import TasksModule from './modules/TasksModule';
 import PeopleModule from './modules/PeopleModule';
 import ProjectsModule from './modules/ProjectsModule';
+import GoalsModule from './modules/GoalsModule';
 import ChartModule from './modules/ChartModule';
 import TimerModule from './modules/TimerModule';
 
@@ -14,6 +15,7 @@ const moduleComponents = {
   tasks: TasksModule,
   people: PeopleModule,
   projects: ProjectsModule,
+  goals: GoalsModule,
   chart: ChartModule,
   timer: TimerModule
 };
