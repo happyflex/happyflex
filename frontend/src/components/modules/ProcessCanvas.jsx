@@ -385,15 +385,17 @@ const StepNode = ({
 
   return (
     <div
-      draggable
+      draggable={!isConnectionMode}
       onDragStart={onDragStart}
       onDrag={onDrag}
       onDragEnd={onDragEnd}
-      onClick={onSelect}
+      onClick={handleClick}
       className={`
-        absolute group cursor-move
+        absolute group
+        ${isConnectionMode ? 'cursor-pointer' : 'cursor-move'}
         ${isSelected ? 'z-10' : 'z-0'}
         ${isConnectionStart ? 'ring-2 ring-orange-400 animate-pulse' : ''}
+        ${isConnectionMode && !isConnectionStart ? 'ring-2 ring-green-400 hover:ring-4' : ''}
       `}
       style={{ 
         left: step.position.x, 
