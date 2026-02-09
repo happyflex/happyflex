@@ -279,6 +279,7 @@ const ProcessCanvas = ({ process, plan, goal, onClose, onUpdate }) => {
               isSelected={selectedStep?.id === step.id}
               isEditing={editingStep === step.id}
               isConnectionStart={connectionStart === step.id}
+              isConnectionMode={connectionStart !== null}
               onSelect={() => setSelectedStep(step)}
               onEdit={() => setEditingStep(step.id)}
               onSave={(updates) => updateStep(step.id, updates)}
