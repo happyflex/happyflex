@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   ArrowLeft, Plus, Trash2, Edit2, Save, GitBranch,
   Circle, Square, Diamond, Users, Target, FileText,
