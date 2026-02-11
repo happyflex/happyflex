@@ -22,6 +22,7 @@ export const WorkspaceProvider = ({ children }) => {
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [activeWorkzone, setActiveWorkzone] = useState(null); // Start with no workzone (basic mode)
   const [focusedModuleId, setFocusedModuleId] = useState(null); // For focus mode
+  const [snapPreview, setSnapPreview] = useState(null); // For snap preview visualization
 
   const addModule = useCallback((type, position = null, snapLayout = null) => {
     // Pro modul Projekty použít maximalizovanou velikost
