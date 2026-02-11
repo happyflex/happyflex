@@ -8,7 +8,7 @@ import {
   Video,
   Sparkles,
   Layers,
-  Crosshair,
+  Target,
   GitBranch,
   Layout,
   ListChecks
