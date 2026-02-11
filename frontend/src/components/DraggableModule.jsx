@@ -241,21 +241,16 @@ const DraggableModule = ({ module }) => {
       <div className="resize-handle absolute right-0 top-3 bottom-3 w-1 cursor-e-resize" onMouseDown={(e) => handleResizeStart(e, 'e')} />
 
       <div
-        className="h-12 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-b border-cyan-500/30 flex items-center justify-between px-4 select-none"
+        className={`
+          h-12 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-b border-cyan-500/30 
+          flex items-center justify-between px-4 select-none transition-all
+          ${isShiftPressed ? 'cursor-grab active:cursor-grabbing ring-2 ring-cyan-400' : 'cursor-move'}
+        `}
         onMouseDown={handleMouseDown}
+        draggable="true"
+        onDragStart={handleDragStart}
       >
         <div className="flex items-center gap-2">
-          {/* Drag to CANVAS handle */}
-          <div 
-            className="drag-to-canvas-handle cursor-grab active:cursor-grabbing p-1 hover:bg-cyan-500/20 rounded transition-colors"
-            draggable="true"
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-            title="Přetáhni do CANVAS"
-          >
-            <GripVertical className="h-4 w-4 text-gray-400 hover:text-cyan-400" />
-          </div>
-          
           <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
           <span className="text-sm font-medium text-white">
             {module.type === 'notes' && 'Poznámky'}
@@ -267,6 +262,11 @@ const DraggableModule = ({ module }) => {
             {module.type === 'chart' && 'Statistiky'}
             {module.type === 'timer' && 'Časovač'}
           </span>
+          {isShiftPressed && (
+            <span className="text-xs text-cyan-400 animate-pulse ml-2">
+              → Přesuň do CANVAS
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-1">
           <Button
