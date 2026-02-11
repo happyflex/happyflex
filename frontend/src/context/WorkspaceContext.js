@@ -96,6 +96,19 @@ export const WorkspaceProvider = ({ children }) => {
     }
   }, [deferredModules]);
 
+  const removeFromCanvas = useCallback((id) => {
+    setDeferredModules(prev => prev.filter(m => m.id !== id));
+  }, []);
+
+  const reorderCanvasModule = useCallback((fromIndex, toIndex) => {
+    setDeferredModules(prev => {
+      const newOrder = [...prev];
+      const [moved] = newOrder.splice(fromIndex, 1);
+      newOrder.splice(toIndex, 0, moved);
+      return newOrder;
+    });
+  }, []);
+
   const addNote = useCallback((note) => {
     setNotes(prev => [...prev, { ...note, id: Date.now().toString(), createdAt: new Date().toISOString() }]);
   }, []);
