@@ -151,7 +151,7 @@ const CursorHUD = () => {
         {/* Main segmented ring */}
         {Object.entries(segments).map(([key, { start, end }]) => {
           const isActive = activeSegment === key;
-          const baseOpacity = isDragging ? 0.3 : 0.15;
+          const baseOpacity = isDraggingWindow ? 0.3 : 0.15;
           const activeOpacity = 0.9;
           
           return (
