@@ -152,20 +152,19 @@ const RightSidebar = () => {
                     ${draggedModule?.index === index ? 'opacity-50' : ''}
                   `}
                 >
-                  <div className="flex items-center gap-2 pointer-events-none">
+                  <div className="flex items-center gap-2">
                     {/* Drag handle */}
-                    <div className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                       <GripVertical className="h-4 w-4" />
                     </div>
 
                     {/* Module name */}
-                    <span className="flex-1 text-sm text-white">
+                    <span className="flex-1 text-sm text-white pointer-events-none">
                       {MODULE_LABELS[module.type] || module.type}
                     </span>
-                  </div>
 
-                  {/* Controls */}
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto absolute right-3 top-3">
+                    {/* Controls */}
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto">
                       {/* Move up */}
                       <Button
                         variant="ghost"
@@ -198,6 +197,7 @@ const RightSidebar = () => {
                         <X className="h-3 w-3" />
                       </Button>
                     </div>
+                  </div>
                 </div>
               ))}
             </div>
