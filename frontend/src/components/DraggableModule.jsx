@@ -257,7 +257,7 @@ const DraggableModule = ({ module }) => {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 pointer-events-none">
           <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
           <span className="text-sm font-medium text-white">
             {module.type === 'notes' && 'Poznámky'}
