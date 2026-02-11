@@ -164,6 +164,46 @@ export const WorkspaceProvider = ({ children }) => {
     });
   }, []);
 
+  // Toggle pin mode for a module
+  const togglePinMode = useCallback((id) => {
+    setModules(prev => prev.map(m => {
+      if (m.id === id) {
+        const currentMode = m.pinMode || 'none';
+        const nextMode = currentMode === 'none' ? 'lock' : currentMode === 'lock' ? 'top' : 'none';
+        return { ...m, pinMode: nextMode };
+      }
+      return m;
+    }));
+  }, []);
+
+  // Set focus mode
+  const setFocusMode = useCallback((id) => {
+    setFocusedModuleId(id);
+  }, []);
+
+  // Clear focus mode
+  const clearFocusMode = useCallback(() => {
+    setFocusedModuleId(null);
+  }, []);
+
+  // Snap module to layout
+  const snapToLayout = useCallback((id, layoutKey) => {
+    const padding = 16;
+    const rightSidebarWidth = 320;
+    const bottomToolbarHeight = 80;
+    const availableWidth = window.innerWidth - rightSidebarWidth - (padding * 2);
+    const availableHeight = window.innerHeight - bottomToolbarHeight - (padding * 2);
+    
+    const snapLayouts = getSnapLayouts(availableWidth, availableHeight, padding);
+    const layout = snapLayouts[layoutKey];
+    
+    if (layout) {
+      setModules(prev => prev.map(m => 
+        m.id === id ? { ...m, position: layout.position, size: layout.size } : m
+      ));
+    }
+  }, []);
+
   const addNote = useCallback((note) => {
     setNotes(prev => [...prev, { ...note, id: Date.now().toString(), createdAt: new Date().toISOString() }]);
   }, []);
