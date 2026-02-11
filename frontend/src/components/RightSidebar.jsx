@@ -198,7 +198,6 @@ const RightSidebar = () => {
                         <X className="h-3 w-3" />
                       </Button>
                     </div>
-                  </div>
                 </div>
               ))}
             </div>
