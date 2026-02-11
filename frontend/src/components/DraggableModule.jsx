@@ -227,6 +227,7 @@ const DraggableModule = ({ module }) => {
         
         // Detect snap zone during drag
         const zone = getSnapZone(e.clientX, e.clientY, window.innerWidth, window.innerHeight);
+        setCurrentSnapZone(zone);
         setSnapPreview(zone);
         
         updateModulePosition(module.id, {
