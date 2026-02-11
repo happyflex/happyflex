@@ -68,18 +68,31 @@ const RightSidebar = () => {
     setIsDragOver(false);
     try {
       const data = JSON.parse(e.dataTransfer.getData('application/json'));
+      // Only handle workspace-to-canvas drops, let others propagate
       if (data.type === 'workspace-to-canvas' && data.moduleId) {
         deferModule(data.moduleId);
       }
+      // If it's canvas-to-workspace, don't handle it here (let it drop to Canvas/Workspace)
     } catch (error) {
       console.error('Drop error:', error);
     }
   };
 
   const handleSidebarDragOver = (e) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    setIsDragOver(true);
+    // Check if this is a workspace-to-canvas drag
+    try {
+      const types = e.dataTransfer.types;
+      if (types.includes('application/json')) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        setIsDragOver(true);
+      }
+    } catch (error) {
+      // Can't read data during dragover, just allow it
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      setIsDragOver(true);
+    }
   };
 
   const handleDragLeave = (e) => {
