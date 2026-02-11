@@ -24,6 +24,8 @@ const moduleComponents = {
 
 // Snap zone detection threshold in pixels
 const SNAP_THRESHOLD = 50;
+// Magnetism threshold - how close modules need to be to snap together
+const MAGNET_THRESHOLD = 15;
 
 // Calculate snap zones based on current window size
 const getSnapZone = (x, y, windowWidth, windowHeight) => {
@@ -60,6 +62,46 @@ const getSnapZone = (x, y, windowWidth, windowHeight) => {
   }
   
   return null;
+};
+
+// Calculate magnetic snapping to other modules
+const getMagneticPosition = (currentModule, allModules, newX, newY) => {
+  let magnetX = newX;
+  let magnetY = newY;
+  
+  const currentRight = newX + currentModule.size.width;
+  const currentBottom = newY + currentModule.size.height;
+  
+  for (const other of allModules) {
+    if (other.id === currentModule.id) continue;
+    
+    const otherRight = other.position.x + other.size.width;
+    const otherBottom = other.position.y + other.size.height;
+    
+    // Horizontal alignment (left-to-left, right-to-right, left-to-right, right-to-left)
+    if (Math.abs(newX - other.position.x) < MAGNET_THRESHOLD) {
+      magnetX = other.position.x; // Align left edges
+    } else if (Math.abs(currentRight - otherRight) < MAGNET_THRESHOLD) {
+      magnetX = otherRight - currentModule.size.width; // Align right edges
+    } else if (Math.abs(newX - otherRight) < MAGNET_THRESHOLD) {
+      magnetX = otherRight; // Snap left to right
+    } else if (Math.abs(currentRight - other.position.x) < MAGNET_THRESHOLD) {
+      magnetX = other.position.x - currentModule.size.width; // Snap right to left
+    }
+    
+    // Vertical alignment (top-to-top, bottom-to-bottom, top-to-bottom, bottom-to-top)
+    if (Math.abs(newY - other.position.y) < MAGNET_THRESHOLD) {
+      magnetY = other.position.y; // Align top edges
+    } else if (Math.abs(currentBottom - otherBottom) < MAGNET_THRESHOLD) {
+      magnetY = otherBottom - currentModule.size.height; // Align bottom edges
+    } else if (Math.abs(newY - otherBottom) < MAGNET_THRESHOLD) {
+      magnetY = otherBottom; // Snap top to bottom
+    } else if (Math.abs(currentBottom - other.position.y) < MAGNET_THRESHOLD) {
+      magnetY = other.position.y - currentModule.size.height; // Snap bottom to top
+    }
+  }
+  
+  return { x: magnetX, y: magnetY };
 };
 
 const DraggableModule = ({ module }) => {
