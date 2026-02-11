@@ -13,7 +13,8 @@ import {
   Layout,
   ListChecks,
   Zap,
-  Calendar
+  Calendar,
+  Music
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { useWorkspace } from '../context/WorkspaceContext';
