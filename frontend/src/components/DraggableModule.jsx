@@ -10,6 +10,7 @@ import GoalsModule from './modules/GoalsModule';
 import ProcessesModule from './modules/ProcessesModule';
 import ChartModule from './modules/ChartModule';
 import TimerModule from './modules/TimerModule';
+import CalendarModule from './modules/CalendarModule';
 
 const moduleComponents = {
   notes: NotesModule,
@@ -19,7 +20,8 @@ const moduleComponents = {
   goals: GoalsModule,
   processes: ProcessesModule,
   chart: ChartModule,
-  timer: TimerModule
+  timer: TimerModule,
+  calendar: CalendarModule
 };
 
 // Snap zone detection threshold in pixels
