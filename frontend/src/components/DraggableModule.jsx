@@ -266,6 +266,11 @@ const DraggableModule = ({ module }) => {
     };
 
     const handleMouseUp = () => {
+      // Apply snap if preview is active
+      if (isDragging && snapPreview) {
+        snapToLayout(module.id, snapPreview);
+        setSnapPreview(null);
+      }
       setIsDragging(false);
       setIsResizing(false);
       setResizeHandle(null);
