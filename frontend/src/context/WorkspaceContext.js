@@ -110,30 +110,6 @@ export const WorkspaceProvider = ({ children }) => {
     };
   }, []);
 
-  const defaultSize = isProjectsModule 
-      ? {
-          width: window.innerWidth - rightSidebarWidth - (padding * 2),
-          height: window.innerHeight - headerHeight - bottomToolbarHeight - (padding * 2)
-        }
-      : { width: 400, height: 300 };
-    
-    const defaultPosition = isProjectsModule
-      ? { x: padding, y: padding }
-      : {
-          x: Math.random() * 400 + 100,
-          y: Math.random() * 300 + 100
-        };
-    
-    const newModule = {
-      id: `module-${Date.now()}`,
-      type,
-      position: position || defaultPosition,
-      size: defaultSize,
-      zIndex: modules.length
-    };
-    setModules(prev => [...prev, newModule]);
-  }, [modules.length]);
-
   const removeModule = useCallback((id) => {
     setModules(prev => prev.filter(m => m.id !== id));
   }, []);
