@@ -22,7 +22,7 @@ const toolbarItems = [
   { id: 'chart', icon: BarChart3, label: 'Graf', type: 'chart' },
   { id: 'timer', icon: Timer, label: 'Časovač', type: 'timer' },
   { id: 'edit', icon: Edit3, label: 'Poznámky', type: 'notes' },
-  { id: 'goals', icon: Crosshair, label: 'Cíle', type: 'goals' },
+  { id: 'goals', icon: Target, label: 'Cíle', type: 'goals' },
   { id: 'processes', icon: GitBranch, label: 'Procesy', type: 'processes' },
   { id: 'trend', icon: Layout, label: 'Projekty', type: 'projects' },
   { id: 'file', icon: ListChecks, label: 'Úkoly', type: 'tasks' },
