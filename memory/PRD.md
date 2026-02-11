@@ -172,13 +172,23 @@ project_world_{projectId}: {
 
 ### Session 7 - Modul Kalendář (Únor 2026)
 - [x] Nový modul Kalendář přidán do workspace
-- [x] Tři pohledy: Denní, Týdenní, Měsíční
+- [x] Tři pohledy: Denní, Týdenní (výchozí), Měsíční
 - [x] Události s atributy: název, datum/čas, typ (schůzka/fokus/deadline/připomínka), projekt
 - [x] CRUD operace: vytvoření, editace, mazání událostí
 - [x] Persistence do localStorage (steward_calendar_events)
 - [x] Barevné kódování typů událostí (modrá/fialová/červená/žlutá)
 - [x] Navigace v čase (předchozí/další, tlačítko "Dnes")
 - [x] Zvýraznění aktuálního dne
+
+### Session 8 - Cursor HUD Ring (Únor 2026)
+- [x] Subtilní HUD ring kolem kurzoru (36px průměr, 1.5px stroke)
+- [x] Zobrazení pouze při interakci: drag okna, snap preview, workzone změna, focus mode
+- [x] Segmentovaný ring (levý, pravý, horní, spodní) pro snap indikaci
+- [x] Zvýraznění aktivního segmentu při přiblížení k okraji
+- [x] Workzone pulse - barevný pulz při změně workzone
+- [x] Focus pulse - krátké zesílení při aktivaci focus mode
+- [x] Jemný glow efekt s SVG filtry
+- [x] Plynulé transitions (150ms)
 
 ## Upcoming Tasks
 
