@@ -454,6 +454,7 @@ const CalendarModule = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="Název události"
                   className="bg-cyan-500/5 border-cyan-500/20 text-white text-sm"
+                  data-testid="event-title-input"
                   autoFocus
                 />
               </div>
@@ -466,6 +467,7 @@ const CalendarModule = () => {
                     value={formData.date}
                     onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
                     className="bg-cyan-500/5 border-cyan-500/20 text-white text-sm"
+                    data-testid="event-date-input"
                   />
                 </div>
                 <div>
@@ -474,6 +476,7 @@ const CalendarModule = () => {
                     value={formData.type}
                     onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
                     className="w-full bg-cyan-500/5 border border-cyan-500/20 rounded-md text-white text-sm p-2"
+                    data-testid="event-type-select"
                   >
                     {Object.entries(EVENT_TYPES).map(([key, { label }]) => (
                       <option key={key} value={key} className="bg-[#0f1d35]">{label}</option>
@@ -490,6 +493,7 @@ const CalendarModule = () => {
                     value={formData.startTime}
                     onChange={(e) => setFormData(prev => ({ ...prev, startTime: e.target.value }))}
                     className="bg-cyan-500/5 border-cyan-500/20 text-white text-sm"
+                    data-testid="event-start-time"
                   />
                 </div>
                 <div>
@@ -499,6 +503,7 @@ const CalendarModule = () => {
                     value={formData.endTime}
                     onChange={(e) => setFormData(prev => ({ ...prev, endTime: e.target.value }))}
                     className="bg-cyan-500/5 border-cyan-500/20 text-white text-sm"
+                    data-testid="event-end-time"
                   />
                 </div>
               </div>
@@ -510,7 +515,16 @@ const CalendarModule = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, project: e.target.value }))}
                   placeholder="Název projektu"
                   className="bg-cyan-500/5 border-cyan-500/20 text-white text-sm"
+                  data-testid="event-project-input"
                 />
+              </div>
+
+              {/* Type color preview */}
+              <div className="flex items-center gap-2 pt-1">
+                <div className={`w-3 h-3 rounded-full ${EVENT_TYPES[formData.type]?.color}`}></div>
+                <span className={`text-xs ${EVENT_TYPES[formData.type]?.textColor}`}>
+                  {EVENT_TYPES[formData.type]?.label}
+                </span>
               </div>
 
               <div className="flex gap-2 pt-2">
@@ -518,6 +532,7 @@ const CalendarModule = () => {
                   <Button
                     variant="ghost"
                     onClick={handleDeleteEvent}
+                    data-testid="event-delete-btn"
                     className="text-red-400 hover:bg-red-500/10 hover:text-red-300"
                   >
                     Smazat
