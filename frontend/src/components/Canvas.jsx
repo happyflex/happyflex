@@ -173,6 +173,9 @@ const Canvas = () => {
         </div>
       )}
 
+      {/* Snap Preview Overlay */}
+      <SnapPreview zone={snapPreview} />
+
       {/* Modules */}
       {modules.map((module) => (
         <DraggableModule key={module.id} module={module} />
