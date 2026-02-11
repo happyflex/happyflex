@@ -190,6 +190,17 @@ project_world_{projectId}: {
 - [x] Jemný glow efekt s SVG filtry
 - [x] Plynulé transitions (150ms)
 
+### Session 9 - Modul Hudba/Media Player (Únor 2026)
+- [x] Nový modul Hudba jako plnohodnotné okno workspace
+- [x] 3 taby: Přehrávač, Knihovna, Playlisty
+- [x] Knihovna s podporou: audio soubory (upload), video/stream linky (YouTube embed)
+- [x] Playlisty: CRUD operace, přidávání položek z knihovny, reorder, mazání
+- [x] Přehrávač: play/pause, prev/next, seek bar, volume, mute, repeat, shuffle
+- [x] YouTube embed přehrávání pro video odkazy
+- [x] Mini režim pro kompaktní zobrazení
+- [x] Persistence do localStorage (knihovna, playlisty, stav přehrávání)
+- [x] Integrace s CANVAS buffer (blok ↔ okno)
+
 ## Upcoming Tasks
 
 ### P1: Integrace Lidi do Project World
