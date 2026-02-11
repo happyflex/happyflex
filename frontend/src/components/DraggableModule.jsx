@@ -35,8 +35,15 @@ const DraggableModule = ({ module }) => {
   const ModuleComponent = moduleComponents[module.type];
 
   const handleMouseDown = (e) => {
+    // Don't interfere with buttons
+    if (e.target.closest('button')) return;
     if (e.target.closest('.module-content')) return;
     if (e.target.closest('.resize-handle')) return;
+    
+    // Allow native drag to work for drag to canvas
+    // Only handle internal dragging if not dragging to canvas
+    const isNearRightEdge = e.clientX > window.innerWidth - 400; // Near canvas sidebar
+    if (isNearRightEdge) return; // Let native drag handle it
     
     // Prevent text selection during drag
     e.preventDefault();
@@ -58,6 +65,13 @@ const DraggableModule = ({ module }) => {
       type: 'workspace-to-canvas',
       moduleId: module.id
     }));
+    
+    // Create a drag image
+    const dragImage = e.currentTarget.cloneNode(true);
+    dragImage.style.opacity = '0.8';
+    document.body.appendChild(dragImage);
+    e.dataTransfer.setDragImage(dragImage, 0, 0);
+    setTimeout(() => document.body.removeChild(dragImage), 0);
   };
 
   const handleResizeStart = (e, handle) => {
