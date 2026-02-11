@@ -5,6 +5,7 @@ import Header from "./components/Header";
 import Canvas from "./components/Canvas";
 import BottomToolbar from "./components/BottomToolbar";
 import RightSidebar from "./components/RightSidebar";
+import CursorHUD from "./components/CursorHUD";
 import { Toaster } from "./components/ui/toaster";
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
         </div>
         <BottomToolbar />
         <Toaster />
+        <CursorHUD />
       </div>
     </WorkspaceProvider>
   );
