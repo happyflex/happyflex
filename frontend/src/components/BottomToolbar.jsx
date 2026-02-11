@@ -139,7 +139,7 @@ const BottomToolbar = () => {
                     onClick={() => handleWorkzoneChange(zone)}
                     className={`
                       w-full px-3 py-2 rounded-lg text-left transition-all
-                      ${activeWorkzone.id === zone.id 
+                      ${activeWorkzone?.id === zone.id 
                         ? `${zone.bgColor} ${zone.borderColor} border ${zone.textColor}` 
                         : 'hover:bg-cyan-500/10 text-gray-300'
                       }
