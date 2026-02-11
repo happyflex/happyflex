@@ -260,6 +260,7 @@ const DraggableModule = ({ module }) => {
         onMouseDown={handleMouseDown}
         draggable="true"
         onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
       >
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
