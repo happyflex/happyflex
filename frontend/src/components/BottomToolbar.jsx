@@ -1,17 +1,11 @@
 import React, { useState } from 'react';
 import { 
   BarChart3, 
-  Lightbulb, 
-  Monitor, 
   Timer, 
-  Search, 
   Edit3, 
   TrendingUp, 
   FileText, 
   Users, 
-  Key, 
-  Maximize2, 
-  Clock, 
   Video,
   Sparkles,
   Layers,
