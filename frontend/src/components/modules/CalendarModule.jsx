@@ -36,22 +36,18 @@ const formatDateKey = (date) => {
 const CalendarModule = () => {
   const [view, setView] = useState('week');
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState(() => {
+    // Initialize from localStorage immediately
+    const stored = localStorage.getItem('steward_calendar_events');
+    return stored ? JSON.parse(stored) : [];
+  });
   const [showEventForm, setShowEventForm] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedHour, setSelectedHour] = useState(9);
   const [draggedEvent, setDraggedEvent] = useState(null);
 
-  // Load events from localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem('steward_calendar_events');
-    if (stored) {
-      setEvents(JSON.parse(stored));
-    }
-  }, []);
-
-  // Save events to localStorage
+  // Save events to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('steward_calendar_events', JSON.stringify(events));
   }, [events]);
