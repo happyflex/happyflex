@@ -67,10 +67,9 @@ const toolbarItems = [
 ];
 
 const BottomToolbar = () => {
-  const { addModule } = useWorkspace();
+  const { addModule, activeWorkzone, setActiveWorkzone } = useWorkspace();
   const [layoutManagerOpen, setLayoutManagerOpen] = useState(false);
   const [workzonePopoverOpen, setWorkzonePopoverOpen] = useState(false);
-  const [activeWorkzone, setActiveWorkzone] = useState(WORKZONES[0]);
 
   // Close popover when clicking outside
   React.useEffect(() => {
