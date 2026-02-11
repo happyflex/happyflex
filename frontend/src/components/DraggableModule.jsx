@@ -73,7 +73,8 @@ const DraggableModule = ({ module }) => {
     setFocusMode,
     clearFocusMode,
     focusedModuleId,
-    snapToLayout
+    snapToLayout,
+    setSnapPreview
   } = useWorkspace();
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -81,7 +82,7 @@ const DraggableModule = ({ module }) => {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isMaximized, setIsMaximized] = useState(false);
   const [previousState, setPreviousState] = useState(null);
-  const [snapPreview, setSnapPreview] = useState(null);
+  const [currentSnapZone, setCurrentSnapZone] = useState(null);
   const moduleRef = useRef(null);
 
   const ModuleComponent = moduleComponents[module.type];
