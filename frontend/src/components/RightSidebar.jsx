@@ -152,14 +152,14 @@ const RightSidebar = () => {
                     ${draggedModule?.index === index ? 'opacity-50' : ''}
                   `}
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 pointer-events-none">
                     {/* Drag handle */}
-                    <div className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    <div className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
                       <GripVertical className="h-4 w-4" />
                     </div>
 
                     {/* Module name */}
-                    <span className="flex-1 text-sm text-white pointer-events-none">
+                    <span className="flex-1 text-sm text-white">
                       {MODULE_LABELS[module.type] || module.type}
                     </span>
 
@@ -169,7 +169,7 @@ const RightSidebar = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 text-gray-400 hover:text-cyan-400"
+                        className="h-6 w-6 text-gray-400 hover:text-cyan-400 pointer-events-auto"
                         onClick={(e) => handleMoveUp(e, index)}
                         disabled={index === 0}
                       >
@@ -180,7 +180,7 @@ const RightSidebar = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 text-gray-400 hover:text-cyan-400"
+                        className="h-6 w-6 text-gray-400 hover:text-cyan-400 pointer-events-auto"
                         onClick={(e) => handleMoveDown(e, index)}
                         disabled={index === deferredModules.length - 1}
                       >
@@ -191,7 +191,7 @@ const RightSidebar = () => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 text-gray-400 hover:text-red-400"
+                        className="h-6 w-6 text-gray-400 hover:text-red-400 pointer-events-auto"
                         onClick={(e) => handleRemoveFromCanvas(e, module.id)}
                       >
                         <X className="h-3 w-3" />
