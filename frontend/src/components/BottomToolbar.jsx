@@ -180,6 +180,7 @@ const BottomToolbar = () => {
                 variant="ghost"
                 size="icon"
                 onClick={() => handleToolClick(item)}
+                data-testid={`toolbar-${item.type}`}
                 className={`
                   relative h-12 w-12 rounded-xl transition-all duration-300
                   ${item.highlight 
