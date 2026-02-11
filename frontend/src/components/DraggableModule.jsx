@@ -407,6 +407,7 @@ const DraggableModule = ({ module }) => {
             {module.type === 'processes' && 'Procesy'}
             {module.type === 'chart' && 'Statistiky'}
             {module.type === 'timer' && 'Časovač'}
+            {module.type === 'calendar' && 'Kalendář'}
           </span>
           {isShiftPressed && (
             <span className="text-xs text-cyan-400 animate-pulse ml-2">
