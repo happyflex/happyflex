@@ -69,6 +69,17 @@ const BottomToolbar = () => {
   const [workzonePopoverOpen, setWorkzonePopoverOpen] = useState(false);
   const [activeWorkzone, setActiveWorkzone] = useState(WORKZONES[0]);
 
+  // Close popover when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (workzonePopoverOpen && !e.target.closest('.workzone-popover-trigger') && !e.target.closest('.workzone-popover')) {
+        setWorkzonePopoverOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [workzonePopoverOpen]);
+
   const handleToolClick = (item) => {
     if (['notes', 'tasks', 'people', 'projects', 'goals', 'processes', 'chart', 'timer'].includes(item.type)) {
       addModule(item.type);
@@ -98,7 +109,7 @@ const BottomToolbar = () => {
       <div className="fixed bottom-0 left-0 right-0 h-20 bg-[#0a1628]/95 backdrop-blur-lg border-t border-cyan-500/20 flex items-center justify-between px-8 z-50">
         {/* Left side - Workzones */}
         <div className="flex items-center gap-3">
-          <div className="relative">
+          <div className="relative workzone-popover-trigger">
             <Button
               variant="ghost"
               size="icon"
@@ -115,7 +126,7 @@ const BottomToolbar = () => {
 
             {/* Workzone Popover */}
             {workzonePopoverOpen && (
-              <div className="absolute bottom-16 left-0 bg-[#0f1d35] border border-cyan-500/30 rounded-lg shadow-2xl p-2 min-w-[200px] z-50">
+              <div className="workzone-popover absolute bottom-16 left-0 bg-[#0f1d35] border border-cyan-500/30 rounded-lg shadow-2xl p-2 min-w-[200px] z-50">
                 <div className="text-xs text-gray-400 px-2 py-1 mb-1">Přepnout kontext</div>
                 {WORKZONES.map(zone => (
                   <button
