@@ -154,4 +154,4 @@ project_world_{projectId}: {
 - Testing agent iteration_2: 100% (Modul Lidi)
 
 ## Preview URL
-https://github-happyflex.preview.emergentagent.com
+https://smart-windows-5.preview.emergentagent.com
