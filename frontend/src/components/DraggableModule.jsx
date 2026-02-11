@@ -51,6 +51,15 @@ const DraggableModule = ({ module }) => {
     });
   };
 
+  const handleDragStart = (e) => {
+    // Set data for drag & drop to CANVAS
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('application/json', JSON.stringify({
+      type: 'workspace-to-canvas',
+      moduleId: module.id
+    }));
+  };
+
   const handleResizeStart = (e, handle) => {
     e.preventDefault();
     e.stopPropagation();
