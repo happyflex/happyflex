@@ -409,6 +409,7 @@ const CalendarModule = () => {
               variant="ghost"
               size="sm"
               onClick={() => setView(key)}
+              data-testid={`calendar-view-${key}`}
               className={`text-xs px-3 py-1 rounded transition-colors ${
                 view === key 
                   ? 'bg-cyan-500 text-white' 
