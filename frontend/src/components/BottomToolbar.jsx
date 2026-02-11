@@ -25,19 +25,13 @@ import WorkspaceLayoutManager from './WorkspaceLayoutManager';
 
 const toolbarItems = [
   { id: 'chart', icon: BarChart3, label: 'Graf', type: 'chart' },
-  { id: 'idea', icon: Lightbulb, label: 'Nápad', type: 'notes' },
-  { id: 'screen', icon: Monitor, label: 'Monitor', type: 'monitor' },
   { id: 'timer', icon: Timer, label: 'Časovač', type: 'timer' },
-  { id: 'search', icon: Search, label: 'Hledat', type: 'search' },
   { id: 'edit', icon: Edit3, label: 'Poznámky', type: 'notes' },
   { id: 'goals', icon: Target, label: 'Cíle', type: 'goals' },
   { id: 'processes', icon: GitBranch, label: 'Procesy', type: 'processes' },
   { id: 'trend', icon: TrendingUp, label: 'Projekty', type: 'projects' },
   { id: 'file', icon: FileText, label: 'Úkoly', type: 'tasks' },
   { id: 'people', icon: Users, label: 'Lidi', type: 'people' },
-  { id: 'key', icon: Key, label: 'Přístup', type: 'access' },
-  { id: 'maximize', icon: Maximize2, label: 'Rozšířit', type: 'expand' },
-  { id: 'clock', icon: Clock, label: 'Čas', type: 'clock' },
   { id: 'video', icon: Video, label: 'Video', type: 'video' },
   { id: 'ai', icon: Sparkles, label: 'AI Asistent', type: 'ai', highlight: true }
 ];
