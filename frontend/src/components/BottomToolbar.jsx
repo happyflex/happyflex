@@ -122,7 +122,7 @@ const BottomToolbar = () => {
               className={`
                 h-12 w-12 rounded-xl transition-all duration-300
                 ${activeWorkzone 
-                  ? `${activeWorkzone.bgColor} ${activeWorkzone.borderColor} border ${activeWorkzone.textColor}` 
+                  ? `${activeWorkzone.bgColor} ${activeWorkzone.borderColor} border ${activeWorkzone.textColor} ${activeWorkzone.shadowColor}` 
                   : 'bg-gradient-to-br from-cyan-500/20 to-blue-500/30 text-cyan-400 border border-cyan-500/40 shadow-lg shadow-cyan-500/30'
                 }
                 hover:scale-110
