@@ -207,6 +207,7 @@ export const WorkspaceProvider = ({ children }) => {
     restoreModule,
     removeFromCanvas,
     reorderCanvasModule,
+    getSnapLayouts,
     addNote,
     updateNote,
     deleteNote,
