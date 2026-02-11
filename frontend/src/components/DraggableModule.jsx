@@ -62,10 +62,13 @@ const DraggableModule = ({ module }) => {
     if (e.target.closest('.resize-handle')) return;
     if (e.target.closest('button')) return;
     
-    // If Shift is pressed, don't do internal dragging - let native drag handle it
-    if (isShiftPressed) return;
+    // If Shift is pressed, allow native drag - don't interfere
+    if (isShiftPressed) {
+      bringToFront(module.id);
+      return;
+    }
     
-    // Prevent text selection during drag
+    // Prevent text selection during internal drag
     e.preventDefault();
     
     setIsDragging(true);
@@ -79,17 +82,25 @@ const DraggableModule = ({ module }) => {
   };
 
   const handleDragStart = (e) => {
-    // Only for drag to canvas when Shift is pressed
+    // Only allow drag to canvas when Shift is pressed
     if (!isShiftPressed) {
       e.preventDefault();
       return;
     }
     
+    bringToFront(module.id);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('application/json', JSON.stringify({
       type: 'workspace-to-canvas',
       moduleId: module.id
     }));
+  };
+
+  const handleDragEnd = (e) => {
+    // Clean up after drag
+    if (isShiftPressed) {
+      // Drag ended, reset any state if needed
+    }
   };
 
   const handleResizeStart = (e, handle) => {
