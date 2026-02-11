@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ChevronUp, ChevronDown, GripVertical } from 'lucide-react';
+import { X, ChevronUp, ChevronDown, GripVertical, Edit3, ListChecks, Users, Layout, Target, GitBranch, BarChart3, Timer } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
@@ -15,6 +15,19 @@ const MODULE_LABELS = {
   processes: 'Procesy',
   chart: 'Graf',
   timer: 'Časovač'
+};
+
+// Mapování ikon modulů
+const MODULE_ICONS = {
+  notes: Edit3,
+  tasks: ListChecks,
+  people: Users,
+  contacts: Users,
+  projects: Layout,
+  goals: Target,
+  processes: GitBranch,
+  chart: BarChart3,
+  timer: Timer
 };
 
 const RightSidebar = () => {
