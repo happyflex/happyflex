@@ -225,7 +225,7 @@ const DraggableModule = ({ module }) => {
       <div
         className="h-12 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-b border-cyan-500/30 flex items-center justify-between px-4 cursor-move select-none"
         onMouseDown={handleMouseDown}
-        draggable
+        draggable="true"
         onDragStart={handleDragStart}
       >
         <div className="flex items-center gap-2">
