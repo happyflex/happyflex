@@ -3,14 +3,15 @@ import {
   BarChart3, 
   Timer, 
   Edit3, 
-  TrendingUp, 
   FileText, 
   Users, 
   Video,
   Sparkles,
   Layers,
-  Target,
-  GitBranch
+  Crosshair,
+  GitBranch,
+  Layout,
+  ListChecks
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { useWorkspace } from '../context/WorkspaceContext';
