@@ -140,31 +140,32 @@ const RightSidebar = () => {
                   onDragStart={(e) => handleDragStart(e, module, index)}
                   onDragEnd={handleDragEnd}
                   onDragOver={(e) => handleDragOver(e, index)}
-                  onClick={(e) => {
-                    // Only restore if not clicking on controls
+                  onDoubleClick={(e) => {
+                    // Double click to restore (instead of single click to avoid drag conflicts)
                     if (!e.target.closest('button')) {
                       restoreModule(module.id);
                     }
                   }}
                   className={`
                     group p-3 bg-[#0f1d35] rounded-lg border border-cyan-500/20 
-                    hover:border-cyan-400/40 transition-all cursor-move
+                    hover:border-cyan-400/40 transition-all cursor-grab active:cursor-grabbing
                     ${draggedModule?.index === index ? 'opacity-50' : ''}
                   `}
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 pointer-events-none">
                     {/* Drag handle */}
-                    <div className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    <div className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
                       <GripVertical className="h-4 w-4" />
                     </div>
 
                     {/* Module name */}
-                    <span className="flex-1 text-sm text-white pointer-events-none">
+                    <span className="flex-1 text-sm text-white">
                       {MODULE_LABELS[module.type] || module.type}
                     </span>
+                  </div>
 
-                    {/* Controls */}
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto">
+                  {/* Controls */}
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto absolute right-3 top-3">
                       {/* Move up */}
                       <Button
                         variant="ghost"
