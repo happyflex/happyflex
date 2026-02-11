@@ -126,7 +126,7 @@ const BottomToolbar = () => {
 
             {/* Workzone Popover */}
             {workzonePopoverOpen && (
-              <div className="workzone-popover absolute bottom-16 left-0 bg-[#0f1d35] border border-cyan-500/30 rounded-lg shadow-2xl p-2 min-w-[200px] z-50">
+              <div className="workzone-popover absolute bottom-16 left-0 bg-[#0f1d35] border border-cyan-500/30 rounded-lg shadow-2xl p-2 min-w-[220px] z-50">
                 <div className="text-xs text-gray-400 px-2 py-1 mb-1">Přepnout kontext</div>
                 {WORKZONES.map(zone => (
                   <button
@@ -141,8 +141,8 @@ const BottomToolbar = () => {
                     `}
                   >
                     <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${zone.bgColor.replace('/20', '')}`} />
-                      <span className="text-sm font-medium">{zone.name}</span>
+                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${zone.bgColor.replace('/20', '')}`} />
+                      <span className="text-sm font-medium whitespace-nowrap">{zone.name}</span>
                     </div>
                   </button>
                 ))}
@@ -155,8 +155,8 @@ const BottomToolbar = () => {
             variant="ghost"
             size="icon"
             onClick={() => setLayoutManagerOpen(true)}
-            className="h-12 w-12 rounded-xl text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 hover:scale-110 transition-all duration-300"
-            title="Správa Layoutů"
+            className="h-12 w-12 rounded-xl text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 hover:scale-110 transition-all duration-300 bg-cyan-500/5 border border-cyan-500/20"
+            title="Layouty"
           >
             <Layers className="h-5 w-5" />
           </Button>
