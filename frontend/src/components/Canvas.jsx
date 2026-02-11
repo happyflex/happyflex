@@ -58,7 +58,7 @@ const Canvas = () => {
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
             <div className="mb-6">
-              <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-2xl flex items-center justify-center border border-cyan-500/30">
+              <div className={`w-24 h-24 mx-auto mb-4 rounded-2xl flex items-center justify-center border transition-all duration-300 ${getIconBackgroundClass()}`}>
                 <svg viewBox="0 0 24 24" className={`w-12 h-12 ${getIconColorClass()} transition-colors duration-300`} fill="currentColor">
                   <path d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
