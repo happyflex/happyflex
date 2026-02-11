@@ -127,6 +127,12 @@ const RightSidebar = () => {
                   onDragStart={(e) => handleDragStart(e, module, index)}
                   onDragEnd={handleDragEnd}
                   onDragOver={(e) => handleDragOver(e, index)}
+                  onClick={(e) => {
+                    // Only restore if not clicking on controls
+                    if (!e.target.closest('button')) {
+                      restoreModule(module.id);
+                    }
+                  }}
                   className={`
                     group p-3 bg-[#0f1d35] rounded-lg border border-cyan-500/20 
                     hover:border-cyan-400/40 transition-all cursor-move
@@ -140,10 +146,7 @@ const RightSidebar = () => {
                     </div>
 
                     {/* Module name */}
-                    <span 
-                      className="flex-1 text-sm text-white cursor-pointer pointer-events-none"
-                      onClick={() => restoreModule(module.id)}
-                    >
+                    <span className="flex-1 text-sm text-white pointer-events-none">
                       {MODULE_LABELS[module.type] || module.type}
                     </span>
 
