@@ -75,8 +75,7 @@ const SnapPreview = ({ zone }) => {
 };
 
 const Canvas = () => {
-  const { modules, activeWorkzone, restoreModule } = useWorkspace();
-  const [globalSnapPreview, setGlobalSnapPreview] = useState(null);
+  const { modules, activeWorkzone, restoreModule, snapPreview } = useWorkspace();
 
   // Map workzone color to Tailwind class
   const getIconColorClass = () => {
