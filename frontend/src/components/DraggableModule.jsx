@@ -252,15 +252,18 @@ const DraggableModule = ({ module }) => {
   return (
     <div
       ref={moduleRef}
-      className={`absolute bg-[#0f1d35]/95 backdrop-blur-lg rounded-xl border border-cyan-500/30 shadow-2xl overflow-hidden transition-shadow ${
+      className={`absolute bg-[#0f1d35]/95 backdrop-blur-lg rounded-xl border shadow-2xl overflow-hidden transition-all ${
         isDragging || isResizing ? 'shadow-cyan-500/50 select-none' : ''
-      } ${isMaximized ? 'transition-all duration-300' : ''}`}
+      } ${isMaximized ? 'duration-300' : ''} ${
+        pinMode === 'lock' ? 'border-orange-500/50' : pinMode === 'top' ? 'border-purple-500/50' : 'border-cyan-500/30'
+      }`}
       style={{
         left: module.position.x,
         top: module.position.y,
         width: module.size.width,
         height: module.size.height,
-        zIndex: module.zIndex,
+        zIndex: pinMode === 'top' ? 9999 : module.zIndex,
+        opacity: isDimmed ? 0.4 : 1,
         userSelect: isDragging || isResizing ? 'none' : 'auto'
       }}
     >
