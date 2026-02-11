@@ -19,6 +19,19 @@ const Canvas = () => {
     }
   };
 
+  const getIconBackgroundClass = () => {
+    switch (activeWorkzone?.color) {
+      case 'orange':
+        return 'bg-gradient-to-br from-orange-500/20 to-red-500/20 border-orange-500/30';
+      case 'yellow':
+        return 'bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border-yellow-500/30';
+      case 'green':
+        return 'bg-gradient-to-br from-green-500/20 to-emerald-500/20 border-green-500/30';
+      default:
+        return 'bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border-cyan-500/30';
+    }
+  };
+
   return (
     <div className="flex-1 relative overflow-hidden">
       {/* Futuristic background */}
