@@ -203,6 +203,7 @@ project_world_{projectId}: {
 - Testing agent iteration_1: 95% (Relationship Logic)
 - Testing agent iteration_2: 100% (Modul Lidi)
 - Testing agent iteration_3: 100% (Pokročilá správa oken - Pin, Focus, Snap, Magnetismus)
+- Testing agent iteration_4: Pending (Kalendář - manuálně otestován)
 
 ## Preview URL
 https://smart-windows-5.preview.emergentagent.com
