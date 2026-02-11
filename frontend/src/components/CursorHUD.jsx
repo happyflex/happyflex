@@ -2,9 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useWorkspace } from '../context/WorkspaceContext';
 
 const CursorHUD = () => {
-  const { snapPreview, activeWorkzone, focusedModuleId } = useWorkspace();
+  const { snapPreview, activeWorkzone, focusedModuleId, isDraggingWindow } = useWorkspace();
   const [mousePos, setMousePos] = useState({ x: -100, y: -100 });
-  const [isDragging, setIsDragging] = useState(false);
   const [workzonePulse, setWorkzonePulse] = useState(null);
   const [focusPulse, setFocusPulse] = useState(false);
   const prevWorkzone = useRef(activeWorkzone);
@@ -15,26 +14,11 @@ const CursorHUD = () => {
     const handleMouseMove = (e) => {
       setMousePos({ x: e.clientX, y: e.clientY });
     };
-    
-    const handleMouseDown = (e) => {
-      // Check if dragging a window (header area)
-      if (e.target.closest('.cursor-move') || e.target.closest('.cursor-grab')) {
-        setIsDragging(true);
-      }
-    };
-    
-    const handleMouseUp = () => {
-      setIsDragging(false);
-    };
 
     window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mousedown', handleMouseDown);
-    window.addEventListener('mouseup', handleMouseUp);
     
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mousedown', handleMouseDown);
-      window.removeEventListener('mouseup', handleMouseUp);
     };
   }, []);
 
