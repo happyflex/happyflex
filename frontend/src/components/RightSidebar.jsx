@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ChevronUp, ChevronDown, GripVertical, Edit3, ListChecks, Users, Layout, Target, GitBranch, BarChart3, Timer, Calendar } from 'lucide-react';
+import { X, ChevronUp, ChevronDown, GripVertical, Edit3, ListChecks, Users, Layout, Target, GitBranch, BarChart3, Timer, Calendar, Music } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
@@ -15,7 +15,8 @@ const MODULE_LABELS = {
   processes: 'Procesy',
   chart: 'Graf',
   timer: 'Časovač',
-  calendar: 'Kalendář'
+  calendar: 'Kalendář',
+  music: 'Hudba'
 };
 
 // Mapování ikon modulů
@@ -29,7 +30,8 @@ const MODULE_ICONS = {
   processes: GitBranch,
   chart: BarChart3,
   timer: Timer,
-  calendar: Calendar
+  calendar: Calendar,
+  music: Music
 };
 
 const RightSidebar = () => {
