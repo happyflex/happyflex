@@ -542,12 +542,14 @@ const CalendarModule = () => {
                 <Button
                   variant="ghost"
                   onClick={() => setShowEventForm(false)}
+                  data-testid="event-cancel-btn"
                   className="text-gray-400 hover:bg-cyan-500/10"
                 >
                   Zrušit
                 </Button>
                 <Button
                   onClick={handleSaveEvent}
+                  data-testid="event-save-btn"
                   className="bg-cyan-500 hover:bg-cyan-600 text-white"
                 >
                   {editingEvent ? 'Uložit' : 'Vytvořit'}
