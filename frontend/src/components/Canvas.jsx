@@ -3,7 +3,21 @@ import { useWorkspace } from '../context/WorkspaceContext';
 import DraggableModule from './DraggableModule';
 
 const Canvas = () => {
-  const { modules } = useWorkspace();
+  const { modules, activeWorkzone } = useWorkspace();
+
+  // Map workzone color to Tailwind class
+  const getIconColorClass = () => {
+    switch (activeWorkzone?.color) {
+      case 'orange':
+        return 'text-orange-400';
+      case 'yellow':
+        return 'text-yellow-400';
+      case 'green':
+        return 'text-green-400';
+      default:
+        return 'text-cyan-400';
+    }
+  };
 
   return (
     <div className="flex-1 relative overflow-hidden">
@@ -32,7 +46,7 @@ const Canvas = () => {
           <div className="text-center">
             <div className="mb-6">
               <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-2xl flex items-center justify-center border border-cyan-500/30">
-                <svg viewBox="0 0 24 24" className="w-12 h-12 text-cyan-400" fill="currentColor">
+                <svg viewBox="0 0 24 24" className={`w-12 h-12 ${getIconColorClass()} transition-colors duration-300`} fill="currentColor">
                   <path d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
