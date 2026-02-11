@@ -12,7 +12,8 @@ import {
   GitBranch,
   Layout,
   ListChecks,
-  Zap
+  Zap,
+  Calendar
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { useWorkspace } from '../context/WorkspaceContext';
