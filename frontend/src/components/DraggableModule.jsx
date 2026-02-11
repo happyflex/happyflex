@@ -350,7 +350,7 @@ const DraggableModule = ({ module }) => {
       document.body.style.webkitUserSelect = '';
       document.body.style.cursor = '';
     };
-  }, [isDragging, isResizing, resizeHandle, dragOffset, module.id, module.size, module.position, updateModulePosition, updateModuleSize]);
+  }, [isDragging, isResizing, resizeHandle, dragOffset, module.id, module.size, module.position, modules, updateModulePosition, updateModuleSize, currentSnapZone, snapToLayout, setSnapPreview]);
 
   if (!ModuleComponent) return null;
 
