@@ -23,7 +23,17 @@ const moduleComponents = {
 };
 
 const DraggableModule = ({ module }) => {
-  const { removeModule, updateModulePosition, updateModuleSize, bringToFront, deferModule } = useWorkspace();
+  const { 
+    removeModule, 
+    updateModulePosition, 
+    updateModuleSize, 
+    bringToFront, 
+    deferModule,
+    togglePinMode,
+    setFocusMode,
+    clearFocusMode,
+    focusedModuleId
+  } = useWorkspace();
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [resizeHandle, setResizeHandle] = useState(null);
@@ -34,6 +44,21 @@ const DraggableModule = ({ module }) => {
 
   const ModuleComponent = moduleComponents[module.type];
   const [isShiftPressed, setIsShiftPressed] = useState(false);
+  
+  const pinMode = module.pinMode || 'none';
+  const isFocused = focusedModuleId === module.id;
+  const isDimmed = focusedModuleId && focusedModuleId !== module.id;
+
+  // ESC key listener for clearing focus
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && focusedModuleId) {
+        clearFocusMode();
+      }
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [focusedModuleId, clearFocusMode]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
