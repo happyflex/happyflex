@@ -86,7 +86,7 @@ const Canvas = () => {
               </div>
             </div>
             <h2 className="text-2xl font-bold text-white mb-2">Vítejte v S.T.E.W.A.R.D. Workspace</h2>
-            <p className="text-gray-400 mb-6">Klikněte na nástroj v dolním panelu pro přidání modulu</p>
+            <p className="text-gray-400 mb-6">Klikni na nástroj v dolním panelu pro přidání modulu</p>
             <div className="flex items-center justify-center gap-4 text-sm text-cyan-400">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
