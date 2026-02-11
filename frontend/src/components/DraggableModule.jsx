@@ -106,6 +106,7 @@ const getMagneticPosition = (currentModule, allModules, newX, newY) => {
 
 const DraggableModule = ({ module }) => {
   const { 
+    modules,
     removeModule, 
     updateModulePosition, 
     updateModuleSize, 
