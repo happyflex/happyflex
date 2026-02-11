@@ -23,16 +23,94 @@ export const WorkspaceProvider = ({ children }) => {
   const [activeWorkzone, setActiveWorkzone] = useState(null); // Start with no workzone (basic mode)
   const [focusedModuleId, setFocusedModuleId] = useState(null); // For focus mode
 
-  const addModule = useCallback((type, position = null) => {
+  const addModule = useCallback((type, position = null, snapLayout = null) => {
     // Pro modul Projekty použít maximalizovanou velikost
     const isProjectsModule = type === 'projects';
     
     const padding = 16;
     const rightSidebarWidth = 320;
     const bottomToolbarHeight = 80;
-    const headerHeight = 64;
+    const availableWidth = window.innerWidth - rightSidebarWidth - (padding * 2);
+    const availableHeight = window.innerHeight - bottomToolbarHeight - (padding * 2);
+
+    let defaultSize, defaultPosition;
+
+    // If snap layout is provided, calculate based on layout
+    if (snapLayout) {
+      const snapLayouts = getSnapLayouts(availableWidth, availableHeight, padding);
+      const layout = snapLayouts[snapLayout];
+      if (layout) {
+        defaultPosition = layout.position;
+        defaultSize = layout.size;
+      }
+    } else if (isProjectsModule) {
+      const headerHeight = 64;
+      defaultSize = {
+        width: availableWidth,
+        height: availableHeight - headerHeight
+      };
+      defaultPosition = { x: padding, y: padding };
+    } else {
+      defaultSize = { width: 400, height: 300 };
+      defaultPosition = {
+        x: Math.random() * 400 + 100,
+        y: Math.random() * 300 + 100
+      };
+    }
     
-    const defaultSize = isProjectsModule 
+    const newModule = {
+      id: `module-${Date.now()}`,
+      type,
+      position: position || defaultPosition,
+      size: defaultSize,
+      zIndex: modules.length
+    };
+    setModules(prev => [...prev, newModule]);
+  }, [modules.length]);
+
+  // Helper function for snap layouts
+  const getSnapLayouts = useCallback((availableWidth, availableHeight, padding) => {
+    return {
+      'top-left': {
+        position: { x: padding, y: padding },
+        size: { width: availableWidth / 2 - padding, height: availableHeight / 2 - padding }
+      },
+      'top-right': {
+        position: { x: availableWidth / 2 + padding, y: padding },
+        size: { width: availableWidth / 2 - padding, height: availableHeight / 2 - padding }
+      },
+      'bottom-left': {
+        position: { x: padding, y: availableHeight / 2 + padding },
+        size: { width: availableWidth / 2 - padding, height: availableHeight / 2 - padding }
+      },
+      'bottom-right': {
+        position: { x: availableWidth / 2 + padding, y: availableHeight / 2 + padding },
+        size: { width: availableWidth / 2 - padding, height: availableHeight / 2 - padding }
+      },
+      'left-half': {
+        position: { x: padding, y: padding },
+        size: { width: availableWidth / 2 - padding, height: availableHeight }
+      },
+      'right-half': {
+        position: { x: availableWidth / 2 + padding, y: padding },
+        size: { width: availableWidth / 2 - padding, height: availableHeight }
+      },
+      'top-half': {
+        position: { x: padding, y: padding },
+        size: { width: availableWidth, height: availableHeight / 2 - padding }
+      },
+      'bottom-half': {
+        position: { x: padding, y: availableHeight / 2 + padding },
+        size: { width: availableWidth, height: availableHeight / 2 - padding }
+      },
+      'maximized': {
+        position: { x: padding, y: padding },
+        size: { width: availableWidth, height: availableHeight }
+      }
+    };
+  }, []);
+
+  const defaultSize = isProjectsModule 
       ? {
           width: window.innerWidth - rightSidebarWidth - (padding * 2),
           height: window.innerHeight - headerHeight - bottomToolbarHeight - (padding * 2)
