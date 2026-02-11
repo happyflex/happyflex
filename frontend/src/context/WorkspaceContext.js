@@ -135,6 +135,7 @@ export const WorkspaceProvider = ({ children }) => {
     projects,
     timerActive,
     timerSeconds,
+    activeWorkzone,
     addModule,
     removeModule,
     updateModulePosition,
@@ -149,7 +150,8 @@ export const WorkspaceProvider = ({ children }) => {
     toggleTask,
     deleteTask,
     setTimerActive,
-    setTimerSeconds
+    setTimerSeconds,
+    setActiveWorkzone
   };
 
   return (
