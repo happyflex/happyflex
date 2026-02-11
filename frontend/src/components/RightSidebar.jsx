@@ -18,7 +18,7 @@ const MODULE_LABELS = {
 };
 
 const RightSidebar = () => {
-  const { deferredModules, restoreModule, removeFromCanvas, reorderCanvasModule, modules } = useWorkspace();
+  const { deferredModules, restoreModule, removeFromCanvas, reorderCanvasModule, deferModule, modules } = useWorkspace();
   const [draggedModule, setDraggedModule] = useState(null);
 
   const handleDragStart = (e, module, index) => {
@@ -61,9 +61,29 @@ const RightSidebar = () => {
     }
   };
 
+  // Handle drop from workspace
+  const handleDrop = (e) => {
+    e.preventDefault();
+    try {
+      const data = JSON.parse(e.dataTransfer.getData('application/json'));
+      if (data.type === 'workspace-to-canvas' && data.moduleId) {
+        deferModule(data.moduleId);
+      }
+    } catch (error) {
+      console.error('Drop error:', error);
+    }
+  };
+
+  const handleSidebarDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
   return (
     <div 
       className="w-80 bg-[#0a1628]/80 backdrop-blur-lg border-l border-cyan-500/20 flex flex-col"
+      onDrop={handleDrop}
+      onDragOver={handleSidebarDragOver}
     >
       <div className="p-6 border-b border-cyan-500/20">
         <h2 className="text-lg font-semibold text-white mb-1">CANVAS</h2>
