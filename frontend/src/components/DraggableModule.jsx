@@ -265,13 +265,20 @@ const DraggableModule = ({ module }) => {
       if (isDragging) {
         e.preventDefault();
         
-        const newX = e.clientX - dragOffset.x;
-        const newY = e.clientY - dragOffset.y;
+        let newX = e.clientX - dragOffset.x;
+        let newY = e.clientY - dragOffset.y;
         
-        // Detect snap zone during drag
+        // Detect snap zone during drag (for edge snapping)
         const zone = getSnapZone(e.clientX, e.clientY, window.innerWidth, window.innerHeight);
         setCurrentSnapZone(zone);
         setSnapPreview(zone);
+        
+        // Apply magnetic snapping to other modules (only if not in edge snap zone)
+        if (!zone) {
+          const magneticPos = getMagneticPosition(module, modules, newX, newY);
+          newX = magneticPos.x;
+          newY = magneticPos.y;
+        }
         
         updateModulePosition(module.id, {
           x: Math.max(0, Math.min(newX, window.innerWidth - module.size.width)),
