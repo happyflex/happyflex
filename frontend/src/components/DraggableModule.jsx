@@ -11,6 +11,7 @@ import ProcessesModule from './modules/ProcessesModule';
 import ChartModule from './modules/ChartModule';
 import TimerModule from './modules/TimerModule';
 import CalendarModule from './modules/CalendarModule';
+import MusicModule from './modules/MusicModule';
 
 const moduleComponents = {
   notes: NotesModule,
@@ -21,7 +22,8 @@ const moduleComponents = {
   processes: ProcessesModule,
   chart: ChartModule,
   timer: TimerModule,
-  calendar: CalendarModule
+  calendar: CalendarModule,
+  music: MusicModule
 };
 
 // Snap zone detection threshold in pixels
