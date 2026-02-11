@@ -123,7 +123,7 @@ const RightSidebar = () => {
               {deferredModules.map((module, index) => (
                 <div
                   key={module.id}
-                  draggable
+                  draggable="true"
                   onDragStart={(e) => handleDragStart(e, module, index)}
                   onDragEnd={handleDragEnd}
                   onDragOver={(e) => handleDragOver(e, index)}
@@ -135,20 +135,20 @@ const RightSidebar = () => {
                 >
                   <div className="flex items-center gap-2">
                     {/* Drag handle */}
-                    <div className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                       <GripVertical className="h-4 w-4" />
                     </div>
 
                     {/* Module name */}
                     <span 
-                      className="flex-1 text-sm text-white cursor-pointer"
+                      className="flex-1 text-sm text-white cursor-pointer pointer-events-none"
                       onClick={() => restoreModule(module.id)}
                     >
                       {MODULE_LABELS[module.type] || module.type}
                     </span>
 
                     {/* Controls */}
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto">
                       {/* Move up */}
                       <Button
                         variant="ghost"
