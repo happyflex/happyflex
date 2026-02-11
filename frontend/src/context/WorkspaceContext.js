@@ -21,6 +21,7 @@ export const WorkspaceProvider = ({ children }) => {
   const [timerActive, setTimerActive] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [activeWorkzone, setActiveWorkzone] = useState(null); // Start with no workzone (basic mode)
+  const [focusedModuleId, setFocusedModuleId] = useState(null); // For focus mode
 
   const addModule = useCallback((type, position = null) => {
     // Pro modul Projekty použít maximalizovanou velikost
