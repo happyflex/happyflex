@@ -171,6 +171,11 @@ const RightSidebar = () => {
                       <GripVertical className="h-4 w-4" />
                     </div>
 
+                    {/* Module icon */}
+                    {MODULE_ICONS[module.type] && React.createElement(MODULE_ICONS[module.type], {
+                      className: "h-4 w-4 text-cyan-400"
+                    })}
+
                     {/* Module name */}
                     <span className="flex-1 text-sm text-white">
                       {MODULE_LABELS[module.type] || module.type}
