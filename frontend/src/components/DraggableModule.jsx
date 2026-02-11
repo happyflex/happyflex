@@ -82,12 +82,7 @@ const DraggableModule = ({ module }) => {
   };
 
   const handleDragStart = (e) => {
-    // Only allow drag to canvas when Shift is pressed
-    if (!isShiftPressed) {
-      e.preventDefault();
-      return;
-    }
-    
+    // This only fires when Shift is pressed (draggable is conditional)
     bringToFront(module.id);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('application/json', JSON.stringify({
