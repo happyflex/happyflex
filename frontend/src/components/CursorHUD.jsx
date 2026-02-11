@@ -45,7 +45,7 @@ const CursorHUD = () => {
   }, [focusedModuleId]);
 
   // Determine visibility
-  const isVisible = isDragging || snapPreview || workzonePulse || focusPulse;
+  const isVisible = isDraggingWindow || snapPreview || workzonePulse || focusPulse;
   
   // Determine which snap segment is active
   const getActiveSegment = () => {
