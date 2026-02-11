@@ -20,13 +20,7 @@ export const WorkspaceProvider = ({ children }) => {
   const [projects, setProjects] = useState(mockProjects);
   const [timerActive, setTimerActive] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(0);
-  const [activeWorkzone, setActiveWorkzone] = useState({
-    id: 'problem-solving',
-    name: 'Problem Solving Zóna',
-    color: 'orange',
-    textColor: 'text-orange-400',
-    iconColor: 'text-orange-400'
-  });
+  const [activeWorkzone, setActiveWorkzone] = useState(null); // Start with no workzone (basic mode)
 
   const addModule = useCallback((type, position = null) => {
     // Pro modul Projekty použít maximalizovanou velikost
