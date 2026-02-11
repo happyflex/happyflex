@@ -189,6 +189,7 @@ const DraggableModule = ({ module }) => {
     e.preventDefault();
     
     setIsDragging(true);
+    setIsDraggingWindow(true);
     bringToFront(module.id);
     
     const rect = moduleRef.current.getBoundingClientRect();
