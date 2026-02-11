@@ -20,6 +20,7 @@ const MODULE_LABELS = {
 const RightSidebar = () => {
   const { deferredModules, restoreModule, removeFromCanvas, reorderCanvasModule, deferModule, modules } = useWorkspace();
   const [draggedModule, setDraggedModule] = useState(null);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const handleDragStart = (e, module, index) => {
     setDraggedModule({ module, index });
@@ -64,6 +65,7 @@ const RightSidebar = () => {
   // Handle drop from workspace
   const handleDrop = (e) => {
     e.preventDefault();
+    setIsDragOver(false);
     try {
       const data = JSON.parse(e.dataTransfer.getData('application/json'));
       if (data.type === 'workspace-to-canvas' && data.moduleId) {
@@ -77,13 +79,24 @@ const RightSidebar = () => {
   const handleSidebarDragOver = (e) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    // Only set false if leaving the sidebar entirely
+    if (e.currentTarget === e.target) {
+      setIsDragOver(false);
+    }
   };
 
   return (
     <div 
-      className="w-80 bg-[#0a1628]/80 backdrop-blur-lg border-l border-cyan-500/20 flex flex-col"
+      className={`w-80 bg-[#0a1628]/80 backdrop-blur-lg border-l flex flex-col transition-all ${
+        isDragOver ? 'border-cyan-400 border-l-4 bg-cyan-500/10' : 'border-cyan-500/20'
+      }`}
       onDrop={handleDrop}
       onDragOver={handleSidebarDragOver}
+      onDragLeave={handleDragLeave}
     >
       <div className="p-6 border-b border-cyan-500/20">
         <h2 className="text-lg font-semibold text-white mb-1">CANVAS</h2>
