@@ -258,7 +258,7 @@ const DraggableModule = ({ module }) => {
           ${isShiftPressed ? 'cursor-grab active:cursor-grabbing ring-2 ring-cyan-400' : 'cursor-move'}
         `}
         onMouseDown={handleMouseDown}
-        draggable="true"
+        draggable={isShiftPressed}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
