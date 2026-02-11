@@ -66,6 +66,8 @@ const toolbarItems = [
 const BottomToolbar = () => {
   const { addModule } = useWorkspace();
   const [layoutManagerOpen, setLayoutManagerOpen] = useState(false);
+  const [workzonePopoverOpen, setWorkzonePopoverOpen] = useState(false);
+  const [activeWorkzone, setActiveWorkzone] = useState(WORKZONES[0]);
 
   const handleToolClick = (item) => {
     if (['notes', 'tasks', 'people', 'projects', 'goals', 'processes', 'chart', 'timer'].includes(item.type)) {
@@ -82,11 +84,62 @@ const BottomToolbar = () => {
     }
   };
 
+  const handleWorkzoneChange = (workzone) => {
+    setActiveWorkzone(workzone);
+    setWorkzonePopoverOpen(false);
+    toast({
+      title: 'Workzone změněna',
+      description: `Přepnuto na ${workzone.name}`,
+    });
+  };
+
   return (
     <>
       <div className="fixed bottom-0 left-0 right-0 h-20 bg-[#0a1628]/95 backdrop-blur-lg border-t border-cyan-500/20 flex items-center justify-between px-8 z-50">
-        {/* Left side - Layout Manager */}
-        <div className="flex items-center gap-2">
+        {/* Left side - Workzones */}
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setWorkzonePopoverOpen(!workzonePopoverOpen)}
+              className={`
+                h-12 w-12 rounded-xl transition-all duration-300
+                ${activeWorkzone.bgColor} ${activeWorkzone.borderColor} border
+                ${activeWorkzone.textColor} hover:scale-110
+              `}
+              title="Workzones"
+            >
+              <Zap className="h-5 w-5" />
+            </Button>
+
+            {/* Workzone Popover */}
+            {workzonePopoverOpen && (
+              <div className="absolute bottom-16 left-0 bg-[#0f1d35] border border-cyan-500/30 rounded-lg shadow-2xl p-2 min-w-[200px] z-50">
+                <div className="text-xs text-gray-400 px-2 py-1 mb-1">Přepnout kontext</div>
+                {WORKZONES.map(zone => (
+                  <button
+                    key={zone.id}
+                    onClick={() => handleWorkzoneChange(zone)}
+                    className={`
+                      w-full px-3 py-2 rounded-lg text-left transition-all
+                      ${activeWorkzone.id === zone.id 
+                        ? `${zone.bgColor} ${zone.borderColor} border ${zone.textColor}` 
+                        : 'hover:bg-cyan-500/10 text-gray-300'
+                      }
+                    `}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${zone.bgColor.replace('/20', '')}`} />
+                      <span className="text-sm font-medium">{zone.name}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Layouts icon only */}
           <Button
             variant="ghost"
             size="icon"
@@ -96,10 +149,6 @@ const BottomToolbar = () => {
           >
             <Layers className="h-5 w-5" />
           </Button>
-          <div className="text-xs text-gray-500 ml-2">
-            <div className="text-cyan-400 font-medium">Layouty</div>
-            <div>Workspace</div>
-          </div>
         </div>
 
         {/* Center - Module Tools */}
