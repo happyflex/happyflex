@@ -1,9 +1,82 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import DraggableModule from './DraggableModule';
 
+// Snap zone preview component
+const SnapPreview = ({ zone }) => {
+  if (!zone) return null;
+  
+  const padding = 16;
+  const rightSidebarWidth = 320;
+  const bottomToolbarHeight = 80;
+  
+  const workspaceWidth = window.innerWidth - rightSidebarWidth;
+  const workspaceHeight = window.innerHeight - bottomToolbarHeight;
+  
+  const styles = {
+    'top-left': {
+      left: padding, top: padding,
+      width: workspaceWidth / 2 - padding * 1.5,
+      height: workspaceHeight / 2 - padding * 1.5
+    },
+    'top-right': {
+      left: workspaceWidth / 2 + padding / 2, top: padding,
+      width: workspaceWidth / 2 - padding * 1.5,
+      height: workspaceHeight / 2 - padding * 1.5
+    },
+    'bottom-left': {
+      left: padding, top: workspaceHeight / 2 + padding / 2,
+      width: workspaceWidth / 2 - padding * 1.5,
+      height: workspaceHeight / 2 - padding * 1.5
+    },
+    'bottom-right': {
+      left: workspaceWidth / 2 + padding / 2, top: workspaceHeight / 2 + padding / 2,
+      width: workspaceWidth / 2 - padding * 1.5,
+      height: workspaceHeight / 2 - padding * 1.5
+    },
+    'left-half': {
+      left: padding, top: padding,
+      width: workspaceWidth / 2 - padding * 1.5,
+      height: workspaceHeight - padding * 2
+    },
+    'right-half': {
+      left: workspaceWidth / 2 + padding / 2, top: padding,
+      width: workspaceWidth / 2 - padding * 1.5,
+      height: workspaceHeight - padding * 2
+    },
+    'maximized': {
+      left: padding, top: padding,
+      width: workspaceWidth - padding * 2,
+      height: workspaceHeight - padding * 2
+    }
+  };
+  
+  const style = styles[zone];
+  if (!style) return null;
+  
+  return (
+    <div
+      className="absolute bg-cyan-500/20 border-2 border-cyan-400/50 rounded-xl pointer-events-none z-[9998] transition-all duration-150"
+      style={style}
+    >
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-cyan-400 text-sm font-medium bg-[#0a1628]/80 px-3 py-1 rounded-lg">
+          {zone === 'maximized' ? 'Maximalizovat' : 
+           zone === 'left-half' ? 'Levá polovina' :
+           zone === 'right-half' ? 'Pravá polovina' :
+           zone === 'top-left' ? 'Vlevo nahoře' :
+           zone === 'top-right' ? 'Vpravo nahoře' :
+           zone === 'bottom-left' ? 'Vlevo dole' :
+           zone === 'bottom-right' ? 'Vpravo dole' : zone}
+        </span>
+      </div>
+    </div>
+  );
+};
+
 const Canvas = () => {
   const { modules, activeWorkzone, restoreModule } = useWorkspace();
+  const [globalSnapPreview, setGlobalSnapPreview] = useState(null);
 
   // Map workzone color to Tailwind class
   const getIconColorClass = () => {
