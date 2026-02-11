@@ -33,17 +33,13 @@ const DraggableModule = ({ module }) => {
   const moduleRef = useRef(null);
 
   const ModuleComponent = moduleComponents[module.type];
+  const [isDragToCanvas, setIsDragToCanvas] = useState(false);
 
   const handleMouseDown = (e) => {
-    // Don't interfere with buttons
-    if (e.target.closest('button')) return;
     if (e.target.closest('.module-content')) return;
     if (e.target.closest('.resize-handle')) return;
-    
-    // Allow native drag to work for drag to canvas
-    // Only handle internal dragging if not dragging to canvas
-    const isNearRightEdge = e.clientX > window.innerWidth - 400; // Near canvas sidebar
-    if (isNearRightEdge) return; // Let native drag handle it
+    if (e.target.closest('.drag-to-canvas-handle')) return; // Don't interfere with canvas drag
+    if (e.target.closest('button')) return;
     
     // Prevent text selection during drag
     e.preventDefault();
@@ -59,19 +55,17 @@ const DraggableModule = ({ module }) => {
   };
 
   const handleDragStart = (e) => {
-    // Set data for drag & drop to CANVAS
+    // Only for drag to canvas via the special handle
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('application/json', JSON.stringify({
       type: 'workspace-to-canvas',
       moduleId: module.id
     }));
-    
-    // Create a drag image
-    const dragImage = e.currentTarget.cloneNode(true);
-    dragImage.style.opacity = '0.8';
-    document.body.appendChild(dragImage);
-    e.dataTransfer.setDragImage(dragImage, 0, 0);
-    setTimeout(() => document.body.removeChild(dragImage), 0);
+    setIsDragToCanvas(true);
+  };
+
+  const handleDragEnd = () => {
+    setIsDragToCanvas(false);
   };
 
   const handleResizeStart = (e, handle) => {
