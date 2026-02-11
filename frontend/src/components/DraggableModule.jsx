@@ -33,13 +33,37 @@ const DraggableModule = ({ module }) => {
   const moduleRef = useRef(null);
 
   const ModuleComponent = moduleComponents[module.type];
-  const [isDragToCanvas, setIsDragToCanvas] = useState(false);
+  const [isShiftPressed, setIsShiftPressed] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Shift') {
+        setIsShiftPressed(true);
+      }
+    };
+    
+    const handleKeyUp = (e) => {
+      if (e.key === 'Shift') {
+        setIsShiftPressed(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
 
   const handleMouseDown = (e) => {
     if (e.target.closest('.module-content')) return;
     if (e.target.closest('.resize-handle')) return;
-    if (e.target.closest('.drag-to-canvas-handle')) return; // Don't interfere with canvas drag
     if (e.target.closest('button')) return;
+    
+    // If Shift is pressed, don't do internal dragging - let native drag handle it
+    if (isShiftPressed) return;
     
     // Prevent text selection during drag
     e.preventDefault();
@@ -55,17 +79,17 @@ const DraggableModule = ({ module }) => {
   };
 
   const handleDragStart = (e) => {
-    // Only for drag to canvas via the special handle
+    // Only for drag to canvas when Shift is pressed
+    if (!isShiftPressed) {
+      e.preventDefault();
+      return;
+    }
+    
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('application/json', JSON.stringify({
       type: 'workspace-to-canvas',
       moduleId: module.id
     }));
-    setIsDragToCanvas(true);
-  };
-
-  const handleDragEnd = () => {
-    setIsDragToCanvas(false);
   };
 
   const handleResizeStart = (e, handle) => {
