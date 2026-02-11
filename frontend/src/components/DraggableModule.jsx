@@ -281,9 +281,10 @@ const DraggableModule = ({ module }) => {
         className={`
           h-12 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-b border-cyan-500/30 
           flex items-center justify-between px-4 select-none transition-all
-          ${isShiftPressed ? 'cursor-grab active:cursor-grabbing ring-2 ring-cyan-400' : 'cursor-move'}
+          ${isShiftPressed ? 'cursor-grab active:cursor-grabbing ring-2 ring-cyan-400' : pinMode === 'lock' ? 'cursor-not-allowed' : 'cursor-move'}
         `}
         onMouseDown={handleMouseDown}
+        onDoubleClick={() => isFocused ? clearFocusMode() : setFocusMode(module.id)}
         draggable={isShiftPressed}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
