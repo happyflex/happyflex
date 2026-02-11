@@ -11,12 +11,44 @@ import {
   Target,
   GitBranch,
   Layout,
-  ListChecks
+  ListChecks,
+  Zap
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { toast } from '../hooks/use-toast';
 import WorkspaceLayoutManager from './WorkspaceLayoutManager';
+
+// Workzones definition
+const WORKZONES = [
+  { 
+    id: 'problem-solving', 
+    name: 'Problem Solving Zóna', 
+    color: 'orange',
+    bgColor: 'bg-orange-500/20',
+    borderColor: 'border-orange-500/40',
+    textColor: 'text-orange-400',
+    glowColor: 'shadow-orange-500/50'
+  },
+  { 
+    id: 'planning', 
+    name: 'Plánovací Zóna', 
+    color: 'yellow',
+    bgColor: 'bg-yellow-500/20',
+    borderColor: 'border-yellow-500/40',
+    textColor: 'text-yellow-400',
+    glowColor: 'shadow-yellow-500/50'
+  },
+  { 
+    id: 'executive', 
+    name: 'Exekutivní Zóna', 
+    color: 'green',
+    bgColor: 'bg-green-500/20',
+    borderColor: 'border-green-500/40',
+    textColor: 'text-green-400',
+    glowColor: 'shadow-green-500/50'
+  }
+];
 
 const toolbarItems = [
   { id: 'chart', icon: BarChart3, label: 'Graf', type: 'chart' },
