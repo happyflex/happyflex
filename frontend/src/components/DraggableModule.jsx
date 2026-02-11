@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Minus, Maximize2, GripVertical } from 'lucide-react';
+import { X, Minus, Maximize2 } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { Button } from './ui/button';
 import NotesModule from './modules/NotesModule';
