@@ -144,7 +144,7 @@ const BottomToolbar = () => {
                     `}
                   >
                     <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${zone.bgColor.replace('/20', '')}`} />
+                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${zone.dotColor}`} />
                       <span className="text-sm font-medium whitespace-nowrap">{zone.name}</span>
                     </div>
                   </button>
