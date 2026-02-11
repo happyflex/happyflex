@@ -3,7 +3,7 @@ import { useWorkspace } from '../context/WorkspaceContext';
 import DraggableModule from './DraggableModule';
 
 const Canvas = () => {
-  const { modules, activeWorkzone } = useWorkspace();
+  const { modules, activeWorkzone, restoreModule } = useWorkspace();
 
   // Map workzone color to Tailwind class
   const getIconColorClass = () => {
@@ -32,8 +32,29 @@ const Canvas = () => {
     }
   };
 
+  const handleDrop = (e) => {
+    e.preventDefault();
+    try {
+      const data = JSON.parse(e.dataTransfer.getData('application/json'));
+      if (data.type === 'canvas-to-workspace' && data.moduleId) {
+        restoreModule(data.moduleId);
+      }
+    } catch (error) {
+      console.error('Drop error:', error);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
   return (
-    <div className="flex-1 relative overflow-hidden">
+    <div 
+      className="flex-1 relative overflow-hidden"
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
+    >
       {/* Futuristic background */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0a1628] via-[#0d1b3a] to-[#1a1f3a]">
         {/* Grid overlay */}
