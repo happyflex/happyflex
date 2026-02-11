@@ -22,6 +22,46 @@ const moduleComponents = {
   timer: TimerModule
 };
 
+// Snap zone detection threshold in pixels
+const SNAP_THRESHOLD = 50;
+
+// Calculate snap zones based on current window size
+const getSnapZone = (x, y, windowWidth, windowHeight) => {
+  const rightSidebarWidth = 320;
+  const bottomToolbarHeight = 80;
+  const headerHeight = 64;
+  
+  const workspaceWidth = windowWidth - rightSidebarWidth;
+  const workspaceHeight = windowHeight - bottomToolbarHeight;
+  
+  // Corner detection (priority over edges)
+  if (x < SNAP_THRESHOLD && y < SNAP_THRESHOLD + headerHeight) {
+    return 'top-left';
+  }
+  if (x > workspaceWidth - SNAP_THRESHOLD && y < SNAP_THRESHOLD + headerHeight) {
+    return 'top-right';
+  }
+  if (x < SNAP_THRESHOLD && y > workspaceHeight - SNAP_THRESHOLD) {
+    return 'bottom-left';
+  }
+  if (x > workspaceWidth - SNAP_THRESHOLD && y > workspaceHeight - SNAP_THRESHOLD) {
+    return 'bottom-right';
+  }
+  
+  // Edge detection
+  if (x < SNAP_THRESHOLD) {
+    return 'left-half';
+  }
+  if (x > workspaceWidth - SNAP_THRESHOLD) {
+    return 'right-half';
+  }
+  if (y < SNAP_THRESHOLD + headerHeight) {
+    return 'maximized';
+  }
+  
+  return null;
+};
+
 const DraggableModule = ({ module }) => {
   const { 
     removeModule, 
@@ -32,7 +72,8 @@ const DraggableModule = ({ module }) => {
     togglePinMode,
     setFocusMode,
     clearFocusMode,
-    focusedModuleId
+    focusedModuleId,
+    snapToLayout
   } = useWorkspace();
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -40,6 +81,7 @@ const DraggableModule = ({ module }) => {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isMaximized, setIsMaximized] = useState(false);
   const [previousState, setPreviousState] = useState(null);
+  const [snapPreview, setSnapPreview] = useState(null);
   const moduleRef = useRef(null);
 
   const ModuleComponent = moduleComponents[module.type];
