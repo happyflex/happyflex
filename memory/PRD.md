@@ -227,4 +227,4 @@ project_world_{projectId}: {
 - Testing agent iteration_4: Pending (Kalendář - manuálně otestován)
 
 ## Preview URL
-https://smart-windows-5.preview.emergentagent.com
+https://steward-hub-1.preview.emergentagent.com
