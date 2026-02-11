@@ -24,7 +24,7 @@ Celé rozhraní aplikace je v **češtině**.
 - **RelationshipTypeDialog**: Dialog pro výběr typu vztahu při vytváření spojení
 - **SVG Connection Lines**: Vizuální spojnice mezi objekty s popisky typů vztahů
 
-### 4. Modul "Lidi" (People) - NOVĚ IMPLEMENTOVÁNO
+### 4. Modul "Lidi" (People) - IMPLEMENTOVÁNO
 Centrální databáze osob sloužící jako zdroj pro projekty, procesy a plánování práce.
 
 **Základní profil osoby:**
@@ -52,6 +52,30 @@ Centrální databáze osob sloužící jako zdroj pro projekty, procesy a pláno
 - Drag & drop ready pro přetažení do projektů/procesů
 - Přidání/editace/mazání osob
 - Persistence do localStorage
+
+### 5. Pokročilá správa oken - NOVĚ IMPLEMENTOVÁNO (Prosinec 2025)
+
+**Fáze 1 - Pin & Focus Mode:**
+- **Pin tlačítko**: Cyklování mezi 3 stavy:
+  - `none` (šedá) - normální okno
+  - `lock` (oranžová) - zamčená pozice, nelze přetahovat
+  - `top` (fialová) - vždy nahoře (zIndex: 9999)
+- **Focus Mode**: Dvojklik na záhlaví okna ztmaví ostatní okna (opacity: 0.4)
+- **ESC**: Ukončí focus mode
+
+**Fáze 2 - Snap/Split systém:**
+- Přetažení okna k okraji obrazovky zobrazí cyan náhled
+- Snap zóny (práh 50px):
+  - Levý okraj → levá polovina
+  - Pravý okraj → pravá polovina
+  - Horní okraj → maximalizace
+  - Rohy → čtvrtinové rozložení
+- České popisky v náhledech
+
+**Fáze 3 - Magnetismus:**
+- Okna se automaticky přichytávají k sobě navzájem (práh 15px)
+- Přichytávání hran: levá-levá, pravá-pravá, levá-pravá, pravá-levá
+- Funguje pouze když okno není v snap zóně okraje
 
 ## Tech Stack
 - **Frontend**: React.js, Tailwind CSS, shadcn/ui
@@ -92,18 +116,20 @@ project_world_{projectId}: {
 /app/frontend/src/
 ├── components/
 │   ├── modules/
-│   │   ├── PeopleModule.jsx        # NOVÝ - Modul Lidi
-│   │   ├── ProjectWorldModule.jsx
-│   │   ├── ItemDetailPanel.jsx
-│   │   ├── RelationshipTypeDialog.jsx
+│   │   ├── PeopleModule.jsx
+│   │   ├── GoalsModule.jsx
+│   │   ├── PlanCanvas.jsx
+│   │   ├── ProcessesModule.jsx
+│   │   ├── ProcessCanvas.jsx
 │   │   └── ...other modules
 │   ├── ui/
-│   ├── Canvas.jsx
-│   ├── DraggableModule.jsx
-│   ├── BottomToolbar.jsx
+│   ├── Canvas.jsx              # Snap preview overlay
+│   ├── DraggableModule.jsx     # Window management (pin, focus, snap, magnet)
+│   ├── BottomToolbar.jsx       # Workzones, toolbar
+│   ├── RightSidebar.jsx        # CANVAS buffer
 │   └── ...
 ├── context/
-│   └── WorkspaceContext.js
+│   └── WorkspaceContext.js     # Global state
 └── ...
 ```
 
@@ -131,7 +157,18 @@ project_world_{projectId}: {
 - [x] Osobní to-do list pro členy týmu
 - [x] Checklist úkolů vůči externím osobám
 - [x] Vyhledávání a filtrování
-- [x] Drag & drop připraveno pro přetažení do projektů
+
+### Session 5 - Strategické moduly & UI (Prosinec 2025)
+- [x] Modul Cíle (Goals) s PlanCanvas
+- [x] Modul Procesy s ProcessCanvas
+- [x] Workzones (Problem Solving, Planning, Executing) s barevnými tématy
+- [x] CANVAS buffer (pravý sidebar) pro dočasné odkládání modulů
+- [x] Obousměrný drag & drop mezi workspace a CANVAS
+
+### Session 6 - Pokročilá správa oken (Prosinec 2025)
+- [x] Fáze 1: Pin funkce (lock, always-on-top) + Focus Mode
+- [x] Fáze 2: Snap/Split systém (okraje, rohy, náhledy)
+- [x] Fáze 3: Magnetismus (přichytávání oken k sobě)
 
 ## Upcoming Tasks
 
@@ -140,8 +177,11 @@ project_world_{projectId}: {
 - Vytvoření vztahu "člověk se podílí na procesu"
 - Přiřazení úkolů konkrétním lidem
 
-### P1: Fáze 3 - Kontextuální projekce
-- Zobrazení relevantních položek z jiných podprojektů
+### P1: Process-People Integration
+- Přetahování uživatelů z modulu Lidi do Process Canvas pro přiřazení rolí
+
+### P2: Process-Task Integration
+- Přetahování kroků z Process Canvas do modulu Úkoly pro vytvoření konkrétních úkolů
 
 ### P2: Backend implementace
 - Migrace z localStorage na FastAPI + MongoDB
@@ -152,6 +192,7 @@ project_world_{projectId}: {
 ## Testing Status
 - Testing agent iteration_1: 95% (Relationship Logic)
 - Testing agent iteration_2: 100% (Modul Lidi)
+- Testing agent iteration_3: 100% (Pokročilá správa oken - Pin, Focus, Snap, Magnetismus)
 
 ## Preview URL
 https://smart-windows-5.preview.emergentagent.com
