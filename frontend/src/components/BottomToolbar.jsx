@@ -65,6 +65,7 @@ const toolbarItems = [
   { id: 'processes', icon: GitBranch, label: 'Procesy', type: 'processes' },
   { id: 'trend', icon: Layout, label: 'Projekty', type: 'projects' },
   { id: 'file', icon: ListChecks, label: 'Úkoly', type: 'tasks' },
+  { id: 'calendar', icon: Calendar, label: 'Kalendář', type: 'calendar' },
   { id: 'people', icon: Users, label: 'Lidi', type: 'people' },
   { id: 'video', icon: Video, label: 'Video', type: 'video' },
   { id: 'ai', icon: Sparkles, label: 'AI Asistent', type: 'ai', highlight: true }
