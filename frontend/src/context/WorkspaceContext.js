@@ -150,6 +150,8 @@ export const WorkspaceProvider = ({ children }) => {
     bringToFront,
     deferModule,
     restoreModule,
+    removeFromCanvas,
+    reorderCanvasModule,
     addNote,
     updateNote,
     deleteNote,
