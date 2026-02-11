@@ -29,7 +29,8 @@ const WORKZONES = [
     borderColor: 'border-orange-500/40',
     textColor: 'text-orange-400',
     glowColor: 'shadow-orange-500/50',
-    dotColor: 'bg-orange-500'
+    dotColor: 'bg-orange-500',
+    shadowColor: 'shadow-lg shadow-orange-500/30'
   },
   { 
     id: 'planning', 
@@ -39,7 +40,8 @@ const WORKZONES = [
     borderColor: 'border-yellow-500/40',
     textColor: 'text-yellow-400',
     glowColor: 'shadow-yellow-500/50',
-    dotColor: 'bg-yellow-500'
+    dotColor: 'bg-yellow-500',
+    shadowColor: 'shadow-lg shadow-yellow-500/30'
   },
   { 
     id: 'executive', 
@@ -49,7 +51,8 @@ const WORKZONES = [
     borderColor: 'border-green-500/40',
     textColor: 'text-green-400',
     glowColor: 'shadow-green-500/50',
-    dotColor: 'bg-green-500'
+    dotColor: 'bg-green-500',
+    shadowColor: 'shadow-lg shadow-green-500/30'
   }
 ];
 
