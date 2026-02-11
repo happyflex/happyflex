@@ -88,7 +88,7 @@ const BottomToolbar = () => {
   }, [workzonePopoverOpen]);
 
   const handleToolClick = (item) => {
-    if (['notes', 'tasks', 'people', 'projects', 'goals', 'processes', 'chart', 'timer'].includes(item.type)) {
+    if (['notes', 'tasks', 'people', 'projects', 'goals', 'processes', 'chart', 'timer', 'calendar'].includes(item.type)) {
       addModule(item.type);
       toast({
         title: 'Modul přidán',
