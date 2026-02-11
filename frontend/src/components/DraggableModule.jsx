@@ -329,6 +329,7 @@ const DraggableModule = ({ module }) => {
         setSnapPreview(null);
       }
       setIsDragging(false);
+      setIsDraggingWindow(false);
       setIsResizing(false);
       setResizeHandle(null);
       setSnapPreview(null);
