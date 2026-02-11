@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import DraggableModule from './DraggableModule';
 
