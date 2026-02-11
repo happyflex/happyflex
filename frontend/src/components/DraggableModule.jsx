@@ -87,6 +87,9 @@ const DraggableModule = ({ module }) => {
     if (e.target.closest('.resize-handle')) return;
     if (e.target.closest('button')) return;
     
+    // If locked, don't allow dragging
+    if (pinMode === 'lock') return;
+    
     // If Shift is pressed, allow native drag - don't interfere
     if (isShiftPressed) {
       bringToFront(module.id);
