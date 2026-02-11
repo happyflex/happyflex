@@ -119,7 +119,8 @@ const DraggableModule = ({ module }) => {
     clearFocusMode,
     focusedModuleId,
     snapToLayout,
-    setSnapPreview
+    setSnapPreview,
+    setIsDraggingWindow
   } = useWorkspace();
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
