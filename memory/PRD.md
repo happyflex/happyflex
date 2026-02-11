@@ -170,6 +170,16 @@ project_world_{projectId}: {
 - [x] Fáze 2: Snap/Split systém (okraje, rohy, náhledy)
 - [x] Fáze 3: Magnetismus (přichytávání oken k sobě)
 
+### Session 7 - Modul Kalendář (Únor 2026)
+- [x] Nový modul Kalendář přidán do workspace
+- [x] Tři pohledy: Denní, Týdenní, Měsíční
+- [x] Události s atributy: název, datum/čas, typ (schůzka/fokus/deadline/připomínka), projekt
+- [x] CRUD operace: vytvoření, editace, mazání událostí
+- [x] Persistence do localStorage (steward_calendar_events)
+- [x] Barevné kódování typů událostí (modrá/fialová/červená/žlutá)
+- [x] Navigace v čase (předchozí/další, tlačítko "Dnes")
+- [x] Zvýraznění aktuálního dne
+
 ## Upcoming Tasks
 
 ### P1: Integrace Lidi do Project World
