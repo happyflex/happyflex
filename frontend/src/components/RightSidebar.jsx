@@ -154,6 +154,7 @@ const RightSidebar = () => {
               {deferredModules.map((module, index) => (
                 <div
                   key={module.id}
+                  data-canvas-module-id={module.id}
                   draggable="true"
                   onDragStart={(e) => handleDragStart(e, module, index)}
                   onDragEnd={handleDragEnd}
