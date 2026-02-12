@@ -519,32 +519,24 @@ const CommandWheel = () => {
               >
                 {/* Icon circle */}
                 <div
-                  className="relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-150"
+                  className="relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-150"
                   style={{
                     background: isHovered 
                       ? `linear-gradient(135deg, ${workzoneColor.accent}30 0%, ${workzoneColor.accent}10 100%)`
                       : item.recommended
                         ? `linear-gradient(135deg, ${workzoneColor.accent}20 0%, transparent 100%)`
-                        : 'rgba(15, 29, 53, 0.8)',
-                    border: `1.5px solid ${isHovered ? workzoneColor.accent : item.recommended ? workzoneColor.ring : 'rgba(34, 211, 238, 0.3)'}`,
+                        : 'rgba(15, 29, 53, 0.9)',
+                    border: `1.5px solid ${isHovered ? workzoneColor.accent : item.recommended ? workzoneColor.ring : 'rgba(34, 211, 238, 0.25)'}`,
                     boxShadow: isHovered
-                      ? `0 0 20px ${workzoneColor.glow}, 0 0 40px ${workzoneColor.glow}`
+                      ? `0 0 15px ${workzoneColor.glow}, 0 0 30px ${workzoneColor.glow}`
                       : item.recommended
-                        ? `0 0 15px ${workzoneColor.glow}`
+                        ? `0 0 12px ${workzoneColor.glow}`
                         : 'none',
                     backdropFilter: 'blur(10px)'
                   }}
                 >
                   <Icon 
-                    className={`w-5 h-5 transition-colors duration-150 ${
-                      item.danger 
-                        ? 'text-red-400' 
-                        : item.active
-                          ? 'text-purple-400'
-                          : isHovered || item.recommended
-                            ? `text-[${workzoneColor.accent}]`
-                            : 'text-cyan-400'
-                    }`}
+                    className="w-4 h-4 transition-colors duration-150"
                     style={{ color: item.danger ? '#f87171' : item.active ? '#c084fc' : isHovered || item.recommended ? workzoneColor.accent : '#22d3ee' }}
                   />
                   
