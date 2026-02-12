@@ -493,8 +493,8 @@ const CommandWheel = () => {
         {/* Menu Items */}
         {menuItems.map((item, index) => {
           const angle = angleStep * index - Math.PI / 2; // Start from top
-          const x = Math.cos(angle) * (radius + 50);
-          const y = Math.sin(angle) * (radius + 50);
+          const x = Math.cos(angle) * (radius + 45);
+          const y = Math.sin(angle) * (radius + 45);
           const isHovered = hoveredItem === item.id;
           const Icon = item.icon;
           
