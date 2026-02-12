@@ -124,6 +124,7 @@ const Canvas = () => {
   return (
     <div 
       className="flex-1 relative overflow-hidden"
+      data-workspace="main"
       onDrop={handleDrop}
       onDragOver={handleDragOver}
     >
