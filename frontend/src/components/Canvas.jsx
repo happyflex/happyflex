@@ -9,9 +9,11 @@ const SnapPreview = ({ zone }) => {
   const padding = 16;
   const rightSidebarWidth = 320;
   const bottomToolbarHeight = 80;
+  const headerHeight = 64;
   
+  // Canvas is positioned below header, so we calculate available space within Canvas
   const workspaceWidth = window.innerWidth - rightSidebarWidth;
-  const workspaceHeight = window.innerHeight - bottomToolbarHeight;
+  const workspaceHeight = window.innerHeight - headerHeight - bottomToolbarHeight;
   
   const styles = {
     'top-left': {
