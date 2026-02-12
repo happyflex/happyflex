@@ -319,7 +319,14 @@ export const WorkspaceProvider = ({ children }) => {
     deleteTask,
     setTimerActive,
     setTimerSeconds,
-    setActiveWorkzone
+    setActiveWorkzone,
+    // Command Wheel actions
+    duplicateModule,
+    setPinMode,
+    snapToLeft,
+    snapToRight,
+    moveCanvasModuleUp,
+    moveCanvasModuleDown
   };
 
   return (
