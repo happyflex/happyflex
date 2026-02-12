@@ -206,6 +206,58 @@ export const WorkspaceProvider = ({ children }) => {
     }
   }, []);
 
+  // Duplicate a module
+  const duplicateModule = useCallback((id) => {
+    const module = modules.find(m => m.id === id);
+    if (module) {
+      const newModule = {
+        ...module,
+        id: `module-${Date.now()}`,
+        position: {
+          x: module.position.x + 30,
+          y: module.position.y + 30
+        },
+        zIndex: modules.length
+      };
+      setModules(prev => [...prev, newModule]);
+      return newModule.id;
+    }
+    return null;
+  }, [modules]);
+
+  // Set specific pin mode for a module
+  const setPinMode = useCallback((id, mode) => {
+    setModules(prev => prev.map(m => 
+      m.id === id ? { ...m, pinMode: mode } : m
+    ));
+  }, []);
+
+  // Snap module to left half
+  const snapToLeft = useCallback((id) => {
+    snapToLayout(id, 'left-half');
+  }, [snapToLayout]);
+
+  // Snap module to right half
+  const snapToRight = useCallback((id) => {
+    snapToLayout(id, 'right-half');
+  }, [snapToLayout]);
+
+  // Move canvas module up in order
+  const moveCanvasModuleUp = useCallback((id) => {
+    const index = deferredModules.findIndex(m => m.id === id);
+    if (index > 0) {
+      reorderCanvasModule(index, index - 1);
+    }
+  }, [deferredModules, reorderCanvasModule]);
+
+  // Move canvas module down in order
+  const moveCanvasModuleDown = useCallback((id) => {
+    const index = deferredModules.findIndex(m => m.id === id);
+    if (index < deferredModules.length - 1) {
+      reorderCanvasModule(index, index + 1);
+    }
+  }, [deferredModules, reorderCanvasModule]);
+
   const addNote = useCallback((note) => {
     setNotes(prev => [...prev, { ...note, id: Date.now().toString(), createdAt: new Date().toISOString() }]);
   }, []);
