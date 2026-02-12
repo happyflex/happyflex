@@ -193,8 +193,9 @@ export const WorkspaceProvider = ({ children }) => {
     const padding = 16;
     const rightSidebarWidth = 320;
     const bottomToolbarHeight = 80;
+    const headerHeight = 64;
     const availableWidth = window.innerWidth - rightSidebarWidth - (padding * 2);
-    const availableHeight = window.innerHeight - bottomToolbarHeight - (padding * 2);
+    const availableHeight = window.innerHeight - headerHeight - bottomToolbarHeight - (padding * 2);
     
     const snapLayouts = getSnapLayouts(availableWidth, availableHeight, padding);
     const layout = snapLayouts[layoutKey];
