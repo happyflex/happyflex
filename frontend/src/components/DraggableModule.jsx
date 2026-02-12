@@ -426,14 +426,6 @@ const DraggableModule = ({ module }) => {
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7 text-gray-400 hover:text-cyan-400 hover:bg-cyan-500/10"
-            onClick={() => deferModule(module.id)}
-          >
-            <Minus className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
             className={`h-7 w-7 transition-colors ${
               pinMode === 'lock' 
                 ? 'text-orange-400 hover:text-orange-300 hover:bg-orange-500/10' 
@@ -445,6 +437,14 @@ const DraggableModule = ({ module }) => {
             title={pinMode === 'lock' ? 'Zamčeno (nelze přesunout)' : pinMode === 'top' ? 'Vždy nahoře' : 'Připnout'}
           >
             <Pin className={`h-4 w-4 ${pinMode !== 'none' ? 'fill-current' : ''}`} />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-gray-400 hover:text-cyan-400 hover:bg-cyan-500/10"
+            onClick={() => deferModule(module.id)}
+          >
+            <Minus className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
