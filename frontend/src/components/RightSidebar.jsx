@@ -124,6 +124,7 @@ const RightSidebar = () => {
       className={`w-80 bg-[#0a1628]/80 backdrop-blur-lg border-l flex flex-col transition-all ${
         isDragOver ? 'border-cyan-400 border-l-4 bg-cyan-500/10' : 'border-cyan-500/20'
       }`}
+      data-sidebar="canvas"
       onDrop={handleDrop}
       onDragOver={handleSidebarDragOver}
       onDragLeave={handleDragLeave}
