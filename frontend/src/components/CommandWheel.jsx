@@ -622,11 +622,9 @@ const CommandWheel = () => {
         @keyframes ringPulse {
           0%, 100% {
             opacity: 1;
-            box-shadow: 0 0 20px ${workzoneColor.glow}, 0 0 40px ${workzoneColor.glow};
           }
           50% {
-            opacity: 0.85;
-            box-shadow: 0 0 25px ${workzoneColor.glow}, 0 0 50px ${workzoneColor.glow};
+            opacity: 0.8;
           }
         }
       `}</style>
