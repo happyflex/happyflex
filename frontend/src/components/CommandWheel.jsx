@@ -302,18 +302,18 @@ const CommandWheel = () => {
   
   if (!isOpen || menuItems.length === 0) return null;
   
-  // Reduced radius (15-25% smaller)
-  const radius = 75;
+  // Reduced radius (60% smaller = 40% of current)
+  const radius = 30;
   const itemCount = menuItems.length;
   const angleStep = (2 * Math.PI) / itemCount;
   
   // Number of tick marks for outer ring
-  const tickCount = 36;
+  const tickCount = 24;
   
   // Adjust position to stay in viewport
   let adjustedX = position.x;
   let adjustedY = position.y;
-  const margin = 130;
+  const margin = 100;
   
   if (position.x < margin) adjustedX = margin;
   if (position.x > window.innerWidth - margin) adjustedX = window.innerWidth - margin;
