@@ -21,6 +21,7 @@ function App() {
         <BottomToolbar />
         <Toaster />
         <CursorHUD />
+        <CommandWheel />
       </div>
     </WorkspaceProvider>
   );
