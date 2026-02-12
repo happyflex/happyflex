@@ -593,20 +593,9 @@ const CommandWheel = () => {
             </div>
           );
         })}
-        
-        {/* Center indicator */}
-        <div
-          className="absolute w-3 h-3 rounded-full"
-          style={{
-            left: -6,
-            top: -6,
-            background: `radial-gradient(circle, ${workzoneColor.accent} 0%, transparent 70%)`,
-            boxShadow: `0 0 10px ${workzoneColor.accent}`
-          }}
-        />
       </div>
       
-      {/* CSS Animation */}
+      {/* CSS Animations */}
       <style>{`
         @keyframes wheelOpen {
           from {
@@ -616,6 +605,28 @@ const CommandWheel = () => {
           to {
             opacity: 1;
             transform: translate(-50%, -50%) scale(1);
+          }
+        }
+        
+        @keyframes coreBreathe {
+          0%, 100% {
+            opacity: 0.8;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.15);
+          }
+        }
+        
+        @keyframes ringPulse {
+          0%, 100% {
+            opacity: 1;
+            box-shadow: 0 0 20px ${workzoneColor.glow}, 0 0 40px ${workzoneColor.glow};
+          }
+          50% {
+            opacity: 0.85;
+            box-shadow: 0 0 25px ${workzoneColor.glow}, 0 0 50px ${workzoneColor.glow};
           }
         }
       `}</style>
