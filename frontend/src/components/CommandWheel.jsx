@@ -597,23 +597,35 @@ const CommandWheel = () => {
           }
         }
         
-        @keyframes coreBreathe {
+        /* Micro Pulse - very subtle 3-5% intensity change */
+        @keyframes corePulse {
           0%, 100% {
-            opacity: 0.8;
-            transform: scale(1);
+            opacity: 0.95;
           }
           50% {
             opacity: 1;
-            transform: scale(1.15);
           }
         }
         
-        @keyframes ringPulse {
+        /* Core tint breathing - ultra subtle */
+        @keyframes coreTint {
           0%, 100% {
-            opacity: 1;
+            opacity: 0.97;
           }
           50% {
-            opacity: 0.8;
+            opacity: 1;
+          }
+        }
+        
+        /* Ring breathing - subtle glow variation */
+        @keyframes ringBreathe {
+          0%, 100% {
+            opacity: 0.97;
+            filter: brightness(1);
+          }
+          50% {
+            opacity: 1;
+            filter: brightness(1.03);
           }
         }
       `}</style>
