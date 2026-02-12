@@ -302,14 +302,18 @@ const CommandWheel = () => {
   
   if (!isOpen || menuItems.length === 0) return null;
   
-  const radius = 100;
+  // Reduced radius (15-25% smaller)
+  const radius = 75;
   const itemCount = menuItems.length;
   const angleStep = (2 * Math.PI) / itemCount;
+  
+  // Number of tick marks for outer ring
+  const tickCount = 36;
   
   // Adjust position to stay in viewport
   let adjustedX = position.x;
   let adjustedY = position.y;
-  const margin = 150;
+  const margin = 130;
   
   if (position.x < margin) adjustedX = margin;
   if (position.x > window.innerWidth - margin) adjustedX = window.innerWidth - margin;
@@ -338,7 +342,42 @@ const CommandWheel = () => {
           animation: 'wheelOpen 200ms cubic-bezier(0.34, 1.56, 0.64, 1)'
         }}
       >
-        {/* Central Hub */}
+        {/* === MULTI-LAYER RING SYSTEM === */}
+        
+        {/* Layer 1: Outer Tick Ring (segmentation detail) */}
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: (radius + 8) * 2,
+            height: (radius + 8) * 2,
+            left: -(radius + 8),
+            top: -(radius + 8),
+          }}
+        >
+          {/* Tick marks */}
+          {Array.from({ length: tickCount }).map((_, i) => {
+            const tickAngle = (360 / tickCount) * i;
+            const isLongTick = i % 6 === 0;
+            return (
+              <div
+                key={i}
+                className="absolute"
+                style={{
+                  width: '1px',
+                  height: isLongTick ? '6px' : '3px',
+                  background: `linear-gradient(to bottom, ${workzoneColor.ring}, transparent)`,
+                  opacity: isLongTick ? 0.4 : 0.15,
+                  left: '50%',
+                  top: '0',
+                  transformOrigin: `0 ${radius + 8}px`,
+                  transform: `translateX(-50%) rotate(${tickAngle}deg)`
+                }}
+              />
+            );
+          })}
+        </div>
+        
+        {/* Layer 2: Main Energy Ring (workzone glow) */}
         <div
           className="absolute rounded-full"
           style={{
@@ -346,25 +385,110 @@ const CommandWheel = () => {
             height: radius * 2,
             left: -radius,
             top: -radius,
-            background: 'radial-gradient(circle at center, rgba(15, 29, 53, 0.95) 0%, rgba(10, 22, 40, 0.9) 100%)',
-            backdropFilter: 'blur(20px)',
             border: `2px solid ${workzoneColor.ring}`,
             boxShadow: `
-              0 0 30px ${workzoneColor.glow},
-              0 0 60px ${workzoneColor.glow},
-              inset 0 0 30px rgba(0, 0, 0, 0.5)
+              0 0 20px ${workzoneColor.glow},
+              0 0 40px ${workzoneColor.glow}
+            `,
+            animation: 'ringPulse 4s ease-in-out infinite'
+          }}
+        />
+        
+        {/* Layer 3: Inner Technical Ring (thin, no glow) */}
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: (radius - 8) * 2,
+            height: (radius - 8) * 2,
+            left: -(radius - 8),
+            top: -(radius - 8),
+            border: '1px solid rgba(34, 211, 238, 0.2)'
+          }}
+        />
+        
+        {/* Layer 4: Central Hub with gradient core */}
+        <div
+          className="absolute rounded-full overflow-hidden"
+          style={{
+            width: (radius - 16) * 2,
+            height: (radius - 16) * 2,
+            left: -(radius - 16),
+            top: -(radius - 16),
+            background: `
+              radial-gradient(
+                circle at center,
+                rgba(13, 42, 58, 0.95) 0%,
+                rgba(8, 28, 42, 0.98) 50%,
+                rgba(10, 22, 40, 0.95) 100%
+              )
+            `,
+            backdropFilter: 'blur(20px)',
+            boxShadow: `
+              inset 0 0 30px rgba(0, 0, 0, 0.4),
+              inset 0 0 15px ${workzoneColor.glow}
             `
           }}
         >
-          {/* Inner glow ring */}
+          {/* Inner gradient overlay with workzone tint */}
           <div
-            className="absolute inset-2 rounded-full"
+            className="absolute inset-0"
             style={{
-              border: `1px solid ${workzoneColor.ring}`,
-              opacity: 0.3
+              background: `radial-gradient(circle at center, ${workzoneColor.accent}08 0%, transparent 70%)`,
+            }}
+          />
+          
+          {/* Subtle concentric rings inside */}
+          <div
+            className="absolute rounded-full"
+            style={{
+              width: '60%',
+              height: '60%',
+              left: '20%',
+              top: '20%',
+              border: '1px solid rgba(34, 211, 238, 0.08)'
+            }}
+          />
+          <div
+            className="absolute rounded-full"
+            style={{
+              width: '40%',
+              height: '40%',
+              left: '30%',
+              top: '30%',
+              border: '1px solid rgba(34, 211, 238, 0.05)'
             }}
           />
         </div>
+        
+        {/* Layer 5: Central Energy Core (breathing glow) */}
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: 12,
+            height: 12,
+            left: -6,
+            top: -6,
+            background: `radial-gradient(circle, ${workzoneColor.accent} 0%, ${workzoneColor.accent}60 40%, transparent 70%)`,
+            boxShadow: `
+              0 0 8px ${workzoneColor.accent},
+              0 0 16px ${workzoneColor.glow}
+            `,
+            animation: 'coreBreathe 4s ease-in-out infinite'
+          }}
+        />
+        
+        {/* Inner energy dot */}
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: 4,
+            height: 4,
+            left: -2,
+            top: -2,
+            background: workzoneColor.accent,
+            boxShadow: `0 0 4px ${workzoneColor.accent}`
+          }}
+        />
         
         {/* Menu Items */}
         {menuItems.map((item, index) => {
