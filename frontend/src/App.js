@@ -6,6 +6,7 @@ import Canvas from "./components/Canvas";
 import BottomToolbar from "./components/BottomToolbar";
 import RightSidebar from "./components/RightSidebar";
 import CursorHUD from "./components/CursorHUD";
+import CommandWheel from "./components/CommandWheel";
 import { Toaster } from "./components/ui/toaster";
 
 function App() {
