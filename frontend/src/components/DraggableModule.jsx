@@ -364,6 +364,7 @@ const DraggableModule = ({ module }) => {
   return (
     <div
       ref={moduleRef}
+      data-module-id={module.id}
       className={`absolute bg-[#0f1d35]/95 backdrop-blur-lg rounded-xl border shadow-2xl overflow-hidden transition-all ${
         isDragging || isResizing ? 'shadow-cyan-500/50 select-none' : ''
       } ${isMaximized ? 'duration-300' : ''} ${
