@@ -342,34 +342,47 @@ const CommandWheel = () => {
           animation: 'wheelOpen 200ms cubic-bezier(0.34, 1.56, 0.64, 1)'
         }}
       >
+        {/* === SPATIAL INTEGRATION: Ambient Halo === */}
+        <div
+          className="absolute rounded-full pointer-events-none"
+          style={{
+            width: (radius + 60) * 2,
+            height: (radius + 60) * 2,
+            left: -(radius + 60),
+            top: -(radius + 60),
+            background: `radial-gradient(circle at center, ${workzoneColor.glow} 0%, ${workzoneColor.glow}00 70%)`,
+            opacity: 0.15,
+            filter: 'blur(20px)'
+          }}
+        />
+        
         {/* === MULTI-LAYER RING SYSTEM === */}
         
-        {/* Layer 1: Outer Tick Ring (segmentation detail) */}
+        {/* Layer 1: Outer Detail Ring with 12 Tick Marks */}
         <div
           className="absolute rounded-full"
           style={{
-            width: (radius + 4) * 2,
-            height: (radius + 4) * 2,
-            left: -(radius + 4),
-            top: -(radius + 4),
+            width: (radius + 6) * 2,
+            height: (radius + 6) * 2,
+            left: -(radius + 6),
+            top: -(radius + 6),
           }}
         >
-          {/* Tick marks */}
-          {Array.from({ length: tickCount }).map((_, i) => {
-            const tickAngle = (360 / tickCount) * i;
-            const isLongTick = i % 6 === 0;
+          {/* 12 Ultra-subtle tick marks */}
+          {Array.from({ length: 12 }).map((_, i) => {
+            const tickAngle = (360 / 12) * i;
             return (
               <div
                 key={i}
                 className="absolute"
                 style={{
                   width: '1px',
-                  height: isLongTick ? '4px' : '2px',
+                  height: '5px',
                   background: `linear-gradient(to bottom, ${workzoneColor.ring}, transparent)`,
-                  opacity: isLongTick ? 0.4 : 0.15,
+                  opacity: 0.2,
                   left: '50%',
                   top: '0',
-                  transformOrigin: `0 ${radius + 4}px`,
+                  transformOrigin: `0 ${radius + 6}px`,
                   transform: `translateX(-50%) rotate(${tickAngle}deg)`
                 }}
               />
@@ -390,7 +403,7 @@ const CommandWheel = () => {
               0 0 12px ${workzoneColor.glow},
               0 0 24px ${workzoneColor.glow}
             `,
-            animation: 'ringPulse 4s ease-in-out infinite'
+            animation: 'ringBreathe 4s ease-in-out infinite'
           }}
         />
         
@@ -402,7 +415,7 @@ const CommandWheel = () => {
             height: (radius - 4) * 2,
             left: -(radius - 4),
             top: -(radius - 4),
-            border: '1px solid rgba(34, 211, 238, 0.2)'
+            border: '1px solid rgba(34, 211, 238, 0.15)'
           }}
         />
         
@@ -433,29 +446,30 @@ const CommandWheel = () => {
           <div
             className="absolute inset-0"
             style={{
-              background: `radial-gradient(circle at center, ${workzoneColor.accent}08 0%, transparent 70%)`,
+              background: `radial-gradient(circle at center, ${workzoneColor.accent}10 0%, transparent 70%)`,
+              animation: 'coreTint 4s ease-in-out infinite'
             }}
           />
         </div>
         
-        {/* Layer 5: Central Energy Core (breathing glow) */}
+        {/* Layer 5: Central Energy Core with Micro Pulse */}
         <div
           className="absolute rounded-full"
           style={{
-            width: 8,
-            height: 8,
-            left: -4,
-            top: -4,
-            background: `radial-gradient(circle, ${workzoneColor.accent} 0%, ${workzoneColor.accent}60 40%, transparent 70%)`,
+            width: 10,
+            height: 10,
+            left: -5,
+            top: -5,
+            background: `radial-gradient(circle, ${workzoneColor.accent}90 0%, ${workzoneColor.accent}40 50%, transparent 80%)`,
             boxShadow: `
-              0 0 6px ${workzoneColor.accent},
+              0 0 6px ${workzoneColor.accent}80,
               0 0 12px ${workzoneColor.glow}
             `,
-            animation: 'coreBreathe 4s ease-in-out infinite'
+            animation: 'corePulse 4s ease-in-out infinite'
           }}
         />
         
-        {/* Inner energy dot */}
+        {/* Inner energy dot (stable center) */}
         <div
           className="absolute rounded-full"
           style={{
@@ -464,7 +478,7 @@ const CommandWheel = () => {
             left: -1.5,
             top: -1.5,
             background: workzoneColor.accent,
-            boxShadow: `0 0 3px ${workzoneColor.accent}`
+            boxShadow: `0 0 2px ${workzoneColor.accent}`
           }}
         />
         
