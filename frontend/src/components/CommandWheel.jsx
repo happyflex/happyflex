@@ -529,12 +529,12 @@ const CommandWheel = () => {
                 
                 {/* Label */}
                 <span
-                  className={`text-xs font-medium whitespace-nowrap transition-all duration-150 ${
+                  className={`text-[10px] font-medium whitespace-nowrap transition-all duration-150 ${
                     isHovered ? 'opacity-100' : 'opacity-70'
                   }`}
                   style={{
                     color: item.danger ? '#f87171' : isHovered ? workzoneColor.accent : '#94a3b8',
-                    textShadow: isHovered ? `0 0 10px ${workzoneColor.glow}` : 'none'
+                    textShadow: isHovered ? `0 0 8px ${workzoneColor.glow}` : 'none'
                   }}
                 >
                   {item.label}
