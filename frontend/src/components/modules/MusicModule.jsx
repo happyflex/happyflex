@@ -92,11 +92,16 @@ const MusicModule = () => {
 
   // Get current track
   const getCurrentTrack = useCallback(() => {
+    // If playing from library directly
+    if (currentLibraryItem) {
+      return currentLibraryItem;
+    }
+    // If playing from playlist
     if (!currentPlaylist) return null;
     const playlist = playlists.find(p => p.id === currentPlaylist);
     if (!playlist || !playlist.items.length) return null;
     return playlist.items[currentTrackIndex] || playlist.items[0];
-  }, [currentPlaylist, currentTrackIndex, playlists]);
+  }, [currentPlaylist, currentTrackIndex, playlists, currentLibraryItem]);
 
   const currentTrack = getCurrentTrack();
 
