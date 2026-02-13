@@ -571,42 +571,88 @@ const MusicModule = () => {
             Knihovna je prázdná
           </div>
         ) : (
-          library.map(item => (
-            <div 
-              key={item.id}
-              className="flex items-center gap-2 p-2 rounded-lg hover:bg-cyan-500/10 group transition-colors"
-            >
-              {React.createElement(MEDIA_TYPES[item.type]?.icon || Music, { 
-                className: `h-4 w-4 flex-shrink-0 ${MEDIA_TYPES[item.type]?.color || 'text-cyan-400'}` 
-              })}
-              <span className="flex-1 text-sm text-white truncate">{item.title}</span>
-              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                {playlists.length > 0 && (
-                  <select
-                    className="bg-cyan-500/20 border-none rounded text-xs text-cyan-400 p-1"
-                    onChange={(e) => {
-                      if (e.target.value) addToPlaylist(e.target.value, item);
-                      e.target.value = '';
-                    }}
-                    defaultValue=""
+          library.map(item => {
+            const isCurrentItem = currentLibraryItem?.id === item.id;
+            const isItemPlaying = isCurrentItem && isPlaying;
+            
+            return (
+              <div 
+                key={item.id}
+                className={`flex items-center gap-2 p-2 rounded-lg group transition-all cursor-pointer ${
+                  isCurrentItem 
+                    ? 'bg-cyan-500/20 border border-cyan-500/40' 
+                    : 'hover:bg-cyan-500/10 border border-transparent'
+                }`}
+                onClick={() => playFromLibrary(item)}
+              >
+                {/* Play button / Now playing indicator */}
+                <div className="relative w-8 h-8 flex items-center justify-center flex-shrink-0">
+                  {isItemPlaying ? (
+                    // Equalizer animation for playing item
+                    <div className="flex items-end gap-0.5 h-4">
+                      <div className="w-1 bg-cyan-400 rounded-full animate-pulse" style={{ height: '60%', animationDelay: '0ms' }} />
+                      <div className="w-1 bg-cyan-400 rounded-full animate-pulse" style={{ height: '100%', animationDelay: '150ms' }} />
+                      <div className="w-1 bg-cyan-400 rounded-full animate-pulse" style={{ height: '40%', animationDelay: '300ms' }} />
+                    </div>
+                  ) : isCurrentItem ? (
+                    // Paused indicator
+                    <Pause className="h-4 w-4 text-cyan-400" />
+                  ) : (
+                    // Play button on hover, icon otherwise
+                    <>
+                      <div className="absolute inset-0 flex items-center justify-center opacity-100 group-hover:opacity-0 transition-opacity">
+                        {React.createElement(MEDIA_TYPES[item.type]?.icon || Music, { 
+                          className: `h-4 w-4 ${MEDIA_TYPES[item.type]?.color || 'text-cyan-400'}` 
+                        })}
+                      </div>
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="w-7 h-7 rounded-full bg-cyan-500/30 flex items-center justify-center">
+                          <Play className="h-3.5 w-3.5 text-cyan-400 ml-0.5" />
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+                
+                {/* Title */}
+                <div className="flex-1 min-w-0">
+                  <span className={`text-sm truncate block ${isCurrentItem ? 'text-cyan-300 font-medium' : 'text-white'}`}>
+                    {item.title}
+                  </span>
+                  {isCurrentItem && (
+                    <span className="text-xs text-cyan-500">Právě přehrává</span>
+                  )}
+                </div>
+                
+                {/* Actions */}
+                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                  {playlists.length > 0 && (
+                    <select
+                      className="bg-cyan-500/20 border-none rounded text-xs text-cyan-400 p-1"
+                      onChange={(e) => {
+                        if (e.target.value) addToPlaylist(e.target.value, item);
+                        e.target.value = '';
+                      }}
+                      defaultValue=""
+                    >
+                      <option value="" className="bg-[#0f1d35]">+ Playlist</option>
+                      {playlists.map(p => (
+                        <option key={p.id} value={p.id} className="bg-[#0f1d35]">{p.name}</option>
+                      ))}
+                    </select>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => deleteFromLibrary(item.id)}
+                    className="h-6 w-6 text-gray-500 hover:text-red-400"
                   >
-                    <option value="" className="bg-[#0f1d35]">+ Playlist</option>
-                    {playlists.map(p => (
-                      <option key={p.id} value={p.id} className="bg-[#0f1d35]">{p.name}</option>
-                    ))}
-                  </select>
-                )}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => deleteFromLibrary(item.id)}
-                  className="h-6 w-6 text-gray-500 hover:text-red-400"
-                >
-                  <Trash2 className="h-3 w-3" />
-                </Button>
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>
