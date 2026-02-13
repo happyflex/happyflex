@@ -263,6 +263,11 @@ const MusicModule = () => {
 
   // Delete item from library
   const deleteFromLibrary = (itemId) => {
+    // Stop playback if deleting current item
+    if (currentLibraryItem?.id === itemId) {
+      setCurrentLibraryItem(null);
+      setIsPlaying(false);
+    }
     setLibrary(prev => prev.filter(item => item.id !== itemId));
     // Also remove from all playlists
     setPlaylists(prev => prev.map(playlist => ({
