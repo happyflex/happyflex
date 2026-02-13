@@ -38,6 +38,7 @@ const MusicModule = () => {
   const [duration, setDuration] = useState(0);
   const [miniMode, setMiniMode] = useState(false);
   const [error, setError] = useState(null);
+  const [currentLibraryItem, setCurrentLibraryItem] = useState(null); // Direct library playback
   
   // Form states
   const [showAddForm, setShowAddForm] = useState(false);
