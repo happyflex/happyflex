@@ -321,10 +321,32 @@ const MusicModule = () => {
 
   // Play playlist
   const playPlaylist = (playlistId, startIndex = 0) => {
+    setCurrentLibraryItem(null); // Clear library playback
     setCurrentPlaylist(playlistId);
     setCurrentTrackIndex(startIndex);
     setIsPlaying(true);
     setError(null);
+  };
+
+  // Play item directly from library
+  const playFromLibrary = (item) => {
+    // If clicking on currently playing item, toggle play/pause
+    if (currentLibraryItem?.id === item.id) {
+      togglePlay();
+      return;
+    }
+    
+    // Clear playlist playback, play from library
+    setCurrentPlaylist(null);
+    setCurrentTrackIndex(0);
+    setCurrentLibraryItem(item);
+    setIsPlaying(true);
+    setError(null);
+    setCurrentTime(0);
+    setDuration(0);
+    
+    // Switch to player tab
+    setActiveTab('player');
   };
 
   // Reorder playlist items
