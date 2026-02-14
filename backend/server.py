@@ -46,6 +46,34 @@ class StatusCheck(BaseModel):
 class StatusCheckCreate(BaseModel):
     client_name: str
 
+# Download Models
+class DownloadRequest(BaseModel):
+    url: str
+    format: str = "mp3"  # mp3 or mp4
+    quality: str = "medium"  # low, medium, high
+
+class MediaInfo(BaseModel):
+    id: str
+    title: str
+    duration: Optional[int] = None
+    thumbnail: Optional[str] = None
+    formats: List[Dict] = []
+    source_url: str
+
+class DownloadStatus(BaseModel):
+    id: str
+    status: str  # pending, downloading, completed, failed
+    progress: float = 0
+    speed: Optional[str] = None
+    eta: Optional[str] = None
+    error: Optional[str] = None
+    file_path: Optional[str] = None
+    file_size: Optional[int] = None
+    title: Optional[str] = None
+
+# Active downloads tracking
+active_downloads: Dict[str, DownloadStatus] = {}
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
