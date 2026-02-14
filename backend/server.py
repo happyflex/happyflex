@@ -213,7 +213,7 @@ def progress_hook(d, download_id):
 
 
 async def download_media_task(download_id: str, url: str, format_type: str, quality: str):
-    """Background task to download media using CLI yt-dlp"""
+    """Background task to download media using CLI yt-dlp with deno JS runtime"""
     status = active_downloads.get(download_id)
     if not status:
         return
@@ -221,12 +221,11 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
     try:
         output_file = DOWNLOADS_DIR / f"{download_id}"
         
-        # Build command with remote-components for JS challenges
+        # Build command with deno JS runtime for YouTube challenges
         cmd = [
             '/root/.venv/bin/yt-dlp',
             '--no-warnings',
-            '--remote-components', 'ejs:github',
-            '--extractor-args', 'youtube:player_client=mediaconnect',
+            '--js-runtimes', 'deno',  # Use deno for JS challenge solving
             '-o', f'{output_file}.%(ext)s',
         ]
         
@@ -239,13 +238,13 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
                 '--audio-quality', quality_map.get(quality, '128') + 'K',
             ])
         else:  # mp4
-            # Use format that works with m3u8/HLS streams
+            # Use format selection based on quality
             if quality == 'high':
-                cmd.extend(['-f', 'bv*[height<=1080]+ba/b'])
+                cmd.extend(['-f', 'bestvideo[height<=1080]+bestaudio/best[height<=1080]/best'])
             elif quality == 'low':
-                cmd.extend(['-f', 'bv*[height<=480]+ba/b'])
+                cmd.extend(['-f', 'bestvideo[height<=480]+bestaudio/best[height<=480]/best'])
             else:  # medium
-                cmd.extend(['-f', 'bv*[height<=720]+ba/b'])
+                cmd.extend(['-f', 'bestvideo[height<=720]+bestaudio/best[height<=720]/best'])
             
             cmd.extend(['--merge-output-format', 'mp4'])
         
