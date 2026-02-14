@@ -316,6 +316,152 @@ const MusicModule = () => {
     }
   };
 
+  // ============= DOWNLOAD FUNCTIONS =============
+  
+  // Fetch media info from URL
+  const fetchMediaInfo = async () => {
+    if (!downloadUrl.trim()) return;
+    
+    setLoadingInfo(true);
+    setDownloadError(null);
+    setMediaInfo(null);
+    
+    try {
+      const response = await fetch(`${API_BASE}/api/media/info`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: downloadUrl })
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || 'Failed to fetch media info');
+      }
+      
+      const info = await response.json();
+      setMediaInfo(info);
+    } catch (err) {
+      setDownloadError(err.message);
+    } finally {
+      setLoadingInfo(false);
+    }
+  };
+  
+  // Start download
+  const startDownload = async () => {
+    if (!downloadUrl.trim()) return;
+    
+    setDownloadError(null);
+    
+    try {
+      const response = await fetch(`${API_BASE}/api/media/download`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: downloadUrl,
+          format: downloadFormat,
+          quality: downloadQuality
+        })
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || 'Failed to start download');
+      }
+      
+      const result = await response.json();
+      setActiveDownload({
+        id: result.download_id,
+        status: 'pending',
+        progress: 0
+      });
+      
+      // Start polling for status
+      pollDownloadStatus(result.download_id);
+      
+    } catch (err) {
+      setDownloadError(err.message);
+    }
+  };
+  
+  // Poll download status
+  const pollDownloadStatus = (downloadId) => {
+    if (downloadPollRef.current) {
+      clearInterval(downloadPollRef.current);
+    }
+    
+    downloadPollRef.current = setInterval(async () => {
+      try {
+        const response = await fetch(`${API_BASE}/api/media/download/${downloadId}/status`);
+        if (!response.ok) return;
+        
+        const status = await response.json();
+        setActiveDownload(status);
+        
+        if (status.status === 'completed' || status.status === 'failed') {
+          clearInterval(downloadPollRef.current);
+          downloadPollRef.current = null;
+          
+          if (status.status === 'completed') {
+            // Add to library automatically
+            addDownloadedToLibrary(status);
+          }
+        }
+      } catch (err) {
+        console.error('Poll error:', err);
+      }
+    }, 1000);
+  };
+  
+  // Add downloaded file to library
+  const addDownloadedToLibrary = (downloadStatus) => {
+    const newItem = {
+      id: `item-${Date.now()}`,
+      title: downloadStatus.title || 'Downloaded Media',
+      type: downloadFormat === 'mp3' ? 'audio' : 'video',
+      source: `${API_BASE}/api/media/download/${downloadStatus.id}/file`,
+      tags: [],
+      addedAt: new Date().toISOString(),
+      isDownloaded: true,
+      downloadId: downloadStatus.id,
+      fileSize: downloadStatus.file_size
+    };
+    
+    setLibrary(prev => [...prev, newItem]);
+  };
+  
+  // Download file to PC
+  const downloadToPC = async (downloadId, title) => {
+    try {
+      const link = document.createElement('a');
+      link.href = `${API_BASE}/api/media/download/${downloadId}/file`;
+      link.download = `${title || 'download'}.${downloadFormat}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error('Download to PC error:', err);
+    }
+  };
+  
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (downloadPollRef.current) {
+        clearInterval(downloadPollRef.current);
+      }
+    };
+  }, []);
+  
+  // Reset download form
+  const resetDownloadForm = () => {
+    setShowDownloadForm(false);
+    setDownloadUrl('');
+    setMediaInfo(null);
+    setActiveDownload(null);
+    setDownloadError(null);
+  };
+
   // Add to playlist
   const addToPlaylist = (playlistId, item) => {
     setPlaylists(prev => prev.map(p => {
