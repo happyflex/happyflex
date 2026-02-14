@@ -17,6 +17,8 @@ import json
 import yt_dlp
 import subprocess
 
+# Add deno to PATH for yt-dlp
+os.environ['PATH'] = os.environ.get('PATH', '') + ':/root/.deno/bin'
 
 ROOT_DIR = Path(__file__).parent
 DOWNLOADS_DIR = ROOT_DIR / "downloads"
