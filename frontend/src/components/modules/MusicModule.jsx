@@ -3,10 +3,13 @@ import {
   Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, 
   Repeat, Shuffle, List, Music, Film, Link2, Plus, Trash2, 
   Edit3, ChevronDown, ChevronUp, Upload, X, GripVertical,
-  Minimize2, Maximize2, Library, ListMusic
+  Minimize2, Maximize2, Library, ListMusic, Download, Loader2, Check,
+  AlertCircle, HardDrive
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+
+const API_BASE = process.env.REACT_APP_BACKEND_URL || '';
 
 // Storage keys
 const STORAGE_KEYS = {
