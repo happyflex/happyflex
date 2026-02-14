@@ -381,22 +381,45 @@ async def get_download_status(download_id: str):
 
 @api_router.get("/media/download/{download_id}/file")
 async def get_downloaded_file(download_id: str):
-    """Get the downloaded file"""
-    if download_id not in active_downloads:
-        raise HTTPException(status_code=404, detail="Download not found")
+    """Get the downloaded file for browser download"""
+    file_path = None
+    title = None
     
-    status = active_downloads[download_id]
+    # First check active downloads
+    if download_id in active_downloads:
+        status = active_downloads[download_id]
+        if status.status != 'completed' or not status.file_path:
+            raise HTTPException(status_code=400, detail="Download not completed")
+        file_path = Path(status.file_path)
+        title = status.title
+    else:
+        # Check saved metadata
+        metadata_path = DOWNLOADS_DIR / f"{download_id}.json"
+        if metadata_path.exists():
+            async with aiofiles.open(metadata_path, 'r') as f:
+                content = await f.read()
+                metadata = json.loads(content)
+                file_path = Path(metadata.get('file_path', ''))
+                title = metadata.get('title', download_id)
+        else:
+            # Try to find file directly
+            for f in DOWNLOADS_DIR.glob(f"{download_id}.*"):
+                if f.suffix in ['.mp3', '.mp4', '.m4a', '.webm']:
+                    file_path = f
+                    title = download_id
+                    break
     
-    if status.status != 'completed' or not status.file_path:
-        raise HTTPException(status_code=400, detail="Download not completed")
-    
-    file_path = Path(status.file_path)
-    if not file_path.exists():
+    if not file_path or not file_path.exists():
         raise HTTPException(status_code=404, detail="File not found")
+    
+    # Sanitize filename for download
+    safe_title = "".join(c for c in (title or download_id) if c.isalnum() or c in ' -_').strip()
+    if not safe_title:
+        safe_title = download_id
     
     return FileResponse(
         path=str(file_path),
-        filename=f"{status.title or download_id}{file_path.suffix}",
+        filename=f"{safe_title}{file_path.suffix}",
         media_type='audio/mpeg' if file_path.suffix == '.mp3' else 'video/mp4'
     )
 
