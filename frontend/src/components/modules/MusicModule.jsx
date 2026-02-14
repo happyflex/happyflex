@@ -50,9 +50,20 @@ const MusicModule = () => {
   const [newItemForm, setNewItemForm] = useState({ title: '', type: 'audio', source: '', tags: '' });
   const [newPlaylistName, setNewPlaylistName] = useState('');
   
+  // Download states
+  const [showDownloadForm, setShowDownloadForm] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState('');
+  const [downloadFormat, setDownloadFormat] = useState('mp3');
+  const [downloadQuality, setDownloadQuality] = useState('medium');
+  const [mediaInfo, setMediaInfo] = useState(null);
+  const [loadingInfo, setLoadingInfo] = useState(false);
+  const [activeDownload, setActiveDownload] = useState(null);
+  const [downloadError, setDownloadError] = useState(null);
+  
   // Refs
   const audioRef = useRef(null);
   const fileInputRef = useRef(null);
+  const downloadPollRef = useRef(null);
 
   // Load from localStorage
   useEffect(() => {
