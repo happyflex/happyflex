@@ -307,16 +307,36 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
             status.progress = 100
             status.file_path = str(file_path)
             status.file_size = file_path.stat().st_size
-            status.title = "Downloaded Media"
             
+            # Get title from yt-dlp output - look for the actual title line
+            title = "Downloaded Media"
             for line in output.split('\n'):
-                if 'Destination:' in line:
-                    status.title = line.split('Destination:')[-1].strip()
+                # yt-dlp outputs title after "[info]" or in extraction lines
+                if 'Downloading 1 format(s):' in line or '[download]' in line:
+                    continue
+                if '[youtube]' in line and 'Extracting URL' not in line and 'Downloading' not in line:
+                    # Extract video ID line sometimes has title
+                    pass
+                if 'ExtractAudio' in line and 'Destination:' in line:
+                    # This line has the final filename
+                    dest_path = line.split('Destination:')[-1].strip()
+                    title = Path(dest_path).stem
                     break
+            
+            # If title is still the UUID, try to get from URL via yt-dlp info
+            if title == "Downloaded Media" or download_id in title:
+                try:
+                    with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
+                        info = ydl.extract_info(url, download=False)
+                        title = info.get('title', title)
+                except:
+                    pass
+            
+            status.title = title
             
             metadata = {
                 'id': download_id,
-                'title': status.title,
+                'title': title,
                 'source_url': url,
                 'file_path': str(file_path),
                 'file_size': status.file_size,
