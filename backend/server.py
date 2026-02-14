@@ -221,10 +221,11 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
     try:
         output_file = DOWNLOADS_DIR / f"{download_id}"
         
-        # Build command
+        # Build command with remote-components for JS challenges
         cmd = [
             '/root/.venv/bin/yt-dlp',
             '--no-warnings',
+            '--remote-components', 'ejs:github',
             '-o', f'{output_file}.%(ext)s',
         ]
         
@@ -251,7 +252,7 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
         
         # Set environment with deno path
         env = os.environ.copy()
-        env['PATH'] = env.get('PATH', '') + ':/root/.deno/bin'
+        env['PATH'] = '/root/.deno/bin:' + env.get('PATH', '')
         
         # Run download
         status.status = 'downloading'
@@ -260,6 +261,7 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
         loop = asyncio.get_event_loop()
         
         def run_download():
+            logger.info(f"Running command: {' '.join(cmd)}")
             process = subprocess.Popen(
                 cmd,
                 stdout=subprocess.PIPE,
@@ -271,10 +273,10 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
             output_lines = []
             for line in process.stdout:
                 output_lines.append(line)
+                logger.info(f"yt-dlp: {line.strip()}")
                 # Parse progress from output
                 if '[download]' in line and '%' in line:
                     try:
-                        # Extract percentage
                         parts = line.split('%')[0].split()
                         for part in reversed(parts):
                             if part.replace('.', '').isdigit():
@@ -291,7 +293,7 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
         if returncode != 0:
             status.status = 'failed'
             status.error = output[-500:] if len(output) > 500 else output
-            logger.error(f"Download failed: {output}")
+            logger.error(f"Download failed with code {returncode}: {output}")
             return
         
         # Find the downloaded file
@@ -299,7 +301,6 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
         file_path = DOWNLOADS_DIR / f"{download_id}.{ext}"
         
         if not file_path.exists():
-            # Try to find any file with download_id
             for f in DOWNLOADS_DIR.glob(f"{download_id}.*"):
                 if f.suffix in ['.mp3', '.mp4', '.m4a', '.webm']:
                     file_path = f
@@ -310,15 +311,13 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
             status.progress = 100
             status.file_path = str(file_path)
             status.file_size = file_path.stat().st_size
-            
-            # Get title from yt-dlp output or use generic
             status.title = "Downloaded Media"
+            
             for line in output.split('\n'):
                 if 'Destination:' in line:
                     status.title = line.split('Destination:')[-1].strip()
                     break
             
-            # Save metadata
             metadata = {
                 'id': download_id,
                 'title': status.title,
@@ -333,9 +332,12 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
             metadata_path = DOWNLOADS_DIR / f"{download_id}.json"
             async with aiofiles.open(metadata_path, 'w') as f:
                 await f.write(json.dumps(metadata, indent=2))
+            
+            logger.info(f"Download completed: {file_path}")
         else:
             status.status = 'failed'
             status.error = 'Downloaded file not found'
+            logger.error(f"File not found after download. Output: {output}")
             
     except Exception as e:
         logger.error(f"Download error: {e}")
