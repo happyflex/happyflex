@@ -1,143 +1,177 @@
 <analysis>**original_problem_statement:**
-The user initially wanted to understand the project's state on the  GitHub branch. After resolving an initial compilation error, the user requested a series of features and fixes:
 
-1.  **Fix Checkboxes**: In the Lidi (People) module, make the checkboxes in the personal tasks and checklists functional.
-2.  **Goals & Plans System**: Implement a new system to define strategic Goals and then create Plans under them in a specialized visual canvas, separating strategy from execution.
-3.  **Processes System**: Build on the previous feature by adding a Processes module. A process is a visual flowchart/mind-map of steps linked to a specific plan, defining *how* work is done. This also required a visual canvas editor.
-4.  **UI Cleanup**:
-    *   Clean the bottom toolbar by removing several lesser-used icons.
-    *   Update icons for the Cíle (Goals), Projekty (Projects), and Úkoly (Tasks) modules for better clarity.
-5.  **Workzones Feature**: Implement Workzones (Problem Solving, Planning, Executing) accessible from the bottom bar. Selecting a zone changes the UI's color theme, including a central icon on the dashboard, to reflect the current mental context. This needed to be visually distinct from the Layouts manager.
-6.  **CANVAS Buffer**: Rework the right sidebar (CANVAS) to act as a working buffer. This required implementing robust, state-preserving, bidirectional drag-and-drop functionality for modules between the main workspace (as windows) and the CANVAS (as blocks). This involved solving complex interaction bugs with the drag-and-drop mechanism, especially when using the Shift key modifier.
-7.  **Advanced Window Management**: Implement a desktop-class window management system with features inspired by operating systems. This is broken down into phases:
-    *   **Phase 1**: Pin Function (Lock Position, Always on Top) and Focus Mode (dim other windows).
-    *   **Phase 2**: Snap/Split System (Windows-style snapping to screen edges/corners).
-    *   **Phase 3**: Magnetism (windows snap to each other).
+The user wants to implement a series of features and improvements for the S.T.E.W.A.R.D. Workspace Dashboard application.
 
-**User's preferred language**: Czech (Čeština). The next agent MUST respond in Czech.
+**PRODUCT REQUIREMENTS:**
+
+1.  **Command Wheel Feature:**
+    *   Implement a circular, context-sensitive menu (Command Wheel) that appears on .
+    *   The menu's options should change based on the cursor's context (empty workspace, over a window, over a CANVAS block, etc.).
+    *   Implement a specific list of actions for each context (e.g., New Note on empty space, Focus on a window).
+    *   The UI should have a Tony Stark holographic style, with neon rings, subtle animations, and a glass effect. The color should be influenced by the active Workzone.
+    *   The Command Wheel was later refined to be smaller, more compact, and feature a multi-layered energetic core with a subtle breathing animation.
+
+2.  **Window Management Bug Fix:**
+    *   Fix a bug where maximizing a window by dragging it to the top of the screen causes it to overlap the bottom toolbar. The correct behavior should match the result of clicking the Maximize icon.
+
+3.  **UI Tweak - Reorder Icons:**
+    *   In the title bar of each window, reorder the control icons to be: Pin, Minimize, Maximize, Close.
+
+4.  **Music Module - Library Playback:**
+    *   Enable direct playback of media items by clicking on them in the Library tab.
+    *   The UI should indicate the currently playing item.
+    *   Clicking the currently playing item should toggle play/pause.
+
+5.  **Music Module - Media Downloader:**
+    *   Add a feature to download media (audio/video) from a URL (e.g., YouTube).
+    *   The UI should include an input for the URL, options for format (MP3/MP4) and quality, and show download progress.
+    *   After downloading, the item should be added to the Music Library.
+    *   A Download to PC option should be available for the downloaded file.
+    *   **CRITICAL ISSUE:** This feature is currently broken due to YouTube returning an .
+
+**User's preferred language**: Czech
 
 **what currently exists?**
-The project is a S.T.E.W.A.R.D. Workspace Dashboard, a single-page application built with React and FastAPI, using localStorage for data persistence. It features a modular, window-based interface.
+The application is a full-stack S.T.E.W.A.R.D. Workspace Dashboard. In this session, the following were implemented:
+- A Command Wheel context menu with a Tony Stark inspired UI.
+- A fix for the window maximization bug.
+- A UI tweak to reorder window control icons.
+- A feature to allow direct playback from the Music module's library.
+- A media downloader feature in the Music module, which is currently **broken**.
 
-Key features implemented:
-*   **Core Modules**: Notes, Tasks, People, Projects, Chart, Timer.
-*   **Strategic Modules**: Goals, Plans, and Processes, each with dedicated creation and editing interfaces.
-*   **Workzones**: A system to switch between mental contexts (Problem Solving, Planning, Executing) that dynamically changes the color theme of the UI.
-*   **CANVAS Buffer**: A right sidebar that functions as a temporary holding area for modules. It supports bidirectional drag-and-drop between the main workspace (windows) and the CANVAS (blocks), reordering, and closing.
-*   The application is stable after numerous bug fixes related to compilation and the complex drag-and-drop system.
+The backend is FastAPI, the frontend is React, and it uses a MongoDB database.
 
 **Last working item**:
-*   **Last item agent was working**: The agent started implementing the **Advanced Window Management** system, as requested by the user. The work is divided into three phases, and the agent was actively working on **Phase 1: Pin Function and Focus Mode**.
-*   **Status**: IN PROGRESS
-*   **Agent Testing Done**: N
-*   **Which testing method agent to use?**: manual testing by user.
-*   **User Testing Done**: N
+- Last item agent was working: The agent was attempting to resolve an  received from YouTube when trying to download certain videos using . After numerous failed attempts (updating libraries, changing headers, spoofing clients, using a JS runtime), the agent discovered that while direct HTTPS download links are blocked, HLS (m3u8) stream formats are available for the problematic video. The next step was to modify the backend to request and process these m3u8 streams instead.
+- Status: IN PROGRESS
+- Agent Testing Done: N
+- Which testing method agent to use? backend testing agent
+- User Testing Done: Y (User confirmed the 403 error persists with the latest attempted fixes)
 
 **All Pending/In progress Issue list**:
-There are no pending issues. The current work is a new feature implementation.
+- Issue 1: YouTube Downloader fails with  (P0)
+
+Issues Detail:
+- Issue 1:
+    - **Attempted fixes**:
+        - Updated  library.
+        - Added various  including different user-agents and headers.
+        - Installed  as a JavaScript runtime for  to solve challenges.
+        - Switched from the  Python library to calling the CLI via .
+        - Tried multiple flags like , .
+        - These all failed because YouTube is actively blocking direct HTTPS download requests from the server's IP for certain videos.
+    - **Next debug checklist**:
+        1.  Modify the  function in .
+        2.  Change the  format selection options to prioritize HLS/m3u8 streams over direct HTTPS links for MP4/MP3 downloads. The CLI output from message 315 confirms these formats are available. A format string like  might work, as  can handle HLS streams.
+        3.  Ensure  is used correctly for merging/transcoding if separate audio/video streams are downloaded via HLS.
+    - **Why fix this issue and what will be achieved with the fix?**: This is the core blocker for the media downloader feature. Fixing it will make the feature functional as requested by the user.
+    - **Status**: IN PROGRESS
+    - **Is recurring issue?**: Y
+    - **Should Test frontend/backend/both after fix?**: backend
+    - **Blocked on other issue**: None
 
 **In progress Task List**:
-*   **Task 1**: Implement Phase 1: Pin Function and Focus Mode for windows. (P0)
-    *   **Where to resume**: The agent has already added the necessary state and functions to  and started modifying . The next steps are to fully implement the UI for the Pin button, its logic (), and the focus mode effect () on the window component. The double-click handler for focus mode is partially in place, but the visual effect (dimming other windows) needs to be completed.
-    *   **What will be achieved with this?**: Users will be able to pin windows (locking their position or keeping them always on top) and double-click a window's header to enter a focus mode that dims all other windows.
-    *   **Status**: IN PROGRESS
-    *   **Should Test frontend/backend/both after fix?**: Frontend
+There are no in-progress tasks, only the P0 issue above.
 
 **Upcoming and Future Tasks**
-*   **Upcoming Tasks**:
-    *   **Phase 2: Snap/Split System (P1)**: Implement a window snapping system inspired by Windows, allowing users to drag windows to screen edges/corners to arrange them in predefined layouts (e.g., 50/50 split, three columns). This will primarily involve  and .
-    *   **Phase 3: Magnetism (P2)**: Add magnetism to windows, so they gently snap to each other and to the edges of the workspace for easier alignment. This will build upon the logic in .
+- **Task 1: Implement Download to PC Functionality (P1)**
+    - The UI button Uložit do PC (Save to PC) exists, but there is no backend logic to serve the downloaded file to the user's browser.
+    - An endpoint needs to be created in  that takes a filename and returns a .
+    - The frontend  function in  needs to be implemented to trigger this download.
+    - **Status:** NOT STARTED
 
-*   **Future Tasks**:
-    *   **Process-People Integration**: Enable dragging users from the People module into a process in the Process Canvas to assign roles.
-    *   **Process-Task Integration**: Enable dragging steps from the Process Canvas into a user's personal context (like the Tasks module) to create concrete, assigned tasks.
+- **Task 2: Finalize Format/Quality Selection (P2)**
+    - The UI for selecting format and quality was created, but the backend logic was simplified to hardcode formats during debugging of the 403 error.
+    - Once the 403 error is resolved, the backend  function needs to be updated to respect the  sent from the frontend.
+    - **Status:** NOT STARTED
+    - **Blocked on:** Issue 1: YouTube Downloader fails with 
 
 **Completed work in this session**
-- **System Stability**: Fixed a critical frontend compilation error caused by a Babel plugin () by disabling  in .
-- **People Module**: Repaired non-functional checkboxes for tasks within the People module by adding a  to sync state.
-- **New Modules Created**:
-    - **Goals Module**: Created  and  to allow strategic goal setting.
-    - **Processes Module**: Created  and  for visual process modeling.
-- **UI/UX Enhancements**:
-    - **Bottom Toolbar**: Cleaned up the toolbar, removing unused icons and updating others (, , ) for better clarity.
-    - **Workzones**: Implemented the Workzones feature, allowing users to change the UI's color theme based on their current task context.
-    - **CANVAS Buffer**: Implemented the right sidebar as a fully functional buffer with robust, bidirectional drag-and-drop for modules, including adding module icons to blocks.
-- **Bug Fixes**:
-    - **Process Canvas**: Fixed a bug preventing the connection of steps in the visual editor.
-    - **Drag & Drop**: Resolved a series of complex and recurring bugs related to dragging windows into the CANVAS, especially when the Shift key modifier was used. The final, stable solution involves using  and careful management of  on child elements.
-    - **CANVAS Blocks**: Fixed a bug that prevented dragging blocks from the CANVAS back to the workspace when the Shift key was held down.
+- **Command Wheel Feature:** A fully functional and visually styled contextual menu was implemented.
+  - 
+  - 
+- **Window Maximization Bug:** Fixed the issue where dragging a window to the top caused it to overlap the bottom toolbar.
+  - 
+- **Reordered Window Icons:** The control icons in the window title bar were reordered as requested.
+  - 
+- **Music Library Playback:** Enabled direct playback of tracks from the library list.
+  - 
+- **Media Downloader (Initial Version):** Created the backend endpoints and frontend UI for downloading media. This version worked initially before running into persistent 403 errors.
+  - 
+  - 
 
 **Earlier issues found/mentioned but not fixed**
-None. All issues reported by the user during the session were addressed and fixed.
+None.
 
 **Known issue recurrence from previous fork**
-- **Issue**: Dragging an item (first a window, then a block) while the  key is held down was highly unreliable.
-- **Recurrence count**: This issue, in different forms, recurred 3-4 times. The core problem was a conflict between custom  logic for window movement and the browser's native HTML5 Drag and Drop API, exacerbated by pointer events being captured by child text elements.
-- **Status**: RESOLVED. The final solution involves:
-    1.  For windows: Making the header .
-    2.  For both windows and blocks: Setting  on all non-interactive child elements (text, icons) inside the draggable area, while setting  on clickable buttons to ensure they remain functional.
+None.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **State Management**: React Context () is used as the single source of truth for global state, including open modules, their positions, CANVAS content, and the active Workzone.
-- **Drag and Drop**: Extensive use of the native HTML5 Drag and Drop API, combined with React state. A key pattern is using a modifier key () to toggle the  attribute, cleanly separating different drag behaviors.
-- **Event Handling**: Advanced usage of CSS  to manage which elements can be targets of mouse events, which was crucial for fixing complex drag-and-drop bugs.
-- **UI**: The UI is built with React, TailwindCSS, and  for icons. UI components are based on ShadCN.
-- **Data Persistence**: Application state (modules, positions, etc.) is persisted in the browser's .
+-   **Frontend**: React, React Hooks (useState, useEffect, useContext), CSS-in-JS, SVG, Flexbox.
+-   **Backend**: FastAPI, Pydantic.
+-   **Integrations**:  for fetching information and downloading from YouTube.
+-   **System**:  for media post-processing,  as a JS runtime for .
 
 **key DB schema**
-No database is currently in use. All data is stored in  via the  hook within .
+No database schema changes were made in this session.
 
 **changes in tech stack**
-No changes to the tech stack.
+-   **Backend**: Added , , and  to support the media downloading feature.
 
 **All files of reference**
-- ****: Core file for window behavior. Was heavily modified to support focus mode, pinning, and drag-and-drop to CANVAS. **Currently being modified for Phase 1.**
-- ****: The CANVAS buffer. Was heavily modified to support block rendering, reordering, and drag-and-drop.
-- ****: The global state manager. Was significantly extended with new state and functions for Workzones, the CANVAS buffer, and the new window management features. **Currently being modified for Phase 1.**
-- ****: Modified to implement Workzones, clean up icons, and use the global Workzone state.
-- ****: Modified to act as a drop zone and to display the Workzone-colored central icon.
-- ****: New files were created for , , , and .
-- ****: Modified once to fix the initial compilation error by setting .
+-   : Modified to add  and  endpoints and the logic for .
+-   : Modified to add .
+-   : Heavily modified to add library playback and the entire UI and logic for the media downloader.
+-   : Created and modified multiple times to implement the Command Wheel and its visual refinements.
+-   : Created to handle the state and logic for the Command Wheel.
+-   : Modified to add new actions for the Command Wheel and to fix the window maximization bug.
+-   : Modified to reorder icons and add data-attributes for the Command Wheel.
+
+**Areas that need refactoring**
+-   The  and  functions in  are cluttered with commented-out code and remnants of multiple debugging attempts. Once the 403 error is definitively solved, these functions should be cleaned up to contain only the working logic.
+
+**key api endpoints**
+-   : Body: . Fetches metadata for a given media URL.
+-   : Body: . Streams the download progress and saves the file on the server.
 
 **Critical Info for New Agent**
-- **Drag & Drop Logic**: The distinction between moving a window within the workspace and dragging it to the CANVAS is handled by the  key. In , the header's  attribute is set to . This is a critical pattern.
-- **Pointer Events**: When debugging future drag-and-drop issues, immediately check the  CSS property on the draggable element and its children. Text or icon elements often steal mouse events, preventing a drag from starting. The standard fix is  on non-interactive children and  on buttons.
-- **State Management**: All window and module states are centralized in . All modifications to windows (pinning, focus, snapping) should be implemented there.
+-   The highest priority is fixing the  error in the YouTube downloader.
+-   Do not waste time on previous failed approaches (simple header changes, different clients). The evidence points to YouTube blocking direct HTTPS download links for certain videos.
+-   The most promising next step is to modify 's options in  to use HLS/m3u8 streams, which were confirmed to be available for the problematic video.
+-   After fixing the download, remember to implement the Download to PC functionality, as it's a required part of the feature that hasn't been built yet.
 
 **documents and test reports created in this job**
 None.
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User**: I want advanced window management: Snap, Pin, Focus, and Magnetism.
-2.  **Agent**: Great idea. I'll phase it: 1) Pin/Focus, 2) Snap, 3) Magnetism. Starting Phase 1?
-3.  **User**: Yes, start with Phase 1, then 2, then 3.
-4.  **Agent**: Starting Phase 1 (Pin & Focus)... (begins implementation)
-5.  **User**: Add icons next to module names in the CANVAS sidebar.
-6.  **Agent**: Done. I've added the icons.
-7.  **User**: Dragging blocks from CANVAS with Shift doesn't work. Fix it, but don't change the visual look of the buttons. You had it working before.
-8.  **Agent**: You're right. The button layout change broke it. I'm reverting the pointer event logic to the previous working version.
-9.  **User**: Fix it, but don't change the visual of the block. You had it working before the visual change.
-10. **Agent**: Understood. The issue is pointer events. I'm applying the same fix that worked before (making the container have  and buttons have ).
+1.  **User:** Reports the download fails with .
+2.  **Agent:** Tries updating  and adding better configuration.
+3.  **User:** Confirms the 403 error persists.
+4.  **Agent:** Tries installing  as a JS runtime to bypass YouTube's protection.
+5.  **User:** Confirms the 403 error persists.
+6.  **Agent:** Switches from the Python library to a direct CLI call via .
+7.  **User:** Confirms the 403 error persists, providing a detailed log showing the failure point.
+8.  **Agent:** Investigates and finds the specific video is more protected than others.
+9.  **Agent:** Tries to use different download formats (HLS/m3u8) as the next attempt.
+10. **(No pending user message)** The agent was in the middle of diagnosing the issue when the session ended.
 
 **Project Health Check:**
-*   **Working**: The entire application is functional.
-*   **Broken**: Nothing is broken.
-*   **Mocked**: No mocked components or data.
+-   **Broken**: The media downloader feature in the Music module is non-functional due to the  error.
 
 **3rd Party Integrations**
-- : Used for all icons in the UI.
+-   : Used for downloading media from YouTube and other sites.
 
 **Testing status**
-- **Testing agent used after significant changes**: NO
-- **Troubleshoot agent used after agent stuck in loop**: NO
-- **Test files created**: None.
-- **Known regressions**: The drag-and-drop functionality regressed several times during development but was fixed each time. The current implementation is stable.
+-   Testing agent used after significant changes: NO
+-   Troubleshoot agent used after agent stuck in loop: NO
+-   Test files created: []
+-   Known regressions: The media downloader was working at one point for a specific video but now fails for others, which can be considered a regression or a discovery of a more complex edge case.
 
 **Credentials to test flow:**
 N/A
 
 **What agent forgot to execute**
-The agent is in the middle of implementing a large, phased feature (Advanced Window Management). It has correctly started Phase 1 as requested by the user and has not forgotten any pending tasks. The remaining phases (Snap and Magnetism) are correctly listed as Upcoming Tasks.</analysis>
+-   The agent created the Download to PC button in the frontend UI but never implemented the corresponding backend endpoint or frontend logic to actually serve the downloaded file to the user's browser. This part of the original request is incomplete.</analysis>
