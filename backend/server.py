@@ -219,32 +219,24 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
     try:
         output_template = str(DOWNLOADS_DIR / f"{download_id}.%(ext)s")
         
-        # Enhanced options to bypass 403 errors
+        # Enhanced options - use specific format IDs that are known to work
         ydl_opts = {
             'outtmpl': output_template,
             'quiet': True,
             'no_warnings': True,
             'progress_hooks': [lambda d: progress_hook(d, download_id)],
-            # Use web client which doesn't require PO token
-            'extractor_args': {'youtube': {'player_client': ['web']}},
             'http_headers': {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Accept-Language': 'en-us,en;q=0.5',
             },
             'socket_timeout': 30,
             'retries': 10,
             'fragment_retries': 10,
-            'skip_unavailable_fragments': True,
-            'ignoreerrors': False,
             'nocheckcertificate': True,
-            # Force IPv4
-            'source_address': '0.0.0.0',
         }
         
         if format_type == 'mp3':
-            # For audio, use formats that don't require special tokens
-            ydl_opts['format'] = 'bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best'
+            # Use format 140 (m4a audio) which is commonly available
+            ydl_opts['format'] = '140/bestaudio'
             ydl_opts['postprocessors'] = [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
@@ -252,11 +244,14 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
             }]
         else:  # mp4
             if quality == 'high':
-                ydl_opts['format'] = 'bestvideo[ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo+bestaudio/best'
+                # 137 = 1080p video, 140 = audio
+                ydl_opts['format'] = '137+140/136+140/bestvideo+bestaudio/best'
             elif quality == 'low':
-                ydl_opts['format'] = 'worstvideo[ext=mp4]+worstaudio/worst'
+                # 160 = 144p video
+                ydl_opts['format'] = '160+140/worstvideo+bestaudio/worst'
             else:
-                ydl_opts['format'] = 'bestvideo[height<=720][ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best'
+                # 136 = 720p video
+                ydl_opts['format'] = '136+140/135+140/bestvideo[height<=720]+bestaudio/best'
             
             ydl_opts['merge_output_format'] = 'mp4'
         
