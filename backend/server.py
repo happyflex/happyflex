@@ -238,15 +238,15 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
                 '--audio-quality', quality_map.get(quality, '128') + 'K',
             ])
         else:  # mp4
-            format_map = {
-                'high': '137+140/136+140/bestvideo+bestaudio/best',
-                'medium': '136+140/135+140/bestvideo[height<=720]+bestaudio/best',
-                'low': '160+140/worstvideo+bestaudio/worst'
-            }
-            cmd.extend([
-                '-f', format_map.get(quality, format_map['medium']),
-                '--merge-output-format', 'mp4',
-            ])
+            # Use format that works with m3u8/HLS streams
+            if quality == 'high':
+                cmd.extend(['-f', 'bv*[height<=1080]+ba/b'])
+            elif quality == 'low':
+                cmd.extend(['-f', 'bv*[height<=480]+ba/b'])
+            else:  # medium
+                cmd.extend(['-f', 'bv*[height<=720]+ba/b'])
+            
+            cmd.extend(['--merge-output-format', 'mp4'])
         
         cmd.append(url)
         
