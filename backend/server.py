@@ -213,59 +213,86 @@ def progress_hook(d, download_id):
 
 
 async def download_media_task(download_id: str, url: str, format_type: str, quality: str):
-    """Background task to download media"""
+    """Background task to download media using CLI yt-dlp"""
     status = active_downloads.get(download_id)
     if not status:
         return
     
     try:
-        output_template = str(DOWNLOADS_DIR / f"{download_id}.%(ext)s")
+        output_file = DOWNLOADS_DIR / f"{download_id}"
         
-        # Enhanced options - use specific format IDs that are known to work
-        ydl_opts = {
-            'outtmpl': output_template,
-            'quiet': True,
-            'no_warnings': True,
-            'progress_hooks': [lambda d: progress_hook(d, download_id)],
-            'http_headers': {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            },
-            'socket_timeout': 30,
-            'retries': 10,
-            'fragment_retries': 10,
-            'nocheckcertificate': True,
-        }
+        # Build command
+        cmd = [
+            '/root/.venv/bin/yt-dlp',
+            '--no-warnings',
+            '-o', f'{output_file}.%(ext)s',
+        ]
         
         if format_type == 'mp3':
-            # Use format 140 (m4a audio) which is commonly available
-            ydl_opts['format'] = '140/bestaudio'
-            ydl_opts['postprocessors'] = [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192' if quality == 'high' else '128' if quality == 'medium' else '96',
-            }]
+            quality_map = {'high': '192', 'medium': '128', 'low': '96'}
+            cmd.extend([
+                '-f', '140/bestaudio',
+                '--extract-audio',
+                '--audio-format', 'mp3',
+                '--audio-quality', quality_map.get(quality, '128') + 'K',
+            ])
         else:  # mp4
-            if quality == 'high':
-                # 137 = 1080p video, 140 = audio
-                ydl_opts['format'] = '137+140/136+140/bestvideo+bestaudio/best'
-            elif quality == 'low':
-                # 160 = 144p video
-                ydl_opts['format'] = '160+140/worstvideo+bestaudio/worst'
-            else:
-                # 136 = 720p video
-                ydl_opts['format'] = '136+140/135+140/bestvideo[height<=720]+bestaudio/best'
-            
-            ydl_opts['merge_output_format'] = 'mp4'
+            format_map = {
+                'high': '137+140/136+140/bestvideo+bestaudio/best',
+                'medium': '136+140/135+140/bestvideo[height<=720]+bestaudio/best',
+                'low': '160+140/worstvideo+bestaudio/worst'
+            }
+            cmd.extend([
+                '-f', format_map.get(quality, format_map['medium']),
+                '--merge-output-format', 'mp4',
+            ])
         
-        # Run yt-dlp in thread pool
+        cmd.append(url)
+        
+        # Set environment with deno path
+        env = os.environ.copy()
+        env['PATH'] = env.get('PATH', '') + ':/root/.deno/bin'
+        
+        # Run download
+        status.status = 'downloading'
+        status.progress = 10
+        
         loop = asyncio.get_event_loop()
         
-        def do_download():
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=True)
-                return info
+        def run_download():
+            process = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                env=env,
+                text=True
+            )
+            
+            output_lines = []
+            for line in process.stdout:
+                output_lines.append(line)
+                # Parse progress from output
+                if '[download]' in line and '%' in line:
+                    try:
+                        # Extract percentage
+                        parts = line.split('%')[0].split()
+                        for part in reversed(parts):
+                            if part.replace('.', '').isdigit():
+                                status.progress = min(95, float(part))
+                                break
+                    except:
+                        pass
+                        
+            process.wait()
+            return process.returncode, '\n'.join(output_lines)
         
-        info = await loop.run_in_executor(None, do_download)
+        returncode, output = await loop.run_in_executor(None, run_download)
+        
+        if returncode != 0:
+            status.status = 'failed'
+            status.error = output[-500:] if len(output) > 500 else output
+            logger.error(f"Download failed: {output}")
+            return
         
         # Find the downloaded file
         ext = 'mp3' if format_type == 'mp3' else 'mp4'
@@ -274,33 +301,32 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
         if not file_path.exists():
             # Try to find any file with download_id
             for f in DOWNLOADS_DIR.glob(f"{download_id}.*"):
-                file_path = f
-                break
+                if f.suffix in ['.mp3', '.mp4', '.m4a', '.webm']:
+                    file_path = f
+                    break
         
         if file_path.exists():
-            # Calculate checksum
-            sha256_hash = hashlib.sha256()
-            with open(file_path, "rb") as f:
-                for byte_block in iter(lambda: f.read(4096), b""):
-                    sha256_hash.update(byte_block)
-            
             status.status = 'completed'
             status.progress = 100
             status.file_path = str(file_path)
             status.file_size = file_path.stat().st_size
-            status.title = info.get('title', 'Unknown')
+            
+            # Get title from yt-dlp output or use generic
+            status.title = "Downloaded Media"
+            for line in output.split('\n'):
+                if 'Destination:' in line:
+                    status.title = line.split('Destination:')[-1].strip()
+                    break
             
             # Save metadata
             metadata = {
                 'id': download_id,
-                'title': info.get('title', 'Unknown'),
-                'duration': info.get('duration'),
+                'title': status.title,
                 'source_url': url,
                 'file_path': str(file_path),
                 'file_size': status.file_size,
                 'format': format_type,
                 'quality': quality,
-                'checksum': sha256_hash.hexdigest(),
                 'downloaded_at': datetime.now(timezone.utc).isoformat()
             }
             
