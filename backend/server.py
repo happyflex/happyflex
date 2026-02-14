@@ -226,6 +226,7 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
             '/root/.venv/bin/yt-dlp',
             '--no-warnings',
             '--remote-components', 'ejs:github',
+            '--extractor-args', 'youtube:player_client=mediaconnect',
             '-o', f'{output_file}.%(ext)s',
         ]
         
