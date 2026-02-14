@@ -225,23 +225,26 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
             'quiet': True,
             'no_warnings': True,
             'progress_hooks': [lambda d: progress_hook(d, download_id)],
-            # Anti-bot bypass options
-            'extractor_args': {'youtube': {'player_client': ['android', 'web']}},
+            # Use web client which doesn't require PO token
+            'extractor_args': {'youtube': {'player_client': ['web']}},
             'http_headers': {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 'Accept-Language': 'en-us,en;q=0.5',
             },
             'socket_timeout': 30,
-            'retries': 5,
-            'fragment_retries': 5,
+            'retries': 10,
+            'fragment_retries': 10,
             'skip_unavailable_fragments': True,
             'ignoreerrors': False,
             'nocheckcertificate': True,
+            # Force IPv4
+            'source_address': '0.0.0.0',
         }
         
         if format_type == 'mp3':
-            ydl_opts['format'] = 'bestaudio/best'
+            # For audio, use formats that don't require special tokens
+            ydl_opts['format'] = 'bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best'
             ydl_opts['postprocessors'] = [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
@@ -249,11 +252,11 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
             }]
         else:  # mp4
             if quality == 'high':
-                ydl_opts['format'] = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
+                ydl_opts['format'] = 'bestvideo[ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo+bestaudio/best'
             elif quality == 'low':
-                ydl_opts['format'] = 'worstvideo[ext=mp4]+worstaudio[ext=m4a]/worst[ext=mp4]/worst'
+                ydl_opts['format'] = 'worstvideo[ext=mp4]+worstaudio/worst'
             else:
-                ydl_opts['format'] = 'bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/best[height<=720][ext=mp4]/best'
+                ydl_opts['format'] = 'bestvideo[height<=720][ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best'
             
             ydl_opts['merge_output_format'] = 'mp4'
         
