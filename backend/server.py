@@ -116,13 +116,9 @@ async def get_media_info(request: DownloadRequest):
             'quiet': True,
             'no_warnings': True,
             'extract_flat': False,
-            # Anti-bot bypass options
-            'extractor_args': {'youtube': {'player_client': ['android', 'web']}},
-            'http_headers': {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            },
+            # Use deno JS runtime for YouTube challenges
+            'extractor_args': {'youtube': {'player_client': ['web_safari', 'android_vr']}},
             'socket_timeout': 30,
-            'nocheckcertificate': True,
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
