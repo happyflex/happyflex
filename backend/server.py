@@ -215,6 +215,16 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
         return
     
     try:
+        # First, get the media title
+        try:
+            with yt_dlp.YoutubeDL({'quiet': True, 'no_warnings': True}) as ydl:
+                info = ydl.extract_info(url, download=False)
+                media_title = info.get('title', 'Downloaded Media')
+                status.title = media_title
+        except Exception as e:
+            logger.warning(f"Could not get media title: {e}")
+            media_title = 'Downloaded Media'
+        
         output_file = DOWNLOADS_DIR / f"{download_id}"
         
         # Build command with deno JS runtime for YouTube challenges
