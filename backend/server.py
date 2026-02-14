@@ -1,4 +1,5 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException, BackgroundTasks
+from fastapi.responses import FileResponse, StreamingResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -6,12 +7,20 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+from typing import List, Optional, Dict
 import uuid
 from datetime import datetime, timezone
+import asyncio
+import aiofiles
+import hashlib
+import json
+import yt_dlp
+import subprocess
 
 
 ROOT_DIR = Path(__file__).parent
+DOWNLOADS_DIR = ROOT_DIR / "downloads"
+DOWNLOADS_DIR.mkdir(exist_ok=True)
 load_dotenv(ROOT_DIR / '.env')
 
 # MongoDB connection
