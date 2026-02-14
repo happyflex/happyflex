@@ -669,6 +669,15 @@ const MusicModule = () => {
           <Button
             variant="ghost"
             size="icon"
+            onClick={() => setShowDownloadForm(true)}
+            className="h-7 w-7 text-gray-400 hover:text-green-400"
+            title="Stáhnout z URL"
+          >
+            <Download className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => fileInputRef.current?.click()}
             className="h-7 w-7 text-gray-400 hover:text-cyan-400"
             title="Nahrát soubor"
@@ -693,6 +702,175 @@ const MusicModule = () => {
           onChange={handleFileUpload}
         />
       </div>
+
+      {/* Download from URL form */}
+      {showDownloadForm && (
+        <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-green-400 flex items-center gap-2">
+              <Download className="h-4 w-4" />
+              Stáhnout médium
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={resetDownloadForm}
+              className="h-6 w-6 text-gray-400 hover:text-white"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          
+          {/* URL Input */}
+          <div className="flex gap-2">
+            <Input
+              placeholder="URL videa (YouTube, atd.)"
+              value={downloadUrl}
+              onChange={(e) => setDownloadUrl(e.target.value)}
+              className="bg-transparent border-green-500/30 text-white text-sm flex-1"
+            />
+            <Button
+              size="sm"
+              onClick={fetchMediaInfo}
+              disabled={loadingInfo || !downloadUrl.trim()}
+              className="bg-green-500/20 hover:bg-green-500/30 text-green-400"
+            >
+              {loadingInfo ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Načíst'}
+            </Button>
+          </div>
+          
+          {/* Error */}
+          {downloadError && (
+            <div className="text-xs text-red-400 bg-red-500/10 rounded px-2 py-1 flex items-center gap-2">
+              <AlertCircle className="h-3 w-3" />
+              {downloadError}
+            </div>
+          )}
+          
+          {/* Media Info */}
+          {mediaInfo && !activeDownload && (
+            <div className="space-y-2">
+              <div className="text-sm text-white font-medium truncate">
+                {mediaInfo.title}
+              </div>
+              {mediaInfo.duration && (
+                <div className="text-xs text-gray-400">
+                  Délka: {Math.floor(mediaInfo.duration / 60)}:{(mediaInfo.duration % 60).toString().padStart(2, '0')}
+                </div>
+              )}
+              
+              {/* Format & Quality Selection */}
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-xs text-gray-400 mb-1 block">Formát</label>
+                  <select
+                    value={downloadFormat}
+                    onChange={(e) => setDownloadFormat(e.target.value)}
+                    className="w-full bg-[#0f1d35] border border-green-500/30 rounded text-white text-sm p-1.5"
+                  >
+                    <option value="mp3">MP3 (Audio)</option>
+                    <option value="mp4">MP4 (Video)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-gray-400 mb-1 block">Kvalita</label>
+                  <select
+                    value={downloadQuality}
+                    onChange={(e) => setDownloadQuality(e.target.value)}
+                    className="w-full bg-[#0f1d35] border border-green-500/30 rounded text-white text-sm p-1.5"
+                  >
+                    <option value="low">Nízká (~2-5 MB)</option>
+                    <option value="medium">Střední (~5-15 MB)</option>
+                    <option value="high">Vysoká (~15-50 MB)</option>
+                  </select>
+                </div>
+              </div>
+              
+              <Button
+                className="w-full bg-green-500 hover:bg-green-600 text-white"
+                onClick={startDownload}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Stáhnout {downloadFormat.toUpperCase()}
+              </Button>
+            </div>
+          )}
+          
+          {/* Download Progress */}
+          {activeDownload && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-400">
+                  {activeDownload.status === 'pending' && 'Zahajuji...'}
+                  {activeDownload.status === 'downloading' && 'Stahuji...'}
+                  {activeDownload.status === 'processing' && 'Zpracovávám...'}
+                  {activeDownload.status === 'completed' && (
+                    <span className="text-green-400 flex items-center gap-1">
+                      <Check className="h-4 w-4" /> Hotovo!
+                    </span>
+                  )}
+                  {activeDownload.status === 'failed' && (
+                    <span className="text-red-400">Chyba</span>
+                  )}
+                </span>
+                <span className="text-cyan-400">{Math.round(activeDownload.progress)}%</span>
+              </div>
+              
+              {/* Progress bar */}
+              <div className="h-2 bg-green-500/20 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full transition-all duration-300 ${
+                    activeDownload.status === 'completed' ? 'bg-green-500' : 
+                    activeDownload.status === 'failed' ? 'bg-red-500' : 'bg-green-400'
+                  }`}
+                  style={{ width: `${activeDownload.progress}%` }}
+                />
+              </div>
+              
+              {/* Speed & ETA */}
+              {activeDownload.speed && (
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span>{activeDownload.speed}</span>
+                  {activeDownload.eta && <span>ETA: {activeDownload.eta}</span>}
+                </div>
+              )}
+              
+              {/* Completed actions */}
+              {activeDownload.status === 'completed' && (
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    size="sm"
+                    className="flex-1 bg-cyan-500 hover:bg-cyan-600 text-white"
+                    onClick={() => {
+                      // Find the newly added item and play it
+                      const newItem = library.find(item => item.downloadId === activeDownload.id);
+                      if (newItem) playFromLibrary(newItem);
+                      resetDownloadForm();
+                    }}
+                  >
+                    <Play className="h-3 w-3 mr-1" /> Přehrát
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1 border-green-500/30 text-green-400 hover:bg-green-500/10"
+                    onClick={() => downloadToPC(activeDownload.id, activeDownload.title)}
+                  >
+                    <HardDrive className="h-3 w-3 mr-1" /> Uložit do PC
+                  </Button>
+                </div>
+              )}
+              
+              {/* Error message */}
+              {activeDownload.status === 'failed' && activeDownload.error && (
+                <div className="text-xs text-red-400 bg-red-500/10 rounded px-2 py-1">
+                  {activeDownload.error}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Add form */}
       {showAddForm && (
