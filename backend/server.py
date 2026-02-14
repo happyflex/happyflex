@@ -212,11 +212,25 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
     try:
         output_template = str(DOWNLOADS_DIR / f"{download_id}.%(ext)s")
         
+        # Enhanced options to bypass 403 errors
         ydl_opts = {
             'outtmpl': output_template,
             'quiet': True,
             'no_warnings': True,
             'progress_hooks': [lambda d: progress_hook(d, download_id)],
+            # Anti-bot bypass options
+            'extractor_args': {'youtube': {'player_client': ['android', 'web']}},
+            'http_headers': {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-us,en;q=0.5',
+            },
+            'socket_timeout': 30,
+            'retries': 5,
+            'fragment_retries': 5,
+            'skip_unavailable_fragments': True,
+            'ignoreerrors': False,
+            'nocheckcertificate': True,
         }
         
         if format_type == 'mp3':
