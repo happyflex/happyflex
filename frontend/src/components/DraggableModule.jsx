@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Minus, Maximize2, Pin } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
+import { useTrash } from '../context/TrashContext';
 import { Button } from './ui/button';
 import NotesModule from './modules/NotesModule';
 import TasksModule from './modules/TasksModule';
@@ -12,6 +13,7 @@ import ChartModule from './modules/ChartModule';
 import TimerModule from './modules/TimerModule';
 import CalendarModule from './modules/CalendarModule';
 import MusicModule from './modules/MusicModule';
+import TrashModule from './modules/TrashModule';
 
 const moduleComponents = {
   notes: NotesModule,
@@ -23,7 +25,8 @@ const moduleComponents = {
   chart: ChartModule,
   timer: TimerModule,
   calendar: CalendarModule,
-  music: MusicModule
+  music: MusicModule,
+  trash: TrashModule
 };
 
 // Snap zone detection threshold in pixels
