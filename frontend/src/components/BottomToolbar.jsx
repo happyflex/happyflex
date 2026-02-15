@@ -78,10 +78,30 @@ const toolbarItems = [
 ];
 
 const BottomToolbar = () => {
-  const { addModule, activeWorkzone, setActiveWorkzone, modules } = useWorkspace();
+  const { 
+    addModule, 
+    activeWorkzone, 
+    setActiveWorkzone, 
+    modules, 
+    removeModule,
+    deferredModules,
+    removeFromCanvas,
+    focusedModuleId,
+    clearFocusMode
+  } = useWorkspace();
+  const { addWindowToTrash, getTrashStats } = useTrash();
+  
   const [layoutManagerOpen, setLayoutManagerOpen] = useState(false);
   const [workzonePopoverOpen, setWorkzonePopoverOpen] = useState(false);
   const [windowManagerOpen, setWindowManagerOpen] = useState(false);
+  
+  // Click tracking for double/triple click
+  const clickCountRef = useRef(0);
+  const clickTimerRef = useRef(null);
+  const [clearConfirmPending, setClearConfirmPending] = useState(null); // 'soft' | 'hard' | null
+
+  // Get trash stats for badge
+  const trashStats = getTrashStats();
 
   // Close popovers when clicking outside
   React.useEffect(() => {
@@ -96,6 +116,141 @@ const BottomToolbar = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [workzonePopoverOpen, windowManagerOpen]);
+
+  // Clear workspace (soft) - close windows except pinned, focus, canvas
+  const handleSoftClear = useCallback(() => {
+    const windowsToClose = modules.filter(m => {
+      // Skip pinned modules (lock or top)
+      if (m.pinMode === 'lock' || m.pinMode === 'top') return false;
+      // Skip focused module
+      if (m.id === focusedModuleId) return false;
+      return true;
+    });
+
+    if (windowsToClose.length === 0) {
+      toast({
+        title: 'Nic k zavření',
+        description: 'Žádná okna nelze zavřít (jsou pinned, focus nebo canvas)',
+      });
+      return;
+    }
+
+    // Move to trash and remove
+    windowsToClose.forEach(module => {
+      addWindowToTrash(module);
+      removeModule(module.id);
+    });
+
+    toast({
+      title: 'Workspace vyčištěn',
+      description: `${windowsToClose.length} oken přesunuto do koše`,
+    });
+    
+    setClearConfirmPending(null);
+  }, [modules, focusedModuleId, addWindowToTrash, removeModule]);
+
+  // Hard clear - close everything except system UI
+  const handleHardClear = useCallback(() => {
+    const totalClosed = modules.length + deferredModules.length;
+    
+    if (totalClosed === 0) {
+      toast({
+        title: 'Nic k zavření',
+        description: 'Žádná okna nejsou otevřená',
+      });
+      return;
+    }
+
+    // Clear focus mode first
+    if (focusedModuleId) {
+      clearFocusMode();
+    }
+
+    // Move all workspace modules to trash
+    modules.forEach(module => {
+      addWindowToTrash(module);
+      removeModule(module.id);
+    });
+
+    // Move all canvas modules to trash
+    deferredModules.forEach(module => {
+      addWindowToTrash(module);
+      removeFromCanvas(module.id);
+    });
+
+    toast({
+      title: 'HARD CLEAR dokončen',
+      description: `${totalClosed} oken přesunuto do koše`,
+      variant: 'destructive'
+    });
+    
+    setClearConfirmPending(null);
+  }, [modules, deferredModules, focusedModuleId, clearFocusMode, addWindowToTrash, removeModule, removeFromCanvas]);
+
+  // Handle trash button click (single/double/triple)
+  const handleTrashClick = useCallback(() => {
+    clickCountRef.current += 1;
+    
+    // Clear previous timer
+    if (clickTimerRef.current) {
+      clearTimeout(clickTimerRef.current);
+    }
+    
+    // Set timer to reset click count and execute action
+    clickTimerRef.current = setTimeout(() => {
+      const clicks = clickCountRef.current;
+      clickCountRef.current = 0;
+      
+      if (clicks === 1) {
+        // Single click - open trash module
+        addModule('trash');
+        toast({
+          title: 'Koš otevřen',
+          description: 'Správa smazaných položek',
+        });
+      } else if (clicks === 2) {
+        // Double click - soft clear with confirmation
+        setClearConfirmPending('soft');
+        toast({
+          title: '🗑️ Clear Workspace?',
+          description: 'Klikněte znovu pro potvrzení (bez pinned, focus, canvas)',
+          action: (
+            <Button 
+              size="sm" 
+              variant="destructive" 
+              onClick={handleSoftClear}
+              className="ml-2"
+            >
+              Potvrdit
+            </Button>
+          ),
+          duration: 3000,
+        });
+        // Auto-cancel after timeout
+        setTimeout(() => setClearConfirmPending(null), 3000);
+      } else if (clicks >= 3) {
+        // Triple click - hard clear with confirmation
+        setClearConfirmPending('hard');
+        toast({
+          title: '⚠️ HARD CLEAR – zavřít úplně všechno?',
+          description: 'Zavře všechna okna včetně pinned a canvas!',
+          action: (
+            <Button 
+              size="sm" 
+              variant="destructive" 
+              onClick={handleHardClear}
+              className="ml-2 bg-red-600 hover:bg-red-700"
+            >
+              HARD CLEAR
+            </Button>
+          ),
+          duration: 4000,
+        });
+        // Auto-cancel after timeout
+        setTimeout(() => setClearConfirmPending(null), 4000);
+      }
+    }, 300); // 300ms window for multi-click detection
+  }, [addModule, handleSoftClear, handleHardClear]);
 
   const handleToolClick = (item) => {
     if (['notes', 'tasks', 'people', 'projects', 'goals', 'processes', 'chart', 'timer', 'calendar', 'music'].includes(item.type)) {
