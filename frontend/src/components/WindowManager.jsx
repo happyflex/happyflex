@@ -43,6 +43,7 @@ const WindowManager = ({ isOpen, onClose }) => {
     focusedModuleId,
     clearFocusMode
   } = useWorkspace();
+  const { addWindowToTrash } = useTrash();
   
   const [draggedId, setDraggedId] = useState(null);
   const [dragOverId, setDragOverId] = useState(null);
