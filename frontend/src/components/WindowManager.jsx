@@ -16,6 +16,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
+import { useTrash } from '../context/TrashContext';
 
 // Module type to icon and label mapping
 const MODULE_CONFIG = {
