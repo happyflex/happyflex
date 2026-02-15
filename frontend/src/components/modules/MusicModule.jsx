@@ -1075,20 +1075,26 @@ const MusicModule = () => {
           library.map(item => {
             const isCurrentItem = currentLibraryItem?.id === item.id;
             const isItemPlaying = isCurrentItem && isPlaying;
+            const hasInvalidSource = !isValidSource(item.source);
             
             return (
               <div 
                 key={item.id}
                 className={`flex items-center gap-2 p-2 rounded-lg group transition-all cursor-pointer ${
-                  isCurrentItem 
-                    ? 'bg-cyan-500/20 border border-cyan-500/40' 
-                    : 'hover:bg-cyan-500/10 border border-transparent'
+                  hasInvalidSource 
+                    ? 'bg-red-500/10 border border-red-500/30 opacity-60'
+                    : isCurrentItem 
+                      ? 'bg-cyan-500/20 border border-cyan-500/40' 
+                      : 'hover:bg-cyan-500/10 border border-transparent'
                 }`}
-                onClick={() => playFromLibrary(item)}
+                onClick={() => !hasInvalidSource && playFromLibrary(item)}
+                title={hasInvalidSource ? 'Neplatný zdroj - nahrajte soubor znovu' : ''}
               >
                 {/* Play button / Now playing indicator */}
                 <div className="relative w-8 h-8 flex items-center justify-center flex-shrink-0">
-                  {isItemPlaying ? (
+                  {hasInvalidSource ? (
+                    <AlertCircle className="h-4 w-4 text-red-400" />
+                  ) : isItemPlaying ? (
                     // Equalizer animation for playing item
                     <div className="flex items-end gap-0.5 h-4">
                       <div className="w-1 bg-cyan-400 rounded-full animate-pulse" style={{ height: '60%', animationDelay: '0ms' }} />
@@ -1117,10 +1123,19 @@ const MusicModule = () => {
                 
                 {/* Title */}
                 <div className="flex-1 min-w-0">
-                  <span className={`text-sm truncate block ${isCurrentItem ? 'text-cyan-300 font-medium' : 'text-white'}`}>
+                  <span className={`text-sm truncate block ${
+                    hasInvalidSource 
+                      ? 'text-red-400'
+                      : isCurrentItem 
+                        ? 'text-cyan-300 font-medium' 
+                        : 'text-white'
+                  }`}>
                     {item.title}
                   </span>
-                  {isCurrentItem && (
+                  {hasInvalidSource && (
+                    <span className="text-xs text-red-400">Neplatný zdroj - smazat a nahrát znovu</span>
+                  )}
+                  {!hasInvalidSource && isCurrentItem && (
                     <span className="text-xs text-cyan-500">Právě přehrává</span>
                   )}
                 </div>
