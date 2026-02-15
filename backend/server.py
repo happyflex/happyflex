@@ -116,9 +116,19 @@ async def get_media_info(request: DownloadRequest):
             'quiet': True,
             'no_warnings': True,
             'extract_flat': False,
-            # Use deno JS runtime for YouTube challenges
-            'extractor_args': {'youtube': {'player_client': ['web_safari', 'android_vr']}},
+            'no_check_certificate': True,
+            # Use iOS client for better compatibility with YouTube
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['ios', 'web'],
+                    'skip': ['dash', 'hls']
+                }
+            },
             'socket_timeout': 30,
+            'http_headers': {
+                'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+                'Accept-Language': 'en-US,en;q=0.9',
+            },
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
