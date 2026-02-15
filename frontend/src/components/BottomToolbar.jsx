@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { 
   BarChart3, 
   Timer, 
@@ -15,10 +15,12 @@ import {
   Zap,
   Calendar,
   Music,
-  Grid3x3
+  Grid3x3,
+  Trash2
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { useWorkspace } from '../context/WorkspaceContext';
+import { useTrash } from '../context/TrashContext';
 import { toast } from '../hooks/use-toast';
 import WorkspaceLayoutManager from './WorkspaceLayoutManager';
 import WindowManager from './WindowManager';
