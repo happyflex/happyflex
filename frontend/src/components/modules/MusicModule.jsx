@@ -26,17 +26,55 @@ const MEDIA_TYPES = {
 };
 
 const MusicModule = () => {
-  // State
+  // Track if initial load is complete
+  const isInitialized = useRef(false);
+  
+  // State - initialize from localStorage
   const [activeTab, setActiveTab] = useState('player'); // player, library, playlists
-  const [library, setLibrary] = useState([]);
-  const [playlists, setPlaylists] = useState([]);
-  const [currentPlaylist, setCurrentPlaylist] = useState(null);
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [library, setLibrary] = useState(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.library);
+      return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
+  });
+  const [playlists, setPlaylists] = useState(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.playlists);
+      return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
+  });
+  const [currentPlaylist, setCurrentPlaylist] = useState(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.state);
+      return stored ? JSON.parse(stored).currentPlaylist : null;
+    } catch { return null; }
+  });
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.state);
+      return stored ? JSON.parse(stored).currentTrackIndex || 0 : 0;
+    } catch { return 0; }
+  });
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.7);
+  const [volume, setVolume] = useState(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.state);
+      return stored ? JSON.parse(stored).volume ?? 0.7 : 0.7;
+    } catch { return 0.7; }
+  });
   const [isMuted, setIsMuted] = useState(false);
-  const [isRepeat, setIsRepeat] = useState(false);
-  const [isShuffle, setIsShuffle] = useState(false);
+  const [isRepeat, setIsRepeat] = useState(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.state);
+      return stored ? JSON.parse(stored).isRepeat || false : false;
+    } catch { return false; }
+  });
+  const [isShuffle, setIsShuffle] = useState(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.state);
+      return stored ? JSON.parse(stored).isShuffle || false : false;
+    } catch { return false; }
+  });
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [miniMode, setMiniMode] = useState(false);
@@ -65,43 +103,36 @@ const MusicModule = () => {
   const fileInputRef = useRef(null);
   const downloadPollRef = useRef(null);
 
-  // Load from localStorage
+  // Mark as initialized after first render
   useEffect(() => {
-    const storedLibrary = localStorage.getItem(STORAGE_KEYS.library);
-    const storedPlaylists = localStorage.getItem(STORAGE_KEYS.playlists);
-    const storedState = localStorage.getItem(STORAGE_KEYS.state);
-    
-    if (storedLibrary) setLibrary(JSON.parse(storedLibrary));
-    if (storedPlaylists) setPlaylists(JSON.parse(storedPlaylists));
-    if (storedState) {
-      const state = JSON.parse(storedState);
-      setCurrentPlaylist(state.currentPlaylist);
-      setCurrentTrackIndex(state.currentTrackIndex || 0);
-      setVolume(state.volume ?? 0.7);
-      setIsRepeat(state.isRepeat || false);
-      setIsShuffle(state.isShuffle || false);
-    }
+    isInitialized.current = true;
   }, []);
 
-  // Save library to localStorage
+  // Save library to localStorage (only after initialization)
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.library, JSON.stringify(library));
+    if (isInitialized.current) {
+      localStorage.setItem(STORAGE_KEYS.library, JSON.stringify(library));
+    }
   }, [library]);
 
-  // Save playlists to localStorage
+  // Save playlists to localStorage (only after initialization)
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.playlists, JSON.stringify(playlists));
+    if (isInitialized.current) {
+      localStorage.setItem(STORAGE_KEYS.playlists, JSON.stringify(playlists));
+    }
   }, [playlists]);
 
-  // Save state to localStorage
+  // Save state to localStorage (only after initialization)
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.state, JSON.stringify({
-      currentPlaylist,
-      currentTrackIndex,
-      volume,
-      isRepeat,
-      isShuffle
-    }));
+    if (isInitialized.current) {
+      localStorage.setItem(STORAGE_KEYS.state, JSON.stringify({
+        currentPlaylist,
+        currentTrackIndex,
+        volume,
+        isRepeat,
+        isShuffle
+      }));
+    }
   }, [currentPlaylist, currentTrackIndex, volume, isRepeat, isShuffle]);
 
   // Get current track
