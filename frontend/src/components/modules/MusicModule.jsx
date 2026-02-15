@@ -215,6 +215,12 @@ const MusicModule = () => {
     const audio = audioRef.current;
     if (!audio || !currentTrack) return;
     
+    // Check if source is valid
+    if (!isValidSource(currentTrack.source)) {
+      setError('Tato položka má neplatný zdroj. Nahrajte soubor znovu.');
+      return;
+    }
+    
     if (isPlaying) {
       audio.pause();
     } else {
