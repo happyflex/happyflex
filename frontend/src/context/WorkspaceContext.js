@@ -338,6 +338,11 @@ export const WorkspaceProvider = ({ children }) => {
     setTimerActive,
     setTimerSeconds,
     setActiveWorkzone,
+    // Setters for trash restore
+    setNotes,
+    setTasks,
+    setContacts,
+    setProjects,
     // Command Wheel actions
     duplicateModule,
     setPinMode,
