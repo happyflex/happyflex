@@ -364,6 +364,28 @@ const BottomToolbar = () => {
               onClose={() => setWindowManagerOpen(false)} 
             />
           </div>
+
+          {/* Trash Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleTrashClick}
+            className={`
+              h-12 w-12 rounded-xl transition-all duration-300 relative
+              ${clearConfirmPending 
+                ? 'bg-red-500/30 text-red-300 border border-red-500/50 animate-pulse' 
+                : 'text-red-400 hover:text-red-300 hover:bg-red-500/10 hover:scale-110 bg-red-500/5 border border-red-500/20'
+              }
+            `}
+            title="Koš (1x=otevřít, 2x=clear, 3x=hard clear)"
+          >
+            <Trash2 className="h-5 w-5" />
+            {trashStats.total > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                {trashStats.total > 99 ? '99+' : trashStats.total}
+              </span>
+            )}
+          </Button>
         </div>
 
         {/* Center - Module Tools */}
