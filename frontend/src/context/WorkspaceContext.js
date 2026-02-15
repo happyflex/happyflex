@@ -137,6 +137,21 @@ export const WorkspaceProvider = ({ children }) => {
     });
   }, []);
 
+  // Reorder modules z-index based on array order (first = bottom, last = top)
+  const reorderModulesZIndex = useCallback((orderedIds) => {
+    setModules(prev => {
+      return prev.map(m => {
+        const newZIndex = orderedIds.indexOf(m.id);
+        return newZIndex !== -1 ? { ...m, zIndex: newZIndex } : m;
+      });
+    });
+  }, []);
+
+  // Get modules sorted by z-index (highest first for display in panel)
+  const getModulesSortedByZIndex = useCallback(() => {
+    return [...modules].sort((a, b) => b.zIndex - a.zIndex);
+  }, [modules]);
+
   const deferModule = useCallback((id) => {
     const module = modules.find(m => m.id === id);
     if (module) {
