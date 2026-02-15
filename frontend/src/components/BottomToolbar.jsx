@@ -14,12 +14,14 @@ import {
   ListChecks,
   Zap,
   Calendar,
-  Music
+  Music,
+  Grid3x3
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { toast } from '../hooks/use-toast';
 import WorkspaceLayoutManager from './WorkspaceLayoutManager';
+import WindowManager from './WindowManager';
 
 // Workzones definition
 const WORKZONES = [
