@@ -102,79 +102,124 @@ async def get_status_checks():
     return status_checks
 
 
-# ============= MEDIA DOWNLOAD ENDPOINTS =============
+# ============= MEDIA DOWNLOAD ENDPOINTS (COBALT API) =============
+
+# Cobalt API instances (public instances)
+COBALT_API_INSTANCES = [
+    "https://cobalt-api.ayo.so",
+    "https://api.cobalt.tools",
+    "https://co.wuk.sh"
+]
+
+async def call_cobalt_api(url: str, format_type: str, quality: str) -> dict:
+    """Call Cobalt API to get download URL"""
+    # Map quality to Cobalt format
+    quality_map = {
+        'low': '480',
+        'medium': '720',
+        'high': '1080'
+    }
+    video_quality = quality_map.get(quality, '720')
+    
+    # Cobalt API payload
+    payload = {
+        "url": url,
+        "downloadMode": "audio" if format_type == "mp3" else "auto",
+        "audioFormat": "mp3" if format_type == "mp3" else "best",
+        "videoQuality": video_quality,
+        "filenameStyle": "pretty",
+        "youtubeVideoCodec": "h264"
+    }
+    
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+    }
+    
+    last_error = None
+    
+    # Try each Cobalt instance
+    for api_url in COBALT_API_INSTANCES:
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(
+                    api_url,
+                    json=payload,
+                    headers=headers
+                )
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    logger.info(f"Cobalt API response from {api_url}: {data}")
+                    
+                    # Check for successful response
+                    if data.get("status") in ["tunnel", "redirect", "stream"]:
+                        return {
+                            "success": True,
+                            "url": data.get("url"),
+                            "filename": data.get("filename", "download"),
+                            "status": data.get("status")
+                        }
+                    elif data.get("status") == "picker":
+                        # Multiple options available, pick first audio for mp3 or first video
+                        picker = data.get("picker", [])
+                        if picker:
+                            item = picker[0]
+                            return {
+                                "success": True,
+                                "url": item.get("url"),
+                                "filename": data.get("filename", "download"),
+                                "status": "picker"
+                            }
+                    elif data.get("status") == "error":
+                        last_error = data.get("text", "Unknown error")
+                        logger.warning(f"Cobalt API error from {api_url}: {last_error}")
+                        continue
+                else:
+                    last_error = f"HTTP {response.status_code}"
+                    logger.warning(f"Cobalt API failed from {api_url}: {last_error}")
+                    
+        except Exception as e:
+            last_error = str(e)
+            logger.warning(f"Cobalt API exception from {api_url}: {e}")
+            continue
+    
+    return {
+        "success": False,
+        "error": last_error or "All Cobalt API instances failed"
+    }
+
 
 @api_router.post("/media/info")
 async def get_media_info(request: DownloadRequest):
-    """Get media info and available formats from URL"""
+    """Get media info from URL using Cobalt API"""
     try:
-        ydl_opts = {
-            'quiet': True,
-            'no_warnings': True,
-            'extract_flat': False,
-            'no_check_certificate': True,
-            # Use iOS client for better compatibility with YouTube
-            'extractor_args': {
-                'youtube': {
-                    'player_client': ['ios', 'web'],
-                    'skip': ['dash', 'hls']
-                }
-            },
-            'socket_timeout': 30,
-            'http_headers': {
-                'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
-                'Accept-Language': 'en-US,en;q=0.9',
-            },
-        }
+        # Try to get info from Cobalt
+        result = await call_cobalt_api(request.url, "mp4", "medium")
         
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(request.url, download=False)
-            
-            # Process formats
-            formats = []
-            seen_qualities = set()
-            
-            for f in info.get('formats', []):
-                ext = f.get('ext', '')
-                quality = f.get('format_note', f.get('height', 'unknown'))
-                filesize = f.get('filesize') or f.get('filesize_approx', 0)
-                
-                # Skip duplicates
-                key = f"{ext}_{quality}"
-                if key in seen_qualities:
-                    continue
-                seen_qualities.add(key)
-                
-                if ext in ['mp4', 'webm', 'm4a', 'mp3']:
-                    formats.append({
-                        'format_id': f.get('format_id'),
-                        'ext': ext,
-                        'quality': str(quality),
-                        'filesize': filesize,
-                        'filesize_str': format_size(filesize) if filesize else 'Unknown',
-                        'has_audio': f.get('acodec', 'none') != 'none',
-                        'has_video': f.get('vcodec', 'none') != 'none',
-                    })
-            
-            # Add audio-only options
-            formats.append({
-                'format_id': 'bestaudio',
-                'ext': 'mp3',
-                'quality': 'best',
-                'filesize': 0,
-                'filesize_str': '~3-10 MB',
-                'has_audio': True,
-                'has_video': False,
-            })
+        if result.get("success"):
+            # Extract title from filename or URL
+            filename = result.get("filename", "")
+            title = filename.replace(".mp4", "").replace(".mp3", "").replace(".webm", "") or "Media"
             
             return {
-                'id': info.get('id', str(uuid.uuid4())),
-                'title': info.get('title', 'Unknown'),
-                'duration': info.get('duration'),
-                'thumbnail': info.get('thumbnail'),
-                'formats': formats,
+                'id': str(uuid.uuid4()),
+                'title': title,
+                'duration': None,  # Cobalt doesn't provide duration
+                'thumbnail': None,
+                'formats': [
+                    {'format_id': 'mp3', 'ext': 'mp3', 'quality': 'audio', 'filesize_str': '~3-10 MB', 'has_audio': True, 'has_video': False},
+                    {'format_id': 'mp4_low', 'ext': 'mp4', 'quality': '480p', 'filesize_str': '~10-30 MB', 'has_audio': True, 'has_video': True},
+                    {'format_id': 'mp4_medium', 'ext': 'mp4', 'quality': '720p', 'filesize_str': '~30-80 MB', 'has_audio': True, 'has_video': True},
+                    {'format_id': 'mp4_high', 'ext': 'mp4', 'quality': '1080p', 'filesize_str': '~80-200 MB', 'has_audio': True, 'has_video': True},
+                ],
                 'source_url': request.url
             }
+        else:
+            raise HTTPException(status_code=400, detail=result.get("error", "Failed to get media info"))
+            
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error getting media info: {e}")
         raise HTTPException(status_code=400, detail=str(e))
@@ -191,156 +236,65 @@ def format_size(size_bytes):
     return f"{size_bytes:.1f} TB"
 
 
-def progress_hook(d, download_id):
-    """Hook to track download progress"""
-    if download_id not in active_downloads:
-        return
-    
-    status = active_downloads[download_id]
-    
-    if d['status'] == 'downloading':
-        status.status = 'downloading'
-        total = d.get('total_bytes') or d.get('total_bytes_estimate', 0)
-        downloaded = d.get('downloaded_bytes', 0)
-        
-        if total > 0:
-            status.progress = (downloaded / total) * 100
-        
-        status.speed = d.get('_speed_str', '')
-        status.eta = d.get('_eta_str', '')
-        
-    elif d['status'] == 'finished':
-        status.status = 'processing'
-        status.progress = 95
-
-
 async def download_media_task(download_id: str, url: str, format_type: str, quality: str):
-    """Background task to download media using CLI yt-dlp with improved YouTube bypass"""
+    """Background task to download media using Cobalt API"""
     status = active_downloads.get(download_id)
     if not status:
         return
     
     try:
-        # First, get the media title using improved options
-        try:
-            ydl_opts = {
-                'quiet': True, 
-                'no_warnings': True,
-                'extractor_args': {
-                    'youtube': {
-                        'player_client': ['ios', 'web'],
-                        'skip': ['dash', 'hls']
-                    }
-                },
-            }
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=False)
-                media_title = info.get('title', 'Downloaded Media')
-                status.title = media_title
-        except Exception as e:
-            logger.warning(f"Could not get media title: {e}")
-            media_title = 'Downloaded Media'
-        
-        output_file = DOWNLOADS_DIR / f"{download_id}"
-        
-        # Build command with improved YouTube bypass options
-        cmd = [
-            '/root/.venv/bin/yt-dlp',
-            '--no-warnings',
-            '--no-check-certificates',
-            '--extractor-args', 'youtube:player_client=ios,web;skip=dash,hls',
-            '--user-agent', 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
-            '--referer', 'https://www.youtube.com/',
-            '--add-header', 'Accept-Language:en-US,en;q=0.9',
-            '-o', f'{output_file}.%(ext)s',
-        ]
-        
-        if format_type == 'mp3':
-            quality_map = {'high': '192', 'medium': '128', 'low': '96'}
-            cmd.extend([
-                '-f', 'ba[ext=m4a]/ba/b',  # Best audio, prefer m4a
-                '--extract-audio',
-                '--audio-format', 'mp3',
-                '--audio-quality', quality_map.get(quality, '128') + 'K',
-            ])
-        else:  # mp4
-            # Use format selection based on quality - simplified for better compatibility
-            if quality == 'high':
-                cmd.extend(['-f', 'bv*[height<=1080][ext=mp4]+ba[ext=m4a]/b[height<=1080][ext=mp4]/bv*[height<=1080]+ba/b'])
-            elif quality == 'low':
-                cmd.extend(['-f', 'bv*[height<=480][ext=mp4]+ba[ext=m4a]/b[height<=480][ext=mp4]/bv*[height<=480]+ba/b'])
-            else:  # medium
-                cmd.extend(['-f', 'bv*[height<=720][ext=mp4]+ba[ext=m4a]/b[height<=720][ext=mp4]/bv*[height<=720]+ba/b'])
-            
-            cmd.extend(['--merge-output-format', 'mp4'])
-        
-        cmd.append(url)
-        
-        # Set environment
-        env = os.environ.copy()
-        
-        # Run download
         status.status = 'downloading'
         status.progress = 10
         
-        loop = asyncio.get_event_loop()
+        # Get download URL from Cobalt
+        result = await call_cobalt_api(url, format_type, quality)
         
-        def run_download():
-            logger.info(f"Running command: {' '.join(cmd)}")
-            process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                env=env,
-                text=True
-            )
-            
-            output_lines = []
-            for line in process.stdout:
-                output_lines.append(line)
-                logger.info(f"yt-dlp: {line.strip()}")
-                # Parse progress from output
-                if '[download]' in line and '%' in line:
-                    try:
-                        parts = line.split('%')[0].split()
-                        for part in reversed(parts):
-                            if part.replace('.', '').isdigit():
-                                status.progress = min(95, float(part))
-                                break
-                    except:
-                        pass
-                        
-            process.wait()
-            return process.returncode, '\n'.join(output_lines)
-        
-        returncode, output = await loop.run_in_executor(None, run_download)
-        
-        if returncode != 0:
+        if not result.get("success"):
             status.status = 'failed'
-            status.error = output[-500:] if len(output) > 500 else output
-            logger.error(f"Download failed with code {returncode}: {output}")
+            status.error = result.get("error", "Failed to get download URL from Cobalt")
             return
         
-        # Find the downloaded file
-        ext = 'mp3' if format_type == 'mp3' else 'mp4'
+        download_url = result.get("url")
+        filename = result.get("filename", "download")
+        status.title = filename.replace(".mp4", "").replace(".mp3", "").replace(".webm", "")
+        
+        status.progress = 20
+        
+        # Download the file
+        ext = format_type if format_type in ['mp3', 'mp4'] else 'mp4'
         file_path = DOWNLOADS_DIR / f"{download_id}.{ext}"
         
-        if not file_path.exists():
-            for f in DOWNLOADS_DIR.glob(f"{download_id}.*"):
-                if f.suffix in ['.mp3', '.mp4', '.m4a', '.webm']:
-                    file_path = f
-                    break
+        async with httpx.AsyncClient(timeout=300.0, follow_redirects=True) as client:
+            async with client.stream("GET", download_url) as response:
+                if response.status_code != 200:
+                    status.status = 'failed'
+                    status.error = f"Failed to download: HTTP {response.status_code}"
+                    return
+                
+                total_size = int(response.headers.get('content-length', 0))
+                downloaded = 0
+                
+                async with aiofiles.open(file_path, 'wb') as f:
+                    async for chunk in response.aiter_bytes(chunk_size=1024*1024):
+                        await f.write(chunk)
+                        downloaded += len(chunk)
+                        
+                        if total_size > 0:
+                            progress = 20 + (downloaded / total_size) * 75
+                            status.progress = min(95, progress)
+                        else:
+                            status.progress = min(95, status.progress + 5)
         
         if file_path.exists():
             status.status = 'completed'
             status.progress = 100
             status.file_path = str(file_path)
             status.file_size = file_path.stat().st_size
-            # Title was already set at the beginning of the task
             
+            # Save metadata
             metadata = {
                 'id': download_id,
-                'title': status.title or media_title,
+                'title': status.title,
                 'source_url': url,
                 'file_path': str(file_path),
                 'file_size': status.file_size,
@@ -357,7 +311,6 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
         else:
             status.status = 'failed'
             status.error = 'Downloaded file not found'
-            logger.error(f"File not found after download. Output: {output}")
             
     except Exception as e:
         logger.error(f"Download error: {e}")
