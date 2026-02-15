@@ -29,7 +29,7 @@ const MODULE_CONFIG = {
   calendar: { icon: Calendar, label: 'Kalendář', color: 'text-red-400' },
   music: { icon: Music, label: 'Hudba', color: 'text-emerald-400' },
   people: { icon: Users, label: 'Lidi', color: 'text-indigo-400' },
-  trash: { icon: Layout, label: 'Koš', color: 'text-red-400' },
+  trash: { icon: Trash2, label: 'Koš', color: 'text-red-400' },
 };
 
 const WindowManager = ({ isOpen, onClose }) => {
