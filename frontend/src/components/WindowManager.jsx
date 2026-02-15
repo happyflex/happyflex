@@ -11,7 +11,8 @@ import {
   Music,
   Users,
   GripVertical,
-  X
+  X,
+  Focus
 } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
 
@@ -33,8 +34,11 @@ const WindowManager = ({ isOpen, onClose }) => {
   const { 
     modules, 
     bringToFront, 
+    removeModule,
     reorderModulesZIndex,
-    getModulesSortedByZIndex 
+    getModulesSortedByZIndex,
+    focusedModuleId,
+    clearFocusMode
   } = useWorkspace();
   
   const [draggedId, setDraggedId] = useState(null);
@@ -97,6 +101,20 @@ const WindowManager = ({ isOpen, onClose }) => {
     bringToFront(moduleId);
   }, [bringToFront]);
 
+  const handleCloseModule = useCallback((e, moduleId) => {
+    // Stop propagation to prevent triggering item click or drag
+    e.stopPropagation();
+    e.preventDefault();
+    
+    // If closing a focused module, clear focus mode first
+    if (focusedModuleId === moduleId) {
+      clearFocusMode();
+    }
+    
+    // Remove the module
+    removeModule(moduleId);
+  }, [focusedModuleId, clearFocusMode, removeModule]);
+
   if (!isOpen) return null;
 
   return (
@@ -125,6 +143,7 @@ const WindowManager = ({ isOpen, onClose }) => {
               const isTop = index === 0;
               const isDragging = draggedId === module.id;
               const isDragOver = dragOverId === module.id;
+              const isFocused = focusedModuleId === module.id;
 
               return (
                 <div
@@ -137,9 +156,14 @@ const WindowManager = ({ isOpen, onClose }) => {
                   onDragEnd={handleDragEnd}
                   onClick={() => handleItemClick(module.id)}
                   className={`
-                    flex items-center gap-2 px-2 py-2 rounded-lg cursor-pointer
+                    group flex items-center gap-2 px-2 py-2 rounded-lg cursor-pointer
                     transition-all duration-150 select-none
-                    ${isTop ? 'bg-cyan-500/15 border border-cyan-500/30' : 'hover:bg-cyan-500/10 border border-transparent'}
+                    ${isFocused 
+                      ? 'bg-purple-500/20 border border-purple-500/40' 
+                      : isTop 
+                        ? 'bg-cyan-500/15 border border-cyan-500/30' 
+                        : 'hover:bg-cyan-500/10 border border-transparent'
+                    }
                     ${isDragging ? 'opacity-50 scale-95' : ''}
                     ${isDragOver ? 'bg-cyan-500/20 border-cyan-400/50 border-dashed' : ''}
                   `}
@@ -155,12 +179,22 @@ const WindowManager = ({ isOpen, onClose }) => {
                   </div>
 
                   {/* Module Name */}
-                  <span className={`flex-1 text-sm truncate ${isTop ? 'text-white font-medium' : 'text-gray-300'}`}>
+                  <span className={`flex-1 text-sm truncate ${isFocused ? 'text-purple-200 font-medium' : isTop ? 'text-white font-medium' : 'text-gray-300'}`}>
                     {config.label}
                   </span>
 
-                  {/* Top Indicator */}
-                  {isTop && (
+                  {/* Focus Indicator */}
+                  {isFocused && (
+                    <div className="flex items-center gap-1">
+                      <Focus className="h-3.5 w-3.5 text-purple-400" />
+                      <span className="text-[9px] text-purple-400 bg-purple-500/20 px-1 py-0.5 rounded font-medium">
+                        FOCUS
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Top Indicator (only show if not focused) */}
+                  {isTop && !isFocused && (
                     <span className="text-[10px] text-cyan-400 bg-cyan-500/20 px-1.5 py-0.5 rounded">
                       TOP
                     </span>
@@ -170,6 +204,22 @@ const WindowManager = ({ isOpen, onClose }) => {
                   <span className="text-[10px] text-gray-600 font-mono">
                     z{module.zIndex}
                   </span>
+
+                  {/* Close Button - visible on hover */}
+                  <button
+                    onClick={(e) => handleCloseModule(e, module.id)}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    className="
+                      opacity-0 group-hover:opacity-100
+                      p-1 rounded
+                      text-gray-500 hover:text-red-400 hover:bg-red-500/20
+                      transition-all duration-150
+                      flex-shrink-0
+                    "
+                    title="Zavřít okno"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               );
             })}
