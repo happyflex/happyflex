@@ -240,13 +240,16 @@ const MusicModule = () => {
   const handleNext = () => {
     if (!currentPlaylist) return;
     const playlist = playlists.find(p => p.id === currentPlaylist);
-    if (!playlist || !playlist.items.length) return;
+    if (!playlist) return;
+    
+    const items = getPlaylistItems(playlist);
+    if (!items.length) return;
 
     let nextIndex;
     if (isShuffle) {
-      nextIndex = Math.floor(Math.random() * playlist.items.length);
+      nextIndex = Math.floor(Math.random() * items.length);
     } else {
-      nextIndex = (currentTrackIndex + 1) % playlist.items.length;
+      nextIndex = (currentTrackIndex + 1) % items.length;
     }
     setCurrentTrackIndex(nextIndex);
     setIsPlaying(true);
@@ -256,7 +259,10 @@ const MusicModule = () => {
   const handlePrev = () => {
     if (!currentPlaylist) return;
     const playlist = playlists.find(p => p.id === currentPlaylist);
-    if (!playlist || !playlist.items.length) return;
+    if (!playlist) return;
+    
+    const items = getPlaylistItems(playlist);
+    if (!items.length) return;
 
     let prevIndex;
     if (currentTime > 3) {
@@ -265,9 +271,9 @@ const MusicModule = () => {
       return;
     }
     if (isShuffle) {
-      prevIndex = Math.floor(Math.random() * playlist.items.length);
+      prevIndex = Math.floor(Math.random() * items.length);
     } else {
-      prevIndex = (currentTrackIndex - 1 + playlist.items.length) % playlist.items.length;
+      prevIndex = (currentTrackIndex - 1 + items.length) % items.length;
     }
     setCurrentTrackIndex(prevIndex);
     setIsPlaying(true);
