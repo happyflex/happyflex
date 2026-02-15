@@ -104,11 +104,12 @@ async def get_status_checks():
 
 # ============= MEDIA DOWNLOAD ENDPOINTS (COBALT API) =============
 
-# Cobalt API instances (public instances)
+# Cobalt API requires authentication in 2025
+# We'll try multiple public instances and fallback gracefully
+
 COBALT_API_INSTANCES = [
-    "https://cobalt-api.ayo.so",
     "https://api.cobalt.tools",
-    "https://co.wuk.sh"
+    "https://cobalt.tools/api"
 ]
 
 async def call_cobalt_api(url: str, format_type: str, quality: str) -> dict:
@@ -126,6 +127,7 @@ async def call_cobalt_api(url: str, format_type: str, quality: str) -> dict:
         "url": url,
         "downloadMode": "audio" if format_type == "mp3" else "auto",
         "audioFormat": "mp3" if format_type == "mp3" else "best",
+        "audioBitrate": "128",
         "videoQuality": video_quality,
         "filenameStyle": "pretty",
         "youtubeVideoCodec": "h264"
@@ -148,20 +150,23 @@ async def call_cobalt_api(url: str, format_type: str, quality: str) -> dict:
                     headers=headers
                 )
                 
+                logger.info(f"Cobalt API response from {api_url}: status={response.status_code}")
+                
                 if response.status_code == 200:
                     data = response.json()
-                    logger.info(f"Cobalt API response from {api_url}: {data}")
+                    logger.info(f"Cobalt API data: {data}")
                     
                     # Check for successful response
-                    if data.get("status") in ["tunnel", "redirect", "stream"]:
+                    status = data.get("status")
+                    if status in ["tunnel", "redirect", "stream"]:
                         return {
                             "success": True,
                             "url": data.get("url"),
                             "filename": data.get("filename", "download"),
-                            "status": data.get("status")
+                            "status": status
                         }
-                    elif data.get("status") == "picker":
-                        # Multiple options available, pick first audio for mp3 or first video
+                    elif status == "picker":
+                        # Multiple options available, pick first
                         picker = data.get("picker", [])
                         if picker:
                             item = picker[0]
@@ -171,8 +176,16 @@ async def call_cobalt_api(url: str, format_type: str, quality: str) -> dict:
                                 "filename": data.get("filename", "download"),
                                 "status": "picker"
                             }
-                    elif data.get("status") == "error":
-                        last_error = data.get("text", "Unknown error")
+                    elif status == "error":
+                        error_data = data.get("error", {})
+                        error_code = error_data.get("code", "") if isinstance(error_data, dict) else str(error_data)
+                        
+                        # Check if it's an auth error
+                        if "auth" in error_code.lower():
+                            last_error = "Cobalt API vyžaduje autentizaci. YouTube aktivně blokuje stahování bez přihlášení."
+                        else:
+                            last_error = error_data.get("message", error_code) if isinstance(error_data, dict) else str(error_data)
+                        
                         logger.warning(f"Cobalt API error from {api_url}: {last_error}")
                         continue
                 else:
@@ -186,40 +199,42 @@ async def call_cobalt_api(url: str, format_type: str, quality: str) -> dict:
     
     return {
         "success": False,
-        "error": last_error or "All Cobalt API instances failed"
+        "error": last_error or "Všechny Cobalt API instance selhaly. YouTube aktivně blokuje stahování bez autentizace."
     }
 
 
 @api_router.post("/media/info")
 async def get_media_info(request: DownloadRequest):
-    """Get media info from URL using Cobalt API"""
+    """Get media info from URL - returns basic info for UI"""
     try:
-        # Try to get info from Cobalt
-        result = await call_cobalt_api(request.url, "mp4", "medium")
+        # Extract video ID from URL for basic info
+        video_id = None
+        url = request.url
         
-        if result.get("success"):
-            # Extract title from filename or URL
-            filename = result.get("filename", "")
-            title = filename.replace(".mp4", "").replace(".mp3", "").replace(".webm", "") or "Media"
+        if "youtube.com" in url or "youtu.be" in url:
+            if "youtu.be/" in url:
+                video_id = url.split("youtu.be/")[1].split("?")[0].split("/")[0]
+            elif "watch?v=" in url:
+                video_id = url.split("watch?v=")[1].split("&")[0]
+            elif "/shorts/" in url:
+                video_id = url.split("/shorts/")[1].split("?")[0].split("/")[0]
+        
+        # Return basic info - actual download will try Cobalt
+        return {
+            'id': video_id or str(uuid.uuid4()),
+            'title': f"Video {video_id}" if video_id else "Media",
+            'duration': None,
+            'thumbnail': f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg" if video_id else None,
+            'formats': [
+                {'format_id': 'mp3', 'ext': 'mp3', 'quality': 'audio', 'filesize_str': '~3-10 MB', 'has_audio': True, 'has_video': False},
+                {'format_id': 'mp4_low', 'ext': 'mp4', 'quality': '480p', 'filesize_str': '~10-30 MB', 'has_audio': True, 'has_video': True},
+                {'format_id': 'mp4_medium', 'ext': 'mp4', 'quality': '720p', 'filesize_str': '~30-80 MB', 'has_audio': True, 'has_video': True},
+                {'format_id': 'mp4_high', 'ext': 'mp4', 'quality': '1080p', 'filesize_str': '~80-200 MB', 'has_audio': True, 'has_video': True},
+            ],
+            'source_url': request.url,
+            'note': 'Stahování z YouTube může vyžadovat autentizaci kvůli omezením platformy.'
+        }
             
-            return {
-                'id': str(uuid.uuid4()),
-                'title': title,
-                'duration': None,  # Cobalt doesn't provide duration
-                'thumbnail': None,
-                'formats': [
-                    {'format_id': 'mp3', 'ext': 'mp3', 'quality': 'audio', 'filesize_str': '~3-10 MB', 'has_audio': True, 'has_video': False},
-                    {'format_id': 'mp4_low', 'ext': 'mp4', 'quality': '480p', 'filesize_str': '~10-30 MB', 'has_audio': True, 'has_video': True},
-                    {'format_id': 'mp4_medium', 'ext': 'mp4', 'quality': '720p', 'filesize_str': '~30-80 MB', 'has_audio': True, 'has_video': True},
-                    {'format_id': 'mp4_high', 'ext': 'mp4', 'quality': '1080p', 'filesize_str': '~80-200 MB', 'has_audio': True, 'has_video': True},
-                ],
-                'source_url': request.url
-            }
-        else:
-            raise HTTPException(status_code=400, detail=result.get("error", "Failed to get media info"))
-            
-    except HTTPException:
-        raise
     except Exception as e:
         logger.error(f"Error getting media info: {e}")
         raise HTTPException(status_code=400, detail=str(e))
@@ -246,17 +261,31 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
         status.status = 'downloading'
         status.progress = 10
         
-        # Get download URL from Cobalt
+        # Extract title from URL
+        video_id = None
+        if "youtube.com" in url or "youtu.be" in url:
+            if "youtu.be/" in url:
+                video_id = url.split("youtu.be/")[1].split("?")[0].split("/")[0]
+            elif "watch?v=" in url:
+                video_id = url.split("watch?v=")[1].split("&")[0]
+            elif "/shorts/" in url:
+                video_id = url.split("/shorts/")[1].split("?")[0].split("/")[0]
+        
+        status.title = f"Video {video_id}" if video_id else "Downloaded Media"
+        
+        # Try Cobalt API first
         result = await call_cobalt_api(url, format_type, quality)
         
         if not result.get("success"):
             status.status = 'failed'
-            status.error = result.get("error", "Failed to get download URL from Cobalt")
+            status.error = result.get("error", "Stahování selhalo. YouTube blokuje stahování ze serverových prostředí.")
+            logger.error(f"Cobalt API failed: {result.get('error')}")
             return
         
         download_url = result.get("url")
         filename = result.get("filename", "download")
-        status.title = filename.replace(".mp4", "").replace(".mp3", "").replace(".webm", "")
+        if filename:
+            status.title = filename.replace(".mp4", "").replace(".mp3", "").replace(".webm", "")
         
         status.progress = 20
         
@@ -268,7 +297,7 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
             async with client.stream("GET", download_url) as response:
                 if response.status_code != 200:
                     status.status = 'failed'
-                    status.error = f"Failed to download: HTTP {response.status_code}"
+                    status.error = f"Stahování selhalo: HTTP {response.status_code}"
                     return
                 
                 total_size = int(response.headers.get('content-length', 0))
@@ -310,12 +339,15 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
             logger.info(f"Download completed: {file_path}")
         else:
             status.status = 'failed'
-            status.error = 'Downloaded file not found'
+            status.error = 'Stažený soubor nebyl nalezen'
             
+    except httpx.TimeoutException:
+        status.status = 'failed'
+        status.error = 'Časový limit vypršel při stahování'
     except Exception as e:
         logger.error(f"Download error: {e}")
         status.status = 'failed'
-        status.error = str(e)
+        status.error = f"Chyba při stahování: {str(e)}"
 
 
 @api_router.post("/media/download")
