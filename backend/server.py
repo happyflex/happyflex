@@ -14,8 +14,7 @@ import asyncio
 import aiofiles
 import hashlib
 import json
-import yt_dlp
-import subprocess
+import httpx
 
 ROOT_DIR = Path(__file__).parent
 DOWNLOADS_DIR = ROOT_DIR / "downloads"
