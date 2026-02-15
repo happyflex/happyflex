@@ -83,8 +83,6 @@ const MusicModule = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [isRepeat, setIsRepeat] = useState(initialState.isRepeat || false);
   const [isShuffle, setIsShuffle] = useState(initialState.isShuffle || false);
-    } catch { return false; }
-  });
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [miniMode, setMiniMode] = useState(false);
