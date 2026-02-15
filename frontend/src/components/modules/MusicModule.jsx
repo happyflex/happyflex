@@ -156,7 +156,20 @@ const MusicModule = () => {
     return playlist.items[currentTrackIndex] || playlist.items[0];
   }, [currentPlaylist, currentTrackIndex, playlists, currentLibraryItem]);
 
+  // Check if source is valid (not an expired blob URL)
+  const isValidSource = useCallback((source) => {
+    if (!source) return false;
+    // Blob URLs are not valid after page reload
+    if (source.startsWith('blob:')) return false;
+    // Data URLs, http(s) URLs are valid
+    if (source.startsWith('data:')) return true;
+    if (source.startsWith('http://') || source.startsWith('https://')) return true;
+    if (source.startsWith('/')) return true; // Relative URLs
+    return false;
+  }, []);
+
   const currentTrack = getCurrentTrack();
+  const canPlayCurrentTrack = currentTrack && isValidSource(currentTrack.source);
 
   // Audio element event handlers
   useEffect(() => {
