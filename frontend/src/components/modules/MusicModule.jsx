@@ -1314,7 +1314,7 @@ const MusicModule = () => {
                 </div>
               )}
             </div>
-          ))
+          );})
         )}
       </div>
     </div>
