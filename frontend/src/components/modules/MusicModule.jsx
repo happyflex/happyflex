@@ -591,6 +591,12 @@ const MusicModule = () => {
 
   // Play item directly from library
   const playFromLibrary = (item) => {
+    // Check if source is valid
+    if (!isValidSource(item.source)) {
+      setError('Tato položka má neplatný zdroj (blob URL expiroval). Smažte ji a nahrajte znovu.');
+      return;
+    }
+    
     // If clicking on currently playing item, toggle play/pause
     if (currentLibraryItem?.id === item.id) {
       togglePlay();
