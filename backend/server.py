@@ -209,15 +209,25 @@ def progress_hook(d, download_id):
 
 
 async def download_media_task(download_id: str, url: str, format_type: str, quality: str):
-    """Background task to download media using CLI yt-dlp with deno JS runtime"""
+    """Background task to download media using CLI yt-dlp with improved YouTube bypass"""
     status = active_downloads.get(download_id)
     if not status:
         return
     
     try:
-        # First, get the media title
+        # First, get the media title using improved options
         try:
-            with yt_dlp.YoutubeDL({'quiet': True, 'no_warnings': True}) as ydl:
+            ydl_opts = {
+                'quiet': True, 
+                'no_warnings': True,
+                'extractor_args': {
+                    'youtube': {
+                        'player_client': ['ios', 'web'],
+                        'skip': ['dash', 'hls']
+                    }
+                },
+            }
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=False)
                 media_title = info.get('title', 'Downloaded Media')
                 status.title = media_title
@@ -227,38 +237,41 @@ async def download_media_task(download_id: str, url: str, format_type: str, qual
         
         output_file = DOWNLOADS_DIR / f"{download_id}"
         
-        # Build command with deno JS runtime for YouTube challenges
+        # Build command with improved YouTube bypass options
         cmd = [
             '/root/.venv/bin/yt-dlp',
             '--no-warnings',
-            '--js-runtimes', 'deno',  # Use deno for JS challenge solving
+            '--no-check-certificates',
+            '--extractor-args', 'youtube:player_client=ios,web;skip=dash,hls',
+            '--user-agent', 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+            '--referer', 'https://www.youtube.com/',
+            '--add-header', 'Accept-Language:en-US,en;q=0.9',
             '-o', f'{output_file}.%(ext)s',
         ]
         
         if format_type == 'mp3':
             quality_map = {'high': '192', 'medium': '128', 'low': '96'}
             cmd.extend([
-                '-f', '140/bestaudio',
+                '-f', 'ba[ext=m4a]/ba/b',  # Best audio, prefer m4a
                 '--extract-audio',
                 '--audio-format', 'mp3',
                 '--audio-quality', quality_map.get(quality, '128') + 'K',
             ])
         else:  # mp4
-            # Use format selection based on quality
+            # Use format selection based on quality - simplified for better compatibility
             if quality == 'high':
-                cmd.extend(['-f', 'bestvideo[height<=1080]+bestaudio/best[height<=1080]/best'])
+                cmd.extend(['-f', 'bv*[height<=1080][ext=mp4]+ba[ext=m4a]/b[height<=1080][ext=mp4]/bv*[height<=1080]+ba/b'])
             elif quality == 'low':
-                cmd.extend(['-f', 'bestvideo[height<=480]+bestaudio/best[height<=480]/best'])
+                cmd.extend(['-f', 'bv*[height<=480][ext=mp4]+ba[ext=m4a]/b[height<=480][ext=mp4]/bv*[height<=480]+ba/b'])
             else:  # medium
-                cmd.extend(['-f', 'bestvideo[height<=720]+bestaudio/best[height<=720]/best'])
+                cmd.extend(['-f', 'bv*[height<=720][ext=mp4]+ba[ext=m4a]/b[height<=720][ext=mp4]/bv*[height<=720]+ba/b'])
             
             cmd.extend(['--merge-output-format', 'mp4'])
         
         cmd.append(url)
         
-        # Set environment with deno path
+        # Set environment
         env = os.environ.copy()
-        env['PATH'] = '/root/.deno/bin:' + env.get('PATH', '')
         
         # Run download
         status.status = 'downloading'
