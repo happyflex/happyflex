@@ -1,0 +1,198 @@
+import React, { createContext, useContext, useState, useCallback } from 'react';
+
+const TrashContext = createContext();
+
+export const useTrash = () => {
+  const context = useContext(TrashContext);
+  if (!context) {
+    throw new Error('useTrash must be used within TrashProvider');
+  }
+  return context;
+};
+
+// Trash item types
+export const TRASH_TYPES = {
+  WINDOW: 'window',
+  NOTE: 'note',
+  PROJECT: 'project',
+  PERSON: 'person',
+  TASK: 'task',
+  OTHER: 'other'
+};
+
+export const TrashProvider = ({ children }) => {
+  const [trashItems, setTrashItems] = useState([]);
+
+  // Add item to trash
+  const addToTrash = useCallback((item) => {
+    const trashEntry = {
+      id: `trash-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      type: item.type || TRASH_TYPES.OTHER,
+      name: item.name || 'Unnamed',
+      originalData: item.data,
+      sourceModule: item.sourceModule || 'unknown',
+      deletedAt: new Date().toISOString(),
+      metadata: item.metadata || {}
+    };
+    setTrashItems(prev => [trashEntry, ...prev]);
+    return trashEntry.id;
+  }, []);
+
+  // Add window to trash (special helper)
+  const addWindowToTrash = useCallback((module) => {
+    return addToTrash({
+      type: TRASH_TYPES.WINDOW,
+      name: getModuleLabel(module.type),
+      data: module,
+      sourceModule: 'workspace',
+      metadata: {
+        moduleType: module.type,
+        position: module.position,
+        size: module.size,
+        zIndex: module.zIndex,
+        pinMode: module.pinMode
+      }
+    });
+  }, [addToTrash]);
+
+  // Add note to trash
+  const addNoteToTrash = useCallback((note) => {
+    return addToTrash({
+      type: TRASH_TYPES.NOTE,
+      name: note.title || 'Poznámka bez názvu',
+      data: note,
+      sourceModule: 'notes',
+      metadata: {
+        content: note.content?.substring(0, 100) + '...'
+      }
+    });
+  }, [addToTrash]);
+
+  // Add project to trash
+  const addProjectToTrash = useCallback((project) => {
+    return addToTrash({
+      type: TRASH_TYPES.PROJECT,
+      name: project.name || 'Projekt bez názvu',
+      data: project,
+      sourceModule: 'projects',
+      metadata: {
+        status: project.status,
+        tasksCount: project.tasks?.length || 0
+      }
+    });
+  }, [addToTrash]);
+
+  // Add person to trash
+  const addPersonToTrash = useCallback((person) => {
+    return addToTrash({
+      type: TRASH_TYPES.PERSON,
+      name: person.name || 'Osoba bez jména',
+      data: person,
+      sourceModule: 'people',
+      metadata: {
+        email: person.email,
+        company: person.company
+      }
+    });
+  }, [addToTrash]);
+
+  // Add task to trash
+  const addTaskToTrash = useCallback((task) => {
+    return addToTrash({
+      type: TRASH_TYPES.TASK,
+      name: task.title || 'Úkol bez názvu',
+      data: task,
+      sourceModule: 'tasks',
+      metadata: {
+        completed: task.completed,
+        priority: task.priority
+      }
+    });
+  }, [addToTrash]);
+
+  // Remove item from trash permanently
+  const removeFromTrash = useCallback((trashId) => {
+    setTrashItems(prev => prev.filter(item => item.id !== trashId));
+  }, []);
+
+  // Get item from trash (for restore)
+  const getTrashItem = useCallback((trashId) => {
+    return trashItems.find(item => item.id === trashId);
+  }, [trashItems]);
+
+  // Restore item and remove from trash
+  const restoreFromTrash = useCallback((trashId) => {
+    const item = getTrashItem(trashId);
+    if (item) {
+      removeFromTrash(trashId);
+      return item;
+    }
+    return null;
+  }, [getTrashItem, removeFromTrash]);
+
+  // Clear all trash
+  const emptyTrash = useCallback(() => {
+    setTrashItems([]);
+  }, []);
+
+  // Get items by type
+  const getItemsByType = useCallback((type) => {
+    return trashItems.filter(item => item.type === type);
+  }, [trashItems]);
+
+  // Get trash stats
+  const getTrashStats = useCallback(() => {
+    return {
+      total: trashItems.length,
+      windows: trashItems.filter(i => i.type === TRASH_TYPES.WINDOW).length,
+      notes: trashItems.filter(i => i.type === TRASH_TYPES.NOTE).length,
+      projects: trashItems.filter(i => i.type === TRASH_TYPES.PROJECT).length,
+      people: trashItems.filter(i => i.type === TRASH_TYPES.PERSON).length,
+      tasks: trashItems.filter(i => i.type === TRASH_TYPES.TASK).length,
+      other: trashItems.filter(i => i.type === TRASH_TYPES.OTHER).length
+    };
+  }, [trashItems]);
+
+  const value = {
+    trashItems,
+    addToTrash,
+    addWindowToTrash,
+    addNoteToTrash,
+    addProjectToTrash,
+    addPersonToTrash,
+    addTaskToTrash,
+    removeFromTrash,
+    getTrashItem,
+    restoreFromTrash,
+    emptyTrash,
+    getItemsByType,
+    getTrashStats,
+    TRASH_TYPES
+  };
+
+  return (
+    <TrashContext.Provider value={value}>
+      {children}
+    </TrashContext.Provider>
+  );
+};
+
+// Helper function for module labels
+function getModuleLabel(type) {
+  const labels = {
+    chart: 'Graf',
+    timer: 'Časovač',
+    notes: 'Poznámky',
+    goals: 'Cíle',
+    processes: 'Procesy',
+    projects: 'Projekty',
+    tasks: 'Úkoly',
+    calendar: 'Kalendář',
+    music: 'Hudba',
+    people: 'Lidi',
+    trash: 'Koš'
+  };
+  return labels[type] || type;
+}
+
+export default TrashContext;
