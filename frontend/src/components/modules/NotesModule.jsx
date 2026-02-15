@@ -75,12 +75,12 @@ const NotesModule = () => {
         </div>
       )}
 
-      <ScrollArea className="flex-1">
-        <div className="space-y-3">
+      <ScrollArea className="flex-1 overflow-visible">
+        <div className="space-y-3 pr-2 pb-2">
           {notes.map((note) => (
             <div
               key={note.id}
-              className="group p-4 rounded-lg border transition-all hover:scale-[1.02] cursor-pointer"
+              className="group p-4 rounded-lg border transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:shadow-cyan-500/10 hover:z-10 relative cursor-pointer"
               style={{
                 backgroundColor: `${note.color}15`,
                 borderColor: `${note.color}50`
