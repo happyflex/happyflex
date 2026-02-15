@@ -72,7 +72,7 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
     };
 
     const updatedLayouts = [...layouts, newLayout];
-    localStorage.setItem('workspace_layouts', JSON.stringify(updatedLayouts));
+    localStorage.setItem(STORAGE_KEYS.SAVED_LAYOUTS, JSON.stringify(updatedLayouts));
     setLayouts(updatedLayouts);
     setLayoutName('');
     setSaveDialogOpen(false);
