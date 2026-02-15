@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Bell, Settings, Layers, Grid3x3 } from 'lucide-react';
+import { Search, Bell, Settings, Layers } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 
@@ -19,21 +19,6 @@ const Header = () => {
       </div>
 
       <div className="flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10"
-        >
-          <Layers className="h-5 w-5" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10"
-        >
-          <Grid3x3 className="h-5 w-5" />
-        </Button>
-        
         <div className="relative w-80">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
           <Input
