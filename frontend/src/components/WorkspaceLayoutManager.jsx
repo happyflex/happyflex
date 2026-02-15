@@ -6,6 +6,7 @@ import { Input } from './ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { ScrollArea } from './ui/scroll-area';
 import { toast } from '../hooks/use-toast';
+import { STORAGE_KEYS } from '../utils/persistence';
 
 const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
   const workspace = useWorkspace();
@@ -19,7 +20,7 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
 
   const loadLayouts = () => {
     try {
-      const saved = localStorage.getItem('workspace_layouts');
+      const saved = localStorage.getItem(STORAGE_KEYS.SAVED_LAYOUTS);
       if (saved) {
         setLayouts(JSON.parse(saved));
       }
