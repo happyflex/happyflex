@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { mockNotes, mockTasks, mockContacts, mockProjects } from '../data/mockData';
+import { saveToStorage, loadFromStorage, STORAGE_KEYS } from '../utils/persistence';
 
 const WorkspaceContext = createContext();
 
@@ -11,19 +12,116 @@ export const useWorkspace = () => {
   return context;
 };
 
+// Initialize state from localStorage or fallback to defaults
+const initializeState = (key, defaultValue) => {
+  const stored = loadFromStorage(key);
+  return stored !== null ? stored : defaultValue;
+};
+
 export const WorkspaceProvider = ({ children }) => {
-  const [modules, setModules] = useState([]);
-  const [deferredModules, setDeferredModules] = useState([]);
-  const [notes, setNotes] = useState(mockNotes);
-  const [tasks, setTasks] = useState(mockTasks);
-  const [contacts, setContacts] = useState(mockContacts);
-  const [projects, setProjects] = useState(mockProjects);
+  // Track if initial load is complete
+  const isInitialized = useRef(false);
+  
+  // Initialize state from localStorage
+  const [modules, setModules] = useState(() => 
+    initializeState(STORAGE_KEYS.WORKSPACE_MODULES, [])
+  );
+  const [deferredModules, setDeferredModules] = useState(() => 
+    initializeState(STORAGE_KEYS.DEFERRED_MODULES, [])
+  );
+  const [notes, setNotes] = useState(() => 
+    initializeState(STORAGE_KEYS.NOTES, mockNotes)
+  );
+  const [tasks, setTasks] = useState(() => 
+    initializeState(STORAGE_KEYS.TASKS, mockTasks)
+  );
+  const [contacts, setContacts] = useState(() => 
+    initializeState(STORAGE_KEYS.CONTACTS, mockContacts)
+  );
+  const [projects, setProjects] = useState(() => 
+    initializeState(STORAGE_KEYS.PROJECTS, mockProjects)
+  );
   const [timerActive, setTimerActive] = useState(false);
-  const [timerSeconds, setTimerSeconds] = useState(0);
-  const [activeWorkzone, setActiveWorkzone] = useState(null); // Start with no workzone (basic mode)
-  const [focusedModuleId, setFocusedModuleId] = useState(null); // For focus mode
-  const [snapPreview, setSnapPreview] = useState(null); // For snap preview visualization
-  const [isDraggingWindow, setIsDraggingWindow] = useState(false); // For cursor HUD
+  const [timerSeconds, setTimerSeconds] = useState(() => {
+    const stored = initializeState(STORAGE_KEYS.TIMER_STATE, null);
+    return stored?.seconds || 0;
+  });
+  const [activeWorkzone, setActiveWorkzone] = useState(() => 
+    initializeState(STORAGE_KEYS.ACTIVE_WORKZONE, null)
+  );
+  const [focusedModuleId, setFocusedModuleId] = useState(() => 
+    initializeState(STORAGE_KEYS.FOCUSED_MODULE, null)
+  );
+  const [snapPreview, setSnapPreview] = useState(null);
+  const [isDraggingWindow, setIsDraggingWindow] = useState(false);
+
+  // Mark as initialized after first render
+  useEffect(() => {
+    isInitialized.current = true;
+  }, []);
+
+  // Auto-save workspace modules
+  useEffect(() => {
+    if (isInitialized.current) {
+      saveToStorage(STORAGE_KEYS.WORKSPACE_MODULES, modules);
+    }
+  }, [modules]);
+
+  // Auto-save deferred modules (CANVAS)
+  useEffect(() => {
+    if (isInitialized.current) {
+      saveToStorage(STORAGE_KEYS.DEFERRED_MODULES, deferredModules);
+    }
+  }, [deferredModules]);
+
+  // Auto-save notes
+  useEffect(() => {
+    if (isInitialized.current) {
+      saveToStorage(STORAGE_KEYS.NOTES, notes);
+    }
+  }, [notes]);
+
+  // Auto-save tasks
+  useEffect(() => {
+    if (isInitialized.current) {
+      saveToStorage(STORAGE_KEYS.TASKS, tasks);
+    }
+  }, [tasks]);
+
+  // Auto-save contacts
+  useEffect(() => {
+    if (isInitialized.current) {
+      saveToStorage(STORAGE_KEYS.CONTACTS, contacts);
+    }
+  }, [contacts]);
+
+  // Auto-save projects
+  useEffect(() => {
+    if (isInitialized.current) {
+      saveToStorage(STORAGE_KEYS.PROJECTS, projects);
+    }
+  }, [projects]);
+
+  // Auto-save focused module
+  useEffect(() => {
+    if (isInitialized.current) {
+      saveToStorage(STORAGE_KEYS.FOCUSED_MODULE, focusedModuleId);
+    }
+  }, [focusedModuleId]);
+
+  // Auto-save active workzone
+  useEffect(() => {
+    if (isInitialized.current) {
+      saveToStorage(STORAGE_KEYS.ACTIVE_WORKZONE, activeWorkzone);
+    }
+  }, [activeWorkzone]);
+
+  // Auto-save timer state (only seconds, not active state)
+  useEffect(() => {
+    if (isInitialized.current && timerSeconds > 0) {
+      saveToStorage(STORAGE_KEYS.TIMER_STATE, { seconds: timerSeconds });
+    }
+  }, [timerSeconds]);
 
   // Find free space for a new window
   const findFreeSpace = useCallback((windowSize, existingModules) => {
