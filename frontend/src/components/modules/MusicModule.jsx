@@ -653,10 +653,11 @@ const MusicModule = () => {
   const reorderPlaylist = (playlistId, fromIndex, toIndex) => {
     setPlaylists(prev => prev.map(p => {
       if (p.id === playlistId) {
-        const newItems = [...p.items];
-        const [moved] = newItems.splice(fromIndex, 1);
-        newItems.splice(toIndex, 0, moved);
-        return { ...p, items: newItems };
+        const currentIds = p.itemIds || p.items?.map(i => i.id) || [];
+        const newIds = [...currentIds];
+        const [moved] = newIds.splice(fromIndex, 1);
+        newIds.splice(toIndex, 0, moved);
+        return { ...p, itemIds: newIds, items: undefined };
       }
       return p;
     }));
