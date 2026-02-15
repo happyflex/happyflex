@@ -25,19 +25,115 @@ export const WorkspaceProvider = ({ children }) => {
   const [snapPreview, setSnapPreview] = useState(null); // For snap preview visualization
   const [isDraggingWindow, setIsDraggingWindow] = useState(false); // For cursor HUD
 
+  // Find free space for a new window
+  const findFreeSpace = useCallback((windowSize, existingModules) => {
+    const padding = 16;
+    const headerHeight = 64;
+    const rightSidebarWidth = 320;
+    const bottomToolbarHeight = 80;
+    
+    const workspaceWidth = window.innerWidth - rightSidebarWidth - padding;
+    const workspaceHeight = window.innerHeight - headerHeight - bottomToolbarHeight - padding;
+    
+    // Grid-based search for free space
+    const gridStep = 50; // Check every 50px
+    const windowWidth = windowSize.width;
+    const windowHeight = windowSize.height;
+    
+    // Try different positions starting from top-left, moving right then down
+    for (let y = headerHeight + padding; y + windowHeight <= workspaceHeight + headerHeight; y += gridStep) {
+      for (let x = padding; x + windowWidth <= workspaceWidth; x += gridStep) {
+        const testRect = { x, y, width: windowWidth, height: windowHeight };
+        
+        // Check if this position overlaps with any existing module
+        let overlaps = false;
+        for (const module of existingModules) {
+          if (rectsOverlap(testRect, {
+            x: module.position.x,
+            y: module.position.y,
+            width: module.size.width,
+            height: module.size.height
+          })) {
+            overlaps = true;
+            break;
+          }
+        }
+        
+        if (!overlaps) {
+          return { x, y };
+        }
+      }
+    }
+    
+    return null; // No free space found
+  }, []);
+
+  // Check if two rectangles overlap
+  const rectsOverlap = (rect1, rect2) => {
+    const margin = 10; // Small margin to prevent touching windows
+    return !(
+      rect1.x + rect1.width + margin < rect2.x ||
+      rect2.x + rect2.width + margin < rect1.x ||
+      rect1.y + rect1.height + margin < rect2.y ||
+      rect2.y + rect2.height + margin < rect1.y
+    );
+  };
+
+  // Get cascade position based on top-most window
+  const getCascadePosition = useCallback((existingModules) => {
+    const padding = 16;
+    const headerHeight = 64;
+    const cascadeOffset = 30;
+    
+    if (existingModules.length === 0) {
+      return { x: padding + 100, y: headerHeight + padding + 50 };
+    }
+    
+    // Find the top-most window (highest z-index)
+    const topModule = existingModules.reduce((top, m) => 
+      m.zIndex > top.zIndex ? m : top, existingModules[0]
+    );
+    
+    // Cascade from top-most window
+    return {
+      x: topModule.position.x + cascadeOffset,
+      y: topModule.position.y + cascadeOffset
+    };
+  }, []);
+
+  // Calculate proper z-index for new window
+  const getNewWindowZIndex = useCallback((existingModules) => {
+    if (existingModules.length === 0) return 0;
+    
+    // Find max z-index among non-always-on-top windows
+    const regularModules = existingModules.filter(m => m.pinMode !== 'top');
+    const alwaysOnTopModules = existingModules.filter(m => m.pinMode === 'top');
+    
+    if (regularModules.length === 0 && alwaysOnTopModules.length === 0) return 0;
+    
+    // New window should be above all regular windows but below always-on-top
+    const maxRegularZ = regularModules.length > 0 
+      ? Math.max(...regularModules.map(m => m.zIndex)) 
+      : -1;
+    
+    return maxRegularZ + 1;
+  }, []);
+
   const addModule = useCallback((type, position = null, snapLayout = null) => {
     // Pro modul Projekty použít maximalizovanou velikost
     const isProjectsModule = type === 'projects';
+    const isTrashModule = type === 'trash';
     
     const padding = 16;
+    const headerHeight = 64;
     const rightSidebarWidth = 320;
     const bottomToolbarHeight = 80;
     const availableWidth = window.innerWidth - rightSidebarWidth - (padding * 2);
-    const availableHeight = window.innerHeight - bottomToolbarHeight - (padding * 2);
+    const availableHeight = window.innerHeight - headerHeight - bottomToolbarHeight - (padding * 2);
 
     let defaultSize, defaultPosition;
 
-    // If snap layout is provided, calculate based on layout
+    // Determine window size based on type
     if (snapLayout) {
       const snapLayouts = getSnapLayouts(availableWidth, availableHeight, padding);
       const layout = snapLayouts[snapLayout];
@@ -46,29 +142,65 @@ export const WorkspaceProvider = ({ children }) => {
         defaultSize = layout.size;
       }
     } else if (isProjectsModule) {
-      const headerHeight = 64;
       defaultSize = {
         width: availableWidth,
-        height: availableHeight - headerHeight
+        height: availableHeight
       };
-      defaultPosition = { x: padding, y: padding };
+      defaultPosition = { x: padding, y: headerHeight + padding };
+    } else if (isTrashModule) {
+      defaultSize = { width: 380, height: 450 };
     } else {
       defaultSize = { width: 400, height: 300 };
-      defaultPosition = {
-        x: Math.random() * 400 + 100,
-        y: Math.random() * 300 + 100
-      };
+    }
+
+    // If position is explicitly provided, use it
+    if (position) {
+      defaultPosition = position;
+    }
+    // Otherwise, find intelligent placement
+    else if (!defaultPosition) {
+      // First, try to find free space
+      const freePosition = findFreeSpace(defaultSize, modules);
+      
+      if (freePosition) {
+        defaultPosition = freePosition;
+      } else {
+        // No free space - use cascade from top-most window
+        defaultPosition = getCascadePosition(modules);
+        
+        // Make sure cascade doesn't go off-screen
+        const maxX = window.innerWidth - rightSidebarWidth - defaultSize.width - padding;
+        const maxY = window.innerHeight - bottomToolbarHeight - defaultSize.height - padding;
+        
+        if (defaultPosition.x > maxX) {
+          defaultPosition.x = padding + 50;
+        }
+        if (defaultPosition.y > maxY) {
+          defaultPosition.y = headerHeight + padding + 50;
+        }
+      }
+    }
+
+    // Calculate z-index - new window should be on top (respecting always-on-top)
+    const newZIndex = getNewWindowZIndex(modules);
+    
+    // Bump always-on-top windows to stay on top
+    if (modules.some(m => m.pinMode === 'top')) {
+      setModules(prev => prev.map(m => 
+        m.pinMode === 'top' ? { ...m, zIndex: newZIndex + 100 } : m
+      ));
     }
     
     const newModule = {
       id: `module-${Date.now()}`,
       type,
-      position: position || defaultPosition,
+      position: defaultPosition,
       size: defaultSize,
-      zIndex: modules.length
+      zIndex: newZIndex
     };
+    
     setModules(prev => [...prev, newModule]);
-  }, [modules.length]);
+  }, [modules, findFreeSpace, getCascadePosition, getNewWindowZIndex]);
 
   // Helper function for snap layouts
   const getSnapLayouts = useCallback((availableWidth, availableHeight, padding) => {
