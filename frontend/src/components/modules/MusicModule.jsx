@@ -582,6 +582,16 @@ const MusicModule = () => {
 
   // Play playlist
   const playPlaylist = (playlistId, startIndex = 0) => {
+    const playlist = playlists.find(p => p.id === playlistId);
+    if (!playlist || !playlist.items.length) return;
+    
+    // Check if first item has valid source
+    const firstItem = playlist.items[startIndex] || playlist.items[0];
+    if (!isValidSource(firstItem.source)) {
+      setError('První skladba v playlistu má neplatný zdroj. Aktualizujte playlist.');
+      return;
+    }
+    
     setCurrentLibraryItem(null); // Clear library playback
     setCurrentPlaylist(playlistId);
     setCurrentTrackIndex(startIndex);
