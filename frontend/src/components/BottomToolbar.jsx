@@ -178,6 +178,35 @@ const BottomToolbar = () => {
           >
             <Layers className="h-5 w-5" />
           </Button>
+
+          {/* Window Manager */}
+          <div className="relative window-manager-trigger">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setWindowManagerOpen(!windowManagerOpen)}
+              className={`
+                h-12 w-12 rounded-xl transition-all duration-300
+                ${windowManagerOpen 
+                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' 
+                  : 'text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 hover:scale-110 bg-cyan-500/5 border border-cyan-500/20'
+                }
+              `}
+              title="Správa oken"
+            >
+              <Grid3x3 className="h-5 w-5" />
+              {modules.length > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-cyan-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  {modules.length}
+                </span>
+              )}
+            </Button>
+
+            <WindowManager 
+              isOpen={windowManagerOpen} 
+              onClose={() => setWindowManagerOpen(false)} 
+            />
+          </div>
         </div>
 
         {/* Center - Module Tools */}
