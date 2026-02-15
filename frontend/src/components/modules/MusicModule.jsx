@@ -1242,7 +1242,9 @@ const MusicModule = () => {
             Žádné playlisty
           </div>
         ) : (
-          playlists.map(playlist => (
+          playlists.map(playlist => {
+            const playlistItems = getPlaylistItems(playlist);
+            return (
             <div key={playlist.id} className="bg-cyan-500/5 rounded-lg overflow-hidden">
               <div 
                 className={`flex items-center gap-2 p-2 cursor-pointer hover:bg-cyan-500/10 transition-colors ${
@@ -1252,12 +1254,13 @@ const MusicModule = () => {
               >
                 <ListMusic className="h-4 w-4 text-cyan-400 flex-shrink-0" />
                 <span className="flex-1 text-sm text-white">{playlist.name}</span>
-                <span className="text-xs text-gray-500">{playlist.items.length} položek</span>
+                <span className="text-xs text-gray-500">{playlistItems.length} položek</span>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={(e) => { e.stopPropagation(); playPlaylist(playlist.id); }}
                   className="h-6 w-6 text-cyan-400 hover:text-cyan-300"
+                  disabled={playlistItems.length === 0}
                 >
                   <Play className="h-3 w-3" />
                 </Button>
@@ -1279,12 +1282,12 @@ const MusicModule = () => {
               {/* Expanded playlist */}
               {editingPlaylist === playlist.id && (
                 <div className="border-t border-cyan-500/10 p-2 space-y-1">
-                  {playlist.items.length === 0 ? (
+                  {playlistItems.length === 0 ? (
                     <div className="text-xs text-gray-500 text-center py-2">
                       Prázdný playlist
                     </div>
                   ) : (
-                    playlist.items.map((item, index) => (
+                    playlistItems.map((item, index) => (
                       <div 
                         key={item.id}
                         className={`flex items-center gap-2 p-1 rounded text-xs hover:bg-cyan-500/10 cursor-pointer ${
