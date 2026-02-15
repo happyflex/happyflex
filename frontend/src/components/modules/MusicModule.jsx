@@ -152,9 +152,15 @@ const MusicModule = () => {
     // If playing from playlist
     if (!currentPlaylist) return null;
     const playlist = playlists.find(p => p.id === currentPlaylist);
-    if (!playlist || !playlist.items.length) return null;
-    return playlist.items[currentTrackIndex] || playlist.items[0];
-  }, [currentPlaylist, currentTrackIndex, playlists, currentLibraryItem]);
+    if (!playlist) return null;
+    
+    // Get items from library using IDs
+    const ids = playlist.itemIds || playlist.items?.map(i => i.id) || [];
+    const items = ids.map(id => library.find(item => item.id === id)).filter(Boolean);
+    
+    if (!items.length) return null;
+    return items[currentTrackIndex] || items[0];
+  }, [currentPlaylist, currentTrackIndex, playlists, currentLibraryItem, library]);
 
   // Check if source is valid (not an expired blob URL)
   const isValidSource = useCallback((source) => {
