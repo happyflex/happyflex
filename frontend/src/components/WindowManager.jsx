@@ -12,7 +12,8 @@ import {
   Users,
   GripVertical,
   X,
-  Focus
+  Focus,
+  Trash2
 } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
 
