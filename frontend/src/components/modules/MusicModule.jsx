@@ -775,8 +775,16 @@ const MusicModule = () => {
               
               {/* Warning note */}
               {mediaInfo.note && (
-                <div className="text-xs text-yellow-500/80 bg-yellow-500/10 rounded px-2 py-1">
-                  ⚠️ {mediaInfo.note}
+                <div className="text-xs text-yellow-500/80 bg-yellow-500/10 rounded px-2 py-1.5 space-y-1">
+                  <div>⚠️ {mediaInfo.note}</div>
+                  <a 
+                    href={`https://cobalt.tools/?url=${encodeURIComponent(downloadUrl)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-cyan-400 hover:text-cyan-300 underline"
+                  >
+                    Otevřít v cobalt.tools →
+                  </a>
                 </div>
               )}
               
