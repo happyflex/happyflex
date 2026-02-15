@@ -186,8 +186,14 @@ const MusicModule = () => {
         handleNext();
       }
     };
-    const handleError = () => {
-      setError('Nelze přehrát tuto položku');
+    const handleError = (e) => {
+      console.error('[MusicModule] Audio error:', e);
+      // Check if the source is a blob URL (expired after reload)
+      if (currentTrack?.source?.startsWith('blob:')) {
+        setError('Tato položka byla nahrána v předchozí relaci a nelze ji přehrát. Nahrajte soubor znovu.');
+      } else {
+        setError('Nelze přehrát tuto položku');
+      }
       setIsPlaying(false);
     };
 
