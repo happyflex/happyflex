@@ -113,3 +113,14 @@ code {
         border-bottom-color: inherit;
     }
 }
+
+/* Notes card hover scale fix - prevent clipping */
+@layer components {
+    .module-content [data-radix-scroll-area-viewport] {
+        overflow: visible !important;
+    }
+    
+    .module-content [data-radix-scroll-area-viewport] > div {
+        overflow: visible !important;
+    }
+}
