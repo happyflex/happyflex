@@ -724,7 +724,7 @@ const MusicModule = () => {
           {/* URL Input */}
           <div className="flex gap-2">
             <Input
-              placeholder="URL videa (YouTube, atd.)"
+              placeholder="URL videa (YouTube, TikTok, Twitter...)"
               value={downloadUrl}
               onChange={(e) => setDownloadUrl(e.target.value)}
               className="bg-transparent border-green-500/30 text-white text-sm flex-1"
@@ -741,21 +741,42 @@ const MusicModule = () => {
           
           {/* Error */}
           {downloadError && (
-            <div className="text-xs text-red-400 bg-red-500/10 rounded px-2 py-1 flex items-center gap-2">
-              <AlertCircle className="h-3 w-3" />
-              {downloadError}
+            <div className="text-xs text-red-400 bg-red-500/10 rounded px-2 py-2 space-y-1">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                <span>{downloadError}</span>
+              </div>
             </div>
           )}
           
           {/* Media Info */}
           {mediaInfo && !activeDownload && (
             <div className="space-y-2">
+              {/* Thumbnail */}
+              {mediaInfo.thumbnail && (
+                <div className="relative aspect-video bg-black/30 rounded overflow-hidden">
+                  <img 
+                    src={mediaInfo.thumbnail} 
+                    alt={mediaInfo.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => e.target.style.display = 'none'}
+                  />
+                </div>
+              )}
+              
               <div className="text-sm text-white font-medium truncate">
                 {mediaInfo.title}
               </div>
               {mediaInfo.duration && (
                 <div className="text-xs text-gray-400">
                   Délka: {Math.floor(mediaInfo.duration / 60)}:{(mediaInfo.duration % 60).toString().padStart(2, '0')}
+                </div>
+              )}
+              
+              {/* Warning note */}
+              {mediaInfo.note && (
+                <div className="text-xs text-yellow-500/80 bg-yellow-500/10 rounded px-2 py-1">
+                  ⚠️ {mediaInfo.note}
                 </div>
               )}
               
@@ -861,10 +882,27 @@ const MusicModule = () => {
                 </div>
               )}
               
-              {/* Error message */}
+              {/* Error message with details */}
               {activeDownload.status === 'failed' && activeDownload.error && (
-                <div className="text-xs text-red-400 bg-red-500/10 rounded px-2 py-1">
-                  {activeDownload.error}
+                <div className="text-xs text-red-400 bg-red-500/10 rounded px-2 py-2 space-y-2">
+                  <div className="font-medium">❌ {activeDownload.error}</div>
+                  {activeDownload.error.includes('autentizaci') || activeDownload.error.includes('blokuje') ? (
+                    <div className="text-gray-400 text-[10px]">
+                      YouTube a další platformy aktivně blokují stahování ze serverových prostředí. 
+                      Zkuste použít lokální nástroj jako yt-dlp nebo cobalt.tools ve svém prohlížeči.
+                    </div>
+                  ) : null}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="w-full text-gray-400 hover:text-white text-xs"
+                    onClick={() => {
+                      setActiveDownload(null);
+                      setDownloadError(null);
+                    }}
+                  >
+                    Zkusit znovu
+                  </Button>
                 </div>
               )}
             </div>
