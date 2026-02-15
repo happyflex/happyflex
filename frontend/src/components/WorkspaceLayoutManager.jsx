@@ -154,7 +154,7 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
   const deleteLayout = (id) => {
     const layout = layouts.find(l => l.id === id);
     const updatedLayouts = layouts.filter(l => l.id !== id);
-    localStorage.setItem('workspace_layouts', JSON.stringify(updatedLayouts));
+    localStorage.setItem(STORAGE_KEYS.SAVED_LAYOUTS, JSON.stringify(updatedLayouts));
     setLayouts(updatedLayouts);
 
     toast({
