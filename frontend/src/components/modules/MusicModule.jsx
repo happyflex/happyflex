@@ -558,13 +558,15 @@ const MusicModule = () => {
     setDownloadError(null);
   };
 
-  // Add to playlist
+  // Add to playlist (store only ID reference, not full data)
   const addToPlaylist = (playlistId, item) => {
     setPlaylists(prev => prev.map(p => {
       if (p.id === playlistId) {
-        // Avoid duplicates
-        if (p.items.some(i => i.id === item.id)) return p;
-        return { ...p, items: [...p.items, item] };
+        // Avoid duplicates - check by ID
+        if (p.itemIds && p.itemIds.includes(item.id)) return p;
+        // Store only item IDs to save space
+        const currentIds = p.itemIds || p.items?.map(i => i.id) || [];
+        return { ...p, itemIds: [...currentIds, item.id], items: undefined };
       }
       return p;
     }));
@@ -574,21 +576,36 @@ const MusicModule = () => {
   const removeFromPlaylist = (playlistId, itemId) => {
     setPlaylists(prev => prev.map(p => {
       if (p.id === playlistId) {
-        return { ...p, items: p.items.filter(i => i.id !== itemId) };
+        const currentIds = p.itemIds || p.items?.map(i => i.id) || [];
+        return { ...p, itemIds: currentIds.filter(id => id !== itemId), items: undefined };
       }
       return p;
     }));
   };
 
+  // Get playlist items from library by IDs
+  const getPlaylistItems = useCallback((playlist) => {
+    if (!playlist) return [];
+    // Support both old format (items) and new format (itemIds)
+    const ids = playlist.itemIds || playlist.items?.map(i => i.id) || [];
+    return ids.map(id => library.find(item => item.id === id)).filter(Boolean);
+  }, [library]);
+
   // Play playlist
   const playPlaylist = (playlistId, startIndex = 0) => {
     const playlist = playlists.find(p => p.id === playlistId);
-    if (!playlist || !playlist.items.length) return;
+    if (!playlist) return;
+    
+    const items = getPlaylistItems(playlist);
+    if (!items.length) {
+      setError('Playlist je prázdný nebo položky byly smazány z knihovny.');
+      return;
+    }
     
     // Check if first item has valid source
-    const firstItem = playlist.items[startIndex] || playlist.items[0];
+    const firstItem = items[startIndex] || items[0];
     if (!isValidSource(firstItem.source)) {
-      setError('První skladba v playlistu má neplatný zdroj. Aktualizujte playlist.');
+      setError('První skladba v playlistu má neplatný zdroj.');
       return;
     }
     
