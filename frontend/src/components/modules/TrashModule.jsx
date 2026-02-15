@@ -12,9 +12,9 @@ import {
   Layers,
   AlertTriangle
 } from 'lucide-react';
-import { Button } from './ui/button';
-import { useTrash, TRASH_TYPES } from '../context/TrashContext';
-import { useWorkspace } from '../context/WorkspaceContext';
+import { Button } from '../ui/button';
+import { useTrash, TRASH_TYPES } from '../../context/TrashContext';
+import { useWorkspace } from '../../context/WorkspaceContext';
 
 // Type configuration
 const TYPE_CONFIG = {
