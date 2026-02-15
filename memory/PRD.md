@@ -227,4 +227,4 @@ project_world_{projectId}: {
 - Testing agent iteration_4: Pending (Kalendář - manuálně otestován)
 
 ## Preview URL
-https://media-forge-52.preview.emergentagent.com
+https://steward-three.preview.emergentagent.com
