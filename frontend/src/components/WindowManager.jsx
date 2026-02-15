@@ -110,14 +110,22 @@ const WindowManager = ({ isOpen, onClose }) => {
     e.stopPropagation();
     e.preventDefault();
     
+    // Get module data before removing
+    const module = modules.find(m => m.id === moduleId);
+    
     // If closing a focused module, clear focus mode first
     if (focusedModuleId === moduleId) {
       clearFocusMode();
     }
     
+    // Add to trash before removing
+    if (module) {
+      addWindowToTrash(module);
+    }
+    
     // Remove the module
     removeModule(moduleId);
-  }, [focusedModuleId, clearFocusMode, removeModule]);
+  }, [modules, focusedModuleId, clearFocusMode, addWindowToTrash, removeModule]);
 
   if (!isOpen) return null;
 
