@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
+import { saveToStorage, loadFromStorage, STORAGE_KEYS } from '../utils/persistence';
 
 const TrashContext = createContext();
 
@@ -21,7 +22,25 @@ export const TRASH_TYPES = {
 };
 
 export const TrashProvider = ({ children }) => {
-  const [trashItems, setTrashItems] = useState([]);
+  const isInitialized = useRef(false);
+  
+  // Initialize from localStorage
+  const [trashItems, setTrashItems] = useState(() => {
+    const stored = loadFromStorage(STORAGE_KEYS.TRASH_ITEMS);
+    return stored !== null ? stored : [];
+  });
+
+  // Mark as initialized after first render
+  useEffect(() => {
+    isInitialized.current = true;
+  }, []);
+
+  // Auto-save trash items
+  useEffect(() => {
+    if (isInitialized.current) {
+      saveToStorage(STORAGE_KEYS.TRASH_ITEMS, trashItems);
+    }
+  }, [trashItems]);
 
   // Add item to trash
   const addToTrash = useCallback((item) => {
