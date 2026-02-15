@@ -29,50 +29,60 @@ const MusicModule = () => {
   // Track if initial load is complete
   const isInitialized = useRef(false);
   
-  // State - initialize from localStorage
-  const [activeTab, setActiveTab] = useState('player'); // player, library, playlists
-  const [library, setLibrary] = useState(() => {
+  // Load initial data from localStorage synchronously
+  const getInitialLibrary = () => {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.library);
-      return stored ? JSON.parse(stored) : [];
-    } catch { return []; }
-  });
-  const [playlists, setPlaylists] = useState(() => {
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        console.log('[MusicModule] Loaded library:', parsed.length, 'items');
+        return parsed;
+      }
+    } catch (e) {
+      console.error('[MusicModule] Error loading library:', e);
+    }
+    return [];
+  };
+
+  const getInitialPlaylists = () => {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.playlists);
-      return stored ? JSON.parse(stored) : [];
-    } catch { return []; }
-  });
-  const [currentPlaylist, setCurrentPlaylist] = useState(() => {
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        console.log('[MusicModule] Loaded playlists:', parsed.length, 'items');
+        return parsed;
+      }
+    } catch (e) {
+      console.error('[MusicModule] Error loading playlists:', e);
+    }
+    return [];
+  };
+
+  const getInitialState = () => {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.state);
-      return stored ? JSON.parse(stored).currentPlaylist : null;
-    } catch { return null; }
-  });
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEYS.state);
-      return stored ? JSON.parse(stored).currentTrackIndex || 0 : 0;
-    } catch { return 0; }
-  });
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch (e) {
+      console.error('[MusicModule] Error loading state:', e);
+    }
+    return {};
+  };
+
+  // Initialize state
+  const initialState = getInitialState();
+  
+  const [activeTab, setActiveTab] = useState('player');
+  const [library, setLibrary] = useState(getInitialLibrary);
+  const [playlists, setPlaylists] = useState(getInitialPlaylists);
+  const [currentPlaylist, setCurrentPlaylist] = useState(initialState.currentPlaylist || null);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(initialState.currentTrackIndex || 0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEYS.state);
-      return stored ? JSON.parse(stored).volume ?? 0.7 : 0.7;
-    } catch { return 0.7; }
-  });
+  const [volume, setVolume] = useState(initialState.volume ?? 0.7);
   const [isMuted, setIsMuted] = useState(false);
-  const [isRepeat, setIsRepeat] = useState(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEYS.state);
-      return stored ? JSON.parse(stored).isRepeat || false : false;
-    } catch { return false; }
-  });
-  const [isShuffle, setIsShuffle] = useState(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEYS.state);
-      return stored ? JSON.parse(stored).isShuffle || false : false;
+  const [isRepeat, setIsRepeat] = useState(initialState.isRepeat || false);
+  const [isShuffle, setIsShuffle] = useState(initialState.isShuffle || false);
     } catch { return false; }
   });
   const [currentTime, setCurrentTime] = useState(0);
