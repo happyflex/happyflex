@@ -76,20 +76,24 @@ const toolbarItems = [
 ];
 
 const BottomToolbar = () => {
-  const { addModule, activeWorkzone, setActiveWorkzone } = useWorkspace();
+  const { addModule, activeWorkzone, setActiveWorkzone, modules } = useWorkspace();
   const [layoutManagerOpen, setLayoutManagerOpen] = useState(false);
   const [workzonePopoverOpen, setWorkzonePopoverOpen] = useState(false);
+  const [windowManagerOpen, setWindowManagerOpen] = useState(false);
 
-  // Close popover when clicking outside
+  // Close popovers when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (e) => {
       if (workzonePopoverOpen && !e.target.closest('.workzone-popover-trigger') && !e.target.closest('.workzone-popover')) {
         setWorkzonePopoverOpen(false);
       }
+      if (windowManagerOpen && !e.target.closest('.window-manager-trigger') && !e.target.closest('.window-manager-popover')) {
+        setWindowManagerOpen(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [workzonePopoverOpen]);
+  }, [workzonePopoverOpen, windowManagerOpen]);
 
   const handleToolClick = (item) => {
     if (['notes', 'tasks', 'people', 'projects', 'goals', 'processes', 'chart', 'timer', 'calendar', 'music'].includes(item.type)) {
