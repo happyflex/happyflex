@@ -295,23 +295,55 @@ const MusicModule = () => {
     setShowAddForm(false);
   };
 
-  // Handle file upload
-  const handleFileUpload = (e) => {
+  // Handle file upload - convert to base64 for persistence
+  const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     
-    const url = URL.createObjectURL(file);
-    const newItem = {
-      id: `item-${Date.now()}`,
-      title: file.name.replace(/\.[^/.]+$/, ''),
-      type: 'audio',
-      source: url,
-      tags: [],
-      addedAt: new Date().toISOString(),
-      isLocal: true
-    };
+    // Check file size (limit to 50MB for localStorage)
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    if (file.size > maxSize) {
+      setError('Soubor je příliš velký (max 50MB)');
+      return;
+    }
     
-    setLibrary(prev => [...prev, newItem]);
+    try {
+      // Convert file to base64 for persistence
+      const base64 = await fileToBase64(file);
+      
+      const newItem = {
+        id: `item-${Date.now()}`,
+        title: file.name.replace(/\.[^/.]+$/, ''),
+        type: file.type.startsWith('video/') ? 'video' : 'audio',
+        source: base64, // Store as base64 data URL
+        mimeType: file.type,
+        fileSize: file.size,
+        tags: [],
+        addedAt: new Date().toISOString(),
+        isLocal: true
+      };
+      
+      setLibrary(prev => [...prev, newItem]);
+      console.log('[MusicModule] File uploaded and stored as base64');
+    } catch (err) {
+      console.error('[MusicModule] Error uploading file:', err);
+      setError('Nepodařilo se nahrát soubor');
+    }
+    
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  // Convert file to base64 data URL
+  const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file);
+    });
   };
 
   // Delete item from library
