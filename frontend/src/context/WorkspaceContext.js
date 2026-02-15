@@ -316,6 +316,8 @@ export const WorkspaceProvider = ({ children }) => {
     updateModulePosition,
     updateModuleSize,
     bringToFront,
+    reorderModulesZIndex,
+    getModulesSortedByZIndex,
     deferModule,
     restoreModule,
     removeFromCanvas,
