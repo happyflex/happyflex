@@ -391,10 +391,11 @@ const MusicModule = () => {
       setIsPlaying(false);
     }
     setLibrary(prev => prev.filter(item => item.id !== itemId));
-    // Also remove from all playlists
+    // Also remove from all playlists (by ID reference)
     setPlaylists(prev => prev.map(playlist => ({
       ...playlist,
-      items: playlist.items.filter(item => item.id !== itemId)
+      itemIds: (playlist.itemIds || playlist.items?.map(i => i.id) || []).filter(id => id !== itemId),
+      items: undefined
     })));
   };
 
@@ -405,7 +406,7 @@ const MusicModule = () => {
     const newPlaylist = {
       id: `playlist-${Date.now()}`,
       name: newPlaylistName.trim(),
-      items: [],
+      itemIds: [], // Store only IDs
       createdAt: new Date().toISOString()
     };
     
