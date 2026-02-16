@@ -1,177 +1,126 @@
 <analysis>**original_problem_statement:**
+The user's initial problem was a 403 Forbidden error when trying to download videos from YouTube using the  library in the Music module. After several failed attempts to fix this, the agent and user agreed on a workaround: integrating the  service by providing a direct link for the user to download manually.
 
-The user wants to implement a series of features and improvements for the S.T.E.W.A.R.D. Workspace Dashboard application.
+Following this, the user has been providing a series of feature requests and bug fixes to enhance the S.T.E.W.A.R.D. Workspace Dashboard. The latest request is to ensure all deleted or closed items (windows, notes, tasks, etc.) are consistently sent to the Trash module, regardless of how they are removed.
 
 **PRODUCT REQUIREMENTS:**
-
-1.  **Command Wheel Feature:**
-    *   Implement a circular, context-sensitive menu (Command Wheel) that appears on .
-    *   The menu's options should change based on the cursor's context (empty workspace, over a window, over a CANVAS block, etc.).
-    *   Implement a specific list of actions for each context (e.g., New Note on empty space, Focus on a window).
-    *   The UI should have a Tony Stark holographic style, with neon rings, subtle animations, and a glass effect. The color should be influenced by the active Workzone.
-    *   The Command Wheel was later refined to be smaller, more compact, and feature a multi-layered energetic core with a subtle breathing animation.
-
-2.  **Window Management Bug Fix:**
-    *   Fix a bug where maximizing a window by dragging it to the top of the screen causes it to overlap the bottom toolbar. The correct behavior should match the result of clicking the Maximize icon.
-
-3.  **UI Tweak - Reorder Icons:**
-    *   In the title bar of each window, reorder the control icons to be: Pin, Minimize, Maximize, Close.
-
-4.  **Music Module - Library Playback:**
-    *   Enable direct playback of media items by clicking on them in the Library tab.
-    *   The UI should indicate the currently playing item.
-    *   Clicking the currently playing item should toggle play/pause.
-
-5.  **Music Module - Media Downloader:**
-    *   Add a feature to download media (audio/video) from a URL (e.g., YouTube).
-    *   The UI should include an input for the URL, options for format (MP3/MP4) and quality, and show download progress.
-    *   After downloading, the item should be added to the Music Library.
-    *   A Download to PC option should be available for the downloaded file.
-    *   **CRITICAL ISSUE:** This feature is currently broken due to YouTube returning an .
+1.  **Window Management Panel:** A panel in the bottom toolbar to view, reorder (drag & drop), and manage the z-index of open windows. (DONE)
+2.  **Window Panel Enhancements:** Add a Focus mode indicator and a close button ('X') to the window manager list. (DONE)
+3.  **Trash Module:** Implement a Trash icon in the bottom toolbar with multi-click functionality (single-click: open, double-click: soft clear, triple-click: hard clear). (DONE)
+4.  **Intelligent Window Placement:** New windows should open in free space or cascade without disrupting existing windows. (DONE)
+5.  **State Persistence:** The entire application state (windows, module data, layouts) should persist locally across page reloads. (DONE)
+6.  **Music Module Persistence:** Music library and playlists must be saved and restored correctly. (DONE)
+7.  **Music Playback Fix:** Uploaded songs must be playable after a reload (fixed by converting  URLs to base64). (DONE)
+8.  **Playlist Storage Fix:** Playlists should store references (IDs) to songs, not full data, to avoid storage quota errors. (DONE)
+9.  **UI/UX Polish:** Maximize should be a toggle, resize handles should be invisible, and UI elements shouldn't be clipped on hover. (DONE)
+10. **Scrolling Fix:** Module content must be scrollable. (DONE)
+11. **Unified Trash Pipeline:** All close/delete actions across the entire application must send the corresponding item to the Trash module. (IN PROGRESS)
 
 **User's preferred language**: Czech
 
 **what currently exists?**
-The application is a full-stack S.T.E.W.A.R.D. Workspace Dashboard. In this session, the following were implemented:
-- A Command Wheel context menu with a Tony Stark inspired UI.
-- A fix for the window maximization bug.
-- A UI tweak to reorder window control icons.
-- A feature to allow direct playback from the Music module's library.
-- A media downloader feature in the Music module, which is currently **broken**.
-
-The backend is FastAPI, the frontend is React, and it uses a MongoDB database.
+The project is a S.T.E.W.A.R.D. Workspace Dashboard, a React-based single-page application with a dynamic workspace featuring draggable and resizable modules. Key functionalities like a window manager, a trash system with clear-workspace actions, and application-wide state persistence via  have been implemented. The original issue with video downloads was worked around by linking to an external service.
 
 **Last working item**:
-- Last item agent was working: The agent was attempting to resolve an  received from YouTube when trying to download certain videos using . After numerous failed attempts (updating libraries, changing headers, spoofing clients, using a JS runtime), the agent discovered that while direct HTTPS download links are blocked, HLS (m3u8) stream formats are available for the problematic video. The next step was to modify the backend to request and process these m3u8 streams instead.
-- Status: IN PROGRESS
-- Agent Testing Done: N
-- Which testing method agent to use? backend testing agent
-- User Testing Done: Y (User confirmed the 403 error persists with the latest attempted fixes)
+*   **Last item agent was working:** The agent was implementing a unified Trash pipeline. The goal is to ensure that *any* action that closes a window or deletes content (e.g., closing a window via its 'X' button, deleting a note, removing an item from the CANVAS sidebar) sends the item to the central Trash module for potential recovery. The agent has edited multiple component files to intercept these actions and route them through the  function.
+*   **Status:** IN PROGRESS
+*   **Agent Testing Done:** N
+*   **Which testing method agent to use?** Frontend testing agent.
+*   **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
-- Issue 1: YouTube Downloader fails with  (P0)
+*   **Issue 1:** The unified trash pipeline logic has been added to several files but has not been built or tested. It's possible that some delete/close paths were missed or that the new logic introduced regressions. (Priority: P0)
 
-Issues Detail:
-- Issue 1:
-    - **Attempted fixes**:
-        - Updated  library.
-        - Added various  including different user-agents and headers.
-        - Installed  as a JavaScript runtime for  to solve challenges.
-        - Switched from the  Python library to calling the CLI via .
-        - Tried multiple flags like , .
-        - These all failed because YouTube is actively blocking direct HTTPS download requests from the server's IP for certain videos.
-    - **Next debug checklist**:
-        1.  Modify the  function in .
-        2.  Change the  format selection options to prioritize HLS/m3u8 streams over direct HTTPS links for MP4/MP3 downloads. The CLI output from message 315 confirms these formats are available. A format string like  might work, as  can handle HLS streams.
-        3.  Ensure  is used correctly for merging/transcoding if separate audio/video streams are downloaded via HLS.
-    - **Why fix this issue and what will be achieved with the fix?**: This is the core blocker for the media downloader feature. Fixing it will make the feature functional as requested by the user.
-    - **Status**: IN PROGRESS
-    - **Is recurring issue?**: Y
-    - **Should Test frontend/backend/both after fix?**: backend
-    - **Blocked on other issue**: None
+    *   **Issues Detail:**
+        *   **Issue 1:** Verify the Unified Trash Pipeline.
+            *   **Attempted fixes:** The agent has proactively edited , , , , , and  to call .
+            *   **Next debug checklist:**
+                1.  Run yarn run v1.22.22
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command. to check for compilation errors.
+                2.  Start the application and perform the following actions, verifying each one creates a corresponding entry in the Trash module:
+                    *   Close a window from the workspace using its header 'X' button.
+                    *   Remove a module from the CANVAS sidebar.
+                    *   Delete a note in the Notes module.
+                    *   Delete a task in the Tasks module.
+                    *   Delete a person in the People module.
+                    *   Delete a goal in the Goals module.
+                3.  Verify that the  (double-click trash) and  (triple-click trash) functionalities still work as expected.
+                4.  Test the Restore functionality from the Trash module for each item type to ensure the restore payloads are correct.
+            *   **Why fix this issue and what will be achieved with the fix?** This will fulfill the user's request for a consistent and reliable trash system, ensuring no data is permanently lost by accident.
+            *   **Status:** IN PROGRESS
+            *   **Is recurring issue?** N
+            *   **Should Test frontend/backend/both after fix?** Frontend
+            *   **Blocked on other issue:** None
 
 **In progress Task List**:
-There are no in-progress tasks, only the P0 issue above.
+*   **Task 1:** Complete and Test the Unified Trash Pipeline (Priority: P0)
+    *   **Where to resume:** The code has been modified. The next step is to build and test the application to ensure the changes work as intended and haven't introduced any bugs.
+    *   **What will be achieved with this?** A consistent behavior where all deleted or closed items from any part of the application are sent to the Trash, providing a safety net for users.
+    *   **Status:** IN PROGRESS
+    *   **Should Test frontend/backend/both after fix?** Frontend
+    *   **Blocked on something:** None
 
 **Upcoming and Future Tasks**
-- **Task 1: Implement Download to PC Functionality (P1)**
-    - The UI button Uložit do PC (Save to PC) exists, but there is no backend logic to serve the downloaded file to the user's browser.
-    - An endpoint needs to be created in  that takes a filename and returns a .
-    - The frontend  function in  needs to be implemented to trigger this download.
-    - **Status:** NOT STARTED
-
-- **Task 2: Finalize Format/Quality Selection (P2)**
-    - The UI for selecting format and quality was created, but the backend logic was simplified to hardcode formats during debugging of the 403 error.
-    - Once the 403 error is resolved, the backend  function needs to be updated to respect the  sent from the frontend.
-    - **Status:** NOT STARTED
-    - **Blocked on:** Issue 1: YouTube Downloader fails with 
+There are no new upcoming tasks mentioned by the user. The focus is on completing the current task.
 
 **Completed work in this session**
-- **Command Wheel Feature:** A fully functional and visually styled contextual menu was implemented.
-  - 
-  - 
-- **Window Maximization Bug:** Fixed the issue where dragging a window to the top caused it to overlap the bottom toolbar.
-  - 
-- **Reordered Window Icons:** The control icons in the window title bar were reordered as requested.
-  - 
-- **Music Library Playback:** Enabled direct playback of tracks from the library list.
-  - 
-- **Media Downloader (Initial Version):** Created the backend endpoints and frontend UI for downloading media. This version worked initially before running into persistent 403 errors.
-  - 
-  - 
+*   **YouTube Download Workaround:** Implemented a workaround for the  403 error by linking to .
+*   **Window Management:** Created a fully functional window manager panel in the bottom toolbar with reordering, a focus mode indicator, and a close button.
+*   **Trash Module & Clear Actions:** Implemented the Trash module and soft/hard clear workspace actions via multi-click on the trash icon.
+*   **Intelligent Window Placement:** Ensured new windows open without disrupting the existing layout.
+*   **Full State Persistence:** Implemented robust  persistence for the entire application state.
+*   **Music Module Overhaul:**
+    *   Fixed persistence for the music library and playlists.
+    *   Fixed playback of uploaded songs after a reload by converting files to base64.
+    *   Resolved  quota errors by refactoring playlists to store song IDs instead of full data.
+*   **UI/UX & Bug Fixes:**
+    *   Made window maximization a toggle.
+    *   Hid visual resize handles.
+    *   Fixed a critical regression that broke scrolling inside all modules.
 
 **Earlier issues found/mentioned but not fixed**
-None.
-
-**Known issue recurrence from previous fork**
-None.
+*   **Issue 1:** The core  video downloader functionality is still non-functional due to YouTube's blocking measures. The current implementation is a workaround, not a fix.
+    *   **Debug checklist:** Investigate alternative  configurations (e.g., using different extractors, user agents) or explore other server-side download libraries that are more resilient to blocking.
+    *   **Why to solve this issue and what will be achieved with this?** To provide a seamless, in-app video download experience without redirecting the user to an external website.
+    *   **Should Test frontend/backend/both after fix:** Backend
+    *   **Is recurring issue?** Y
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Frontend**: React, React Hooks (useState, useEffect, useContext), CSS-in-JS, SVG, Flexbox.
--   **Backend**: FastAPI, Pydantic.
--   **Integrations**:  for fetching information and downloading from YouTube.
--   **System**:  for media post-processing,  as a JS runtime for .
-
-**key DB schema**
-No database schema changes were made in this session.
-
-**changes in tech stack**
--   **Backend**: Added , , and  to support the media downloading feature.
+*   **Frontend:** React, Tailwind CSS,  icons, Craco (for config override). The UI is built around a modular workspace concept.
+*   **Backend:** FastAPI (Python). Currently has limited use after the  feature was sidelined.
+*   **State Management:** React Context API (, ) is used for global state.
+*   **Persistence:** The application state is saved to the browser's  to persist across sessions. Audio files are stored as base64 strings.
 
 **All files of reference**
--   : Modified to add  and  endpoints and the logic for .
--   : Modified to add .
--   : Heavily modified to add library playback and the entire UI and logic for the media downloader.
--   : Created and modified multiple times to implement the Command Wheel and its visual refinements.
--   : Created to handle the state and logic for the Command Wheel.
--   : Modified to add new actions for the Command Wheel and to fix the window maximization bug.
--   : Modified to reorder icons and add data-attributes for the Command Wheel.
-
-**Areas that need refactoring**
--   The  and  functions in  are cluttered with commented-out code and remnants of multiple debugging attempts. Once the 403 error is definitively solved, these functions should be cleaned up to contain only the working logic.
-
-**key api endpoints**
--   : Body: . Fetches metadata for a given media URL.
--   : Body: . Streams the download progress and saves the file on the server.
+*   **/app/frontend/src/context/TrashContext.js:** The central point for the trash pipeline. The  function is key.
+*   **/app/frontend/src/components/DraggableModule.jsx:** Modified to send closed windows to trash.
+*   **/app/frontend/src/components/RightSidebar.jsx:** Modified to send modules removed from CANVAS to trash.
+*   **/app/frontend/src/components/modules/NotesModule.jsx:** Modified to send deleted notes to trash.
+*   **/app/frontend/src/components/modules/TasksModule.jsx:** Modified to send deleted tasks to trash.
+*   **/app/frontend/src/components/modules/PeopleModule.jsx:** Modified to send deleted people to trash.
+*   **/app/frontend/src/components/modules/GoalsModule.jsx:** Modified to send deleted goals to trash.
+*   **/app/frontend/src/context/WorkspaceContext.js:** Manages the state of modules, notes, tasks, etc., which are the source for items being sent to the trash.
 
 **Critical Info for New Agent**
--   The highest priority is fixing the  error in the YouTube downloader.
--   Do not waste time on previous failed approaches (simple header changes, different clients). The evidence points to YouTube blocking direct HTTPS download links for certain videos.
--   The most promising next step is to modify 's options in  to use HLS/m3u8 streams, which were confirmed to be available for the problematic video.
--   After fixing the download, remember to implement the Download to PC functionality, as it's a required part of the feature that hasn't been built yet.
-
-**documents and test reports created in this job**
-None.
+*   The agent has just performed a wide-ranging modification across many files to unify the trash logic. These changes are not yet tested. The immediate priority is to verify this implementation thoroughly.
+*   Be aware that audio files in the Music module are stored as base64 strings in , and playlists only store reference IDs to these library items. This architecture was chosen to overcome storage quota limits.
+*   The user communicates in Czech. It is crucial to maintain communication in their preferred language.
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User:** Reports the download fails with .
-2.  **Agent:** Tries updating  and adding better configuration.
-3.  **User:** Confirms the 403 error persists.
-4.  **Agent:** Tries installing  as a JS runtime to bypass YouTube's protection.
-5.  **User:** Confirms the 403 error persists.
-6.  **Agent:** Switches from the Python library to a direct CLI call via .
-7.  **User:** Confirms the 403 error persists, providing a detailed log showing the failure point.
-8.  **Agent:** Investigates and finds the specific video is more protected than others.
-9.  **Agent:** Tries to use different download formats (HLS/m3u8) as the next attempt.
-10. **(No pending user message)** The agent was in the middle of diagnosing the issue when the session ended.
+1.  **User:** Asks to fix broken scrolling in modules. (Completed)
+2.  **Agent:** Acknowledges and plans the fix. (Completed)
+3.  **Agent:** Implements the fix. (Completed)
+4.  **Agent:** Builds the project. (Completed)
+5.  **Agent:** Tests and confirms the fix is working. (Completed)
+6.  **Agent:** Summarizes the completed fix. (Completed)
+7.  **User:** New task: Unify the trash system so all deleted/closed items go to the trash. (IN PROGRESS)
+8.  **Agent:** Starts work on the new task by exploring the codebase. (IN PROGRESS)
+9.  **Agent:** Identifies all necessary files for modification. (IN PROGRESS)
+10. **Agent:** Proceeds to edit all identified files to implement the unified trash logic. (IN PROGRESS)
 
 **Project Health Check:**
--   **Broken**: The media downloader feature in the Music module is non-functional due to the  error.
-
-**3rd Party Integrations**
--   : Used for downloading media from YouTube and other sites.
-
-**Testing status**
--   Testing agent used after significant changes: NO
--   Troubleshoot agent used after agent stuck in loop: NO
--   Test files created: []
--   Known regressions: The media downloader was working at one point for a specific video but now fails for others, which can be considered a regression or a discovery of a more complex edge case.
-
-**Credentials to test flow:**
-N/A
-
-**What agent forgot to execute**
--   The agent created the Download to PC button in the frontend UI but never implemented the corresponding backend endpoint or frontend logic to actually serve the downloaded file to the user's browser. This part of the original request is incomplete.</analysis>
+*   **Functional:** The core application is functional.
+*   **Mocked/Workaround:** The YouTube video download feature is a workaround (links to an external site) rather than a full in-app solution.</analysis>
