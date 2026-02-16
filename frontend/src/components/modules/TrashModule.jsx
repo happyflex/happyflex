@@ -223,6 +223,30 @@ const TrashModule = () => {
 
   // Handle empty trash with single/double click detection
   const handleEmptyTrashClick = useCallback(() => {
+    // If already in confirmation state, just confirm the action
+    if (confirmHardEmpty) {
+      emptyAllItems();
+      setConfirmHardEmpty(false);
+      setConfirmEmpty(false);
+      emptyClickCountRef.current = 0;
+      if (emptyClickTimerRef.current) {
+        clearTimeout(emptyClickTimerRef.current);
+      }
+      return;
+    }
+    
+    if (confirmEmpty) {
+      emptyCurrentMode();
+      setConfirmEmpty(false);
+      setConfirmHardEmpty(false);
+      emptyClickCountRef.current = 0;
+      if (emptyClickTimerRef.current) {
+        clearTimeout(emptyClickTimerRef.current);
+      }
+      return;
+    }
+    
+    // Not in confirmation state - detect single/double click
     emptyClickCountRef.current += 1;
     
     if (emptyClickTimerRef.current) {
@@ -234,27 +258,15 @@ const TrashModule = () => {
       emptyClickCountRef.current = 0;
       
       if (clicks >= 2) {
-        // Double click - HARD CLEAR (all items)
-        if (confirmHardEmpty) {
-          emptyAllItems();
-          setConfirmHardEmpty(false);
-          setConfirmEmpty(false);
-        } else {
-          setConfirmHardEmpty(true);
-          setConfirmEmpty(false);
-          setTimeout(() => setConfirmHardEmpty(false), 4000);
-        }
+        // Double click - show HARD CLEAR confirmation
+        setConfirmHardEmpty(true);
+        setConfirmEmpty(false);
+        setTimeout(() => setConfirmHardEmpty(false), 4000);
       } else {
-        // Single click - empty current mode only
-        if (confirmEmpty) {
-          emptyCurrentMode();
-          setConfirmEmpty(false);
-          setConfirmHardEmpty(false);
-        } else {
-          setConfirmEmpty(true);
-          setConfirmHardEmpty(false);
-          setTimeout(() => setConfirmEmpty(false), 3000);
-        }
+        // Single click - show current mode confirmation
+        setConfirmEmpty(true);
+        setConfirmHardEmpty(false);
+        setTimeout(() => setConfirmEmpty(false), 3000);
       }
     }, 250);
   }, [confirmEmpty, confirmHardEmpty, emptyCurrentMode, emptyAllItems]);
