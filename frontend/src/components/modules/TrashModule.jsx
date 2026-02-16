@@ -193,9 +193,9 @@ const TrashModule = () => {
     return `před ${Math.floor(diff / 86400)} dny`;
   };
 
+  // Content filters (without Windows)
   const filters = [
-    { key: 'all', label: 'Vše', count: stats.total },
-    { key: TRASH_TYPES.WINDOW, label: 'Okna', count: stats.windows },
+    { key: 'all', label: 'Vše', count: contentCount },
     { key: TRASH_TYPES.NOTE, label: 'Poznámky', count: stats.notes },
     { key: TRASH_TYPES.PROJECT, label: 'Projekty', count: stats.projects },
     { key: TRASH_TYPES.PERSON, label: 'Lidi', count: stats.people },
@@ -210,7 +210,10 @@ const TrashModule = () => {
           <div className="flex items-center gap-2">
             <Trash2 className="h-5 w-5 text-red-400" />
             <span className="text-sm font-medium text-white">
-              {stats.total} {stats.total === 1 ? 'položka' : stats.total < 5 ? 'položky' : 'položek'}
+              {viewMode === 'content' ? contentCount : windowsCount} {
+                (viewMode === 'content' ? contentCount : windowsCount) === 1 ? 'položka' : 
+                (viewMode === 'content' ? contentCount : windowsCount) < 5 ? 'položky' : 'položek'
+              }
             </span>
           </div>
           
@@ -236,29 +239,78 @@ const TrashModule = () => {
           )}
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-1">
-          {filters.map(filter => (
-            <button
-              key={filter.key}
-              onClick={() => setActiveFilter(filter.key)}
-              className={`
-                px-2 py-1 rounded text-xs transition-all
-                ${activeFilter === filter.key 
-                  ? 'bg-red-500/30 text-red-300 border border-red-500/40' 
-                  : 'bg-red-500/10 text-gray-400 hover:text-gray-300 border border-transparent'
-                }
-                ${filter.count === 0 ? 'opacity-50' : ''}
-              `}
-              disabled={filter.count === 0 && filter.key !== 'all'}
-            >
-              {filter.label}
-              {filter.count > 0 && (
-                <span className="ml-1 text-[10px] opacity-70">({filter.count})</span>
-              )}
-            </button>
-          ))}
+        {/* View Mode Toggle */}
+        <div className="flex items-center gap-2 mb-3">
+          <button
+            onClick={() => {
+              setViewMode('content');
+              setActiveFilter('all');
+            }}
+            className={`
+              flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
+              ${viewMode === 'content'
+                ? 'bg-red-500/30 text-red-300 border border-red-500/50'
+                : 'bg-[#0a1628] text-gray-400 hover:text-gray-300 border border-cyan-500/20 hover:border-cyan-500/40'
+              }
+            `}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            Smazaný obsah
+            {contentCount > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 rounded bg-red-500/20 text-[10px]">
+                {contentCount}
+              </span>
+            )}
+          </button>
+          
+          <button
+            onClick={() => {
+              setViewMode('windows');
+              setActiveFilter('all');
+            }}
+            className={`
+              flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
+              ${viewMode === 'windows'
+                ? 'bg-cyan-500/30 text-cyan-300 border border-cyan-500/50'
+                : 'bg-[#0a1628] text-gray-400 hover:text-gray-300 border border-cyan-500/20 hover:border-cyan-500/40'
+              }
+            `}
+          >
+            <AppWindow className="h-3.5 w-3.5" />
+            Zavřená okna
+            {windowsCount > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 rounded bg-cyan-500/20 text-[10px]">
+                {windowsCount}
+              </span>
+            )}
+          </button>
         </div>
+
+        {/* Content Filters - only show in content mode */}
+        {viewMode === 'content' && (
+          <div className="flex flex-wrap gap-1">
+            {filters.map(filter => (
+              <button
+                key={filter.key}
+                onClick={() => setActiveFilter(filter.key)}
+                className={`
+                  px-2 py-1 rounded text-xs transition-all
+                  ${activeFilter === filter.key 
+                    ? 'bg-red-500/30 text-red-300 border border-red-500/40' 
+                    : 'bg-red-500/10 text-gray-400 hover:text-gray-300 border border-transparent'
+                  }
+                  ${filter.count === 0 ? 'opacity-50' : ''}
+                `}
+                disabled={filter.count === 0 && filter.key !== 'all'}
+              >
+                {filter.label}
+                {filter.count > 0 && (
+                  <span className="ml-1 text-[10px] opacity-70">({filter.count})</span>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Items List */}
