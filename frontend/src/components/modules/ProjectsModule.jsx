@@ -1,15 +1,24 @@
 import React, { useState } from 'react';
-import { TrendingUp, Users, Calendar, ExternalLink, Layout } from 'lucide-react';
+import { TrendingUp, Users, Calendar, ExternalLink, Layout, Plus, X } from 'lucide-react';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import { ScrollArea } from '../ui/scroll-area';
 import { Progress } from '../ui/progress';
 import { Button } from '../ui/button';
+import { Input } from '../ui/input';
 import ProjectWorldModule from './ProjectWorldModule';
 import ModuleHeader from './ModuleHeader';
+import { toast } from '../../hooks/use-toast';
 
 const ProjectsModule = () => {
-  const { projects } = useWorkspace();
+  const { projects, setProjects } = useWorkspace();
   const [selectedProject, setSelectedProject] = useState(null);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [newProject, setNewProject] = useState({
+    name: '',
+    status: 'active',
+    deadline: '',
+    team: ''
+  });
 
   // If project is selected, show Project World
   if (selectedProject) {
@@ -20,6 +29,35 @@ const ProjectsModule = () => {
       />
     );
   }
+
+  const handleAddProject = () => {
+    if (!newProject.name.trim()) {
+      toast({
+        title: 'Chyba',
+        description: 'Zadejte název projektu',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    const project = {
+      id: `proj-${Date.now()}`,
+      name: newProject.name.trim(),
+      progress: 0,
+      status: newProject.status,
+      deadline: newProject.deadline || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      team: newProject.team ? newProject.team.split(',').map(t => t.trim()).filter(t => t) : []
+    };
+
+    setProjects(prev => [...prev, project]);
+    setNewProject({ name: '', status: 'active', deadline: '', team: '' });
+    setShowAddDialog(false);
+    
+    toast({
+      title: 'Projekt vytvořen',
+      description: `${project.name} byl přidán`
+    });
+  };
 
   const statusColors = {
     active: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/30',
