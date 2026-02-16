@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { useWorkspace } from '../../context/WorkspaceContext';
+import { useTrash } from '../../context/TrashContext';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { Input } from '../ui/input';
@@ -8,6 +9,7 @@ import { ScrollArea } from '../ui/scroll-area';
 
 const NotesModule = () => {
   const { notes, addNote, updateNote, deleteNote } = useWorkspace();
+  const { addNoteToTrash } = useTrash();
   const [isAdding, setIsAdding] = useState(false);
   const [newNote, setNewNote] = useState({ title: '', content: '', color: '#0ea5e9' });
   const [editingId, setEditingId] = useState(null);
@@ -20,6 +22,12 @@ const NotesModule = () => {
       setNewNote({ title: '', content: '', color: '#0ea5e9' });
       setIsAdding(false);
     }
+  };
+
+  const handleDeleteNote = (note) => {
+    // Add to trash before deleting
+    addNoteToTrash(note);
+    deleteNote(note.id);
   };
 
   return (
