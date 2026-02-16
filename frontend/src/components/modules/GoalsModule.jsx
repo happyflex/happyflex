@@ -121,9 +121,20 @@ const GoalsModule = () => {
   };
 
   const deleteGoal = (id) => {
+    // Find goal and add to trash before deleting
+    const goal = goals.find(g => g.id === id);
+    if (goal) {
+      addToTrash({
+        type: TRASH_TYPES.OTHER,
+        name: goal.name,
+        data: goal,
+        sourceModule: 'goals',
+        metadata: { status: goal.status, plansCount: goal.plans?.length || 0 }
+      });
+    }
     setGoals(prev => prev.filter(g => g.id !== id));
     if (selectedGoal?.id === id) setSelectedGoal(null);
-    toast({ title: 'Cíl odstraněn' });
+    toast({ title: 'Cíl přesunut do koše' });
   };
 
   const addPlan = (goalId, planData) => {
@@ -152,12 +163,24 @@ const GoalsModule = () => {
   };
 
   const deletePlan = (goalId, planId) => {
+    // Find plan and add to trash before deleting
+    const goal = goals.find(g => g.id === goalId);
+    const plan = goal?.plans?.find(p => p.id === planId);
+    if (plan) {
+      addToTrash({
+        type: TRASH_TYPES.OTHER,
+        name: `Plán: ${plan.name}`,
+        data: plan,
+        sourceModule: 'goals',
+        metadata: { goalId, goalName: goal.name }
+      });
+    }
     setGoals(prev => prev.map(g => 
       g.id === goalId 
         ? { ...g, plans: g.plans.filter(p => p.id !== planId) }
         : g
     ));
-    toast({ title: 'Plán odstraněn' });
+    toast({ title: 'Plán přesunut do koše' });
   };
 
   // Filter goals
