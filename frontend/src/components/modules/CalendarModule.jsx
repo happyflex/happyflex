@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Plus, X, Clock, Target, Calendar as CalendarIcon, AlertCircle, Focus, Bell } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+import ModuleHeader from './ModuleHeader';
 
 // Event types with colors
 const EVENT_TYPES = {
