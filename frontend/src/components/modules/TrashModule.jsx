@@ -387,7 +387,7 @@ const TrashModule = () => {
             <AppWindow className="h-3.5 w-3.5" />
             Zavřená okna
             {windowsCount > 0 && (
-              <span className="ml-1 px-1.5 py-0.5 rounded bg-red-600/80 text-white text-[10px] font-semibold">
+              <span className="ml-1 px-1.5 py-0.5 rounded bg-red-500/20 text-red-300 text-[10px]">
                 {windowsCount}
               </span>
             )}
