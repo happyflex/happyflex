@@ -53,47 +53,46 @@ const TimerModule = () => {
           {formatTime(timerSeconds)}
         </div>
           
-          <div className="flex items-center justify-center gap-3">
-            <Button
-              size="lg"
-              onClick={() => setTimerActive(!timerActive)}
-              className={`${
-                timerActive 
-                  ? 'bg-red-500 hover:bg-red-400' 
-                  : 'bg-green-500 hover:bg-green-400'
-              } text-white`}
-            >
-              {timerActive ? (
-                <>
-                  <Pause className="h-5 w-5 mr-2" />
-                  Pauza
-                </>
-              ) : (
-                <>
-                  <Play className="h-5 w-5 mr-2" />
-                  Start
-                </>
-              )}
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={handleReset}
-              className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
-            >
-              <RotateCcw className="h-5 w-5 mr-2" />
-              Reset
-            </Button>
-          </div>
+        <div className="flex items-center justify-center gap-3">
+          <Button
+            size="lg"
+            onClick={() => setTimerActive(!timerActive)}
+            className={`${
+              timerActive 
+                ? 'bg-red-500 hover:bg-red-400' 
+                : 'bg-green-500 hover:bg-green-400'
+            } text-white`}
+          >
+            {timerActive ? (
+              <>
+                <Pause className="h-5 w-5 mr-2" />
+                Pauza
+              </>
+            ) : (
+              <>
+                <Play className="h-5 w-5 mr-2" />
+                Start
+              </>
+            )}
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={handleReset}
+            className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
+          >
+            <RotateCcw className="h-5 w-5 mr-2" />
+            Reset
+          </Button>
         </div>
-
-        {timerActive && (
-          <div className="p-3 bg-cyan-500/10 rounded-lg border border-cyan-500/30 text-center">
-            <div className="w-2 h-2 bg-green-400 rounded-full inline-block mr-2 animate-pulse"></div>
-            <span className="text-sm text-cyan-400">Probíhá měření...</span>
-          </div>
-        )}
       </div>
+
+      {timerActive && (
+        <div className="p-3 bg-cyan-500/10 rounded-lg border border-cyan-500/30 text-center mb-4">
+          <div className="w-2 h-2 bg-green-400 rounded-full inline-block mr-2 animate-pulse"></div>
+          <span className="text-sm text-cyan-400">Probíhá měření...</span>
+        </div>
+      )}
 
       <div className="flex-1">
         <h4 className="text-sm font-medium text-cyan-400 mb-3">Poslední relace</h4>
