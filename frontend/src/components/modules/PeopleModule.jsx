@@ -48,17 +48,31 @@ const PeopleModule = () => {
 
   // Load from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem('steward_people');
-    if (saved) {
-      try {
-        setPeople(JSON.parse(saved));
-      } catch (e) {
-        console.error('Error loading people:', e);
+    const loadPeople = () => {
+      const saved = localStorage.getItem('steward_people');
+      if (saved) {
+        try {
+          setPeople(JSON.parse(saved));
+        } catch (e) {
+          console.error('Error loading people:', e);
+          initializeDefaultPeople();
+        }
+      } else {
         initializeDefaultPeople();
       }
-    } else {
-      initializeDefaultPeople();
-    }
+    };
+
+    loadPeople();
+
+    // Listen for external updates (e.g., from trash restore)
+    const handleExternalUpdate = () => {
+      loadPeople();
+    };
+    window.addEventListener('steward-people-updated', handleExternalUpdate);
+    
+    return () => {
+      window.removeEventListener('steward-people-updated', handleExternalUpdate);
+    };
   }, []);
 
   // Auto-save
