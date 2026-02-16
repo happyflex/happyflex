@@ -228,6 +228,66 @@ const TrashModule = () => {
           description: `${item.name} byl obnoven`
         });
         break;
+      case TRASH_TYPES.GOAL:
+        // Restore goal - use localStorage directly since GoalsModule uses its own state
+        try {
+          const storedGoals = localStorage.getItem('steward_goals');
+          const goals = storedGoals ? JSON.parse(storedGoals) : [];
+          const goalExists = goals.some(g => g.id === item.originalData.id);
+          if (!goalExists) {
+            goals.push(item.originalData);
+            localStorage.setItem('steward_goals', JSON.stringify(goals));
+            window.dispatchEvent(new CustomEvent('steward-goals-updated'));
+            toast({
+              title: 'Cíl obnoven',
+              description: `${item.name} byl obnoven`
+            });
+          } else {
+            toast({
+              title: 'Cíl již existuje',
+              description: `${item.name} je již v seznamu`,
+              variant: 'destructive'
+            });
+          }
+        } catch (e) {
+          console.error('Error restoring goal:', e);
+          toast({
+            title: 'Chyba',
+            description: 'Nepodařilo se obnovit cíl',
+            variant: 'destructive'
+          });
+        }
+        break;
+      case TRASH_TYPES.PROCESS:
+        // Restore process - use localStorage directly since ProcessesModule uses its own state
+        try {
+          const storedProcesses = localStorage.getItem('steward_processes');
+          const processes = storedProcesses ? JSON.parse(storedProcesses) : [];
+          const processExists = processes.some(p => p.id === item.originalData.id);
+          if (!processExists) {
+            processes.push(item.originalData);
+            localStorage.setItem('steward_processes', JSON.stringify(processes));
+            window.dispatchEvent(new CustomEvent('steward-processes-updated'));
+            toast({
+              title: 'Proces obnoven',
+              description: `${item.name} byl obnoven`
+            });
+          } else {
+            toast({
+              title: 'Proces již existuje',
+              description: `${item.name} je již v seznamu`,
+              variant: 'destructive'
+            });
+          }
+        } catch (e) {
+          console.error('Error restoring process:', e);
+          toast({
+            title: 'Chyba',
+            description: 'Nepodařilo se obnovit proces',
+            variant: 'destructive'
+          });
+        }
+        break;
       default:
         break;
     }
