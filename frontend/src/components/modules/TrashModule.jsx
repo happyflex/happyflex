@@ -196,16 +196,68 @@ const TrashModule = () => {
     removeFromTrash(trashId);
   };
 
-  // Handle empty trash
-  const handleEmptyTrash = () => {
-    if (confirmEmpty) {
-      emptyTrash();
-      setConfirmEmpty(false);
-    } else {
-      setConfirmEmpty(true);
-      setTimeout(() => setConfirmEmpty(false), 3000);
+  // Empty only current mode items
+  const emptyCurrentMode = useCallback(() => {
+    const itemsToDelete = trashItems.filter(item => 
+      viewMode === 'content' 
+        ? item.type !== TRASH_TYPES.WINDOW 
+        : item.type === TRASH_TYPES.WINDOW
+    );
+    
+    itemsToDelete.forEach(item => removeFromTrash(item.id));
+    
+    toast({
+      title: viewMode === 'content' ? 'Smazaný obsah vyprázdněn' : 'Zavřená okna vyprázdněna',
+      description: `${itemsToDelete.length} položek trvale smazáno`
+    });
+  }, [trashItems, viewMode, removeFromTrash]);
+
+  // Empty all items (HARD CLEAR)
+  const emptyAllItems = useCallback(() => {
+    emptyTrash();
+    toast({
+      title: 'Koš kompletně vyprázdněn',
+      description: 'Všechny položky byly trvale smazány'
+    });
+  }, [emptyTrash]);
+
+  // Handle empty trash with single/double click detection
+  const handleEmptyTrashClick = useCallback(() => {
+    emptyClickCountRef.current += 1;
+    
+    if (emptyClickTimerRef.current) {
+      clearTimeout(emptyClickTimerRef.current);
     }
-  };
+    
+    emptyClickTimerRef.current = setTimeout(() => {
+      const clicks = emptyClickCountRef.current;
+      emptyClickCountRef.current = 0;
+      
+      if (clicks >= 2) {
+        // Double click - HARD CLEAR (all items)
+        if (confirmHardEmpty) {
+          emptyAllItems();
+          setConfirmHardEmpty(false);
+          setConfirmEmpty(false);
+        } else {
+          setConfirmHardEmpty(true);
+          setConfirmEmpty(false);
+          setTimeout(() => setConfirmHardEmpty(false), 4000);
+        }
+      } else {
+        // Single click - empty current mode only
+        if (confirmEmpty) {
+          emptyCurrentMode();
+          setConfirmEmpty(false);
+          setConfirmHardEmpty(false);
+        } else {
+          setConfirmEmpty(true);
+          setConfirmHardEmpty(false);
+          setTimeout(() => setConfirmEmpty(false), 3000);
+        }
+      }
+    }, 250);
+  }, [confirmEmpty, confirmHardEmpty, emptyCurrentMode, emptyAllItems]);
 
   // Format time ago
   const formatTimeAgo = (dateString) => {
