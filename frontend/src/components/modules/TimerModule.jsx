@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, RotateCcw } from 'lucide-react';
+import { Play, Pause, RotateCcw, Timer } from 'lucide-react';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
 import { mockTimerSessions } from '../../data/mockData';
+import ModuleHeader from './ModuleHeader';
 
 const TimerModule = () => {
   const { timerActive, timerSeconds, setTimerActive, setTimerSeconds } = useWorkspace();
