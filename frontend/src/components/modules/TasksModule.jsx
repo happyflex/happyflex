@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Plus, Check, X } from 'lucide-react';
+import { Plus, Check, X, ListChecks } from 'lucide-react';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import { useTrash } from '../../context/TrashContext';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { ScrollArea } from '../ui/scroll-area';
 import { Checkbox } from '../ui/checkbox';
+import ModuleHeader from './ModuleHeader';
 
 const TasksModule = () => {
   const { tasks, addTask, toggleTask, deleteTask } = useWorkspace();
