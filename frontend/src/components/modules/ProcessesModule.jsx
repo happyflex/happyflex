@@ -28,17 +28,31 @@ const ProcessesModule = () => {
 
   // Load processes from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem('steward_processes');
-    if (saved) {
-      try {
-        setProcesses(JSON.parse(saved));
-      } catch (e) {
-        console.error('Error loading processes:', e);
+    const loadProcesses = () => {
+      const saved = localStorage.getItem('steward_processes');
+      if (saved) {
+        try {
+          setProcesses(JSON.parse(saved));
+        } catch (e) {
+          console.error('Error loading processes:', e);
+          initializeDefaultProcesses();
+        }
+      } else {
         initializeDefaultProcesses();
       }
-    } else {
-      initializeDefaultProcesses();
-    }
+    };
+
+    loadProcesses();
+
+    // Listen for external updates (e.g., from trash restore)
+    const handleExternalUpdate = () => {
+      loadProcesses();
+    };
+    window.addEventListener('steward-processes-updated', handleExternalUpdate);
+    
+    return () => {
+      window.removeEventListener('steward-processes-updated', handleExternalUpdate);
+    };
   }, []);
 
   // Load goals with plans
