@@ -57,8 +57,30 @@ export const TrashProvider = ({ children }) => {
     return trashEntry.id;
   }, []);
 
-  // Add window to trash (special helper)
+  // Add window to trash (special helper) - with deduplication for windows
   const addWindowToTrash = useCallback((module) => {
+    // NEVER add trash module to trash
+    if (module.type === 'trash') {
+      return null;
+    }
+    
+    // Check for existing window of same type (deduplication for temporary closed windows)
+    const existingWindow = trashItems.find(
+      item => item.type === TRASH_TYPES.WINDOW && 
+              item.metadata?.moduleType === module.type
+    );
+    
+    if (existingWindow) {
+      // Update timestamp of existing entry instead of creating new one
+      setTrashItems(prev => prev.map(item => 
+        item.id === existingWindow.id 
+          ? { ...item, deletedAt: new Date().toISOString() }
+          : item
+      ));
+      return existingWindow.id;
+    }
+    
+    // Create new trash entry
     return addToTrash({
       type: TRASH_TYPES.WINDOW,
       name: getModuleLabel(module.type),
@@ -72,7 +94,7 @@ export const TrashProvider = ({ children }) => {
         pinMode: module.pinMode
       }
     });
-  }, [addToTrash]);
+  }, [addToTrash, trashItems]);
 
   // Add note to trash
   const addNoteToTrash = useCallback((note) => {
