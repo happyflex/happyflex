@@ -35,10 +35,12 @@ const ProjectsModule = () => {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold text-white">Projekty</h3>
-        <p className="text-xs text-gray-400">{projects.length} projektů</p>
-      </div>
+      <ModuleHeader
+        icon={Layout}
+        title="Projekty"
+        subtitle={`${projects.length} projektů`}
+        iconColor="text-blue-400"
+      />
 
       <ScrollArea className="flex-1">
         <div className="space-y-4">
