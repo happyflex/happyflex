@@ -434,17 +434,35 @@ const TrashModule = () => {
         ) : (
           <div className="space-y-1">
             {filteredItems.map(item => {
-              const config = TYPE_CONFIG[item.type] || TYPE_CONFIG[TRASH_TYPES.OTHER];
-              const Icon = config.icon;
+              // Use module-specific icon for windows, type config for content
+              let IconComponent, iconColor, iconBgColor, labelText;
+              
+              if (item.type === TRASH_TYPES.WINDOW) {
+                const windowConfig = getWindowIconConfig(item);
+                IconComponent = windowConfig.icon;
+                iconColor = windowConfig.color;
+                iconBgColor = windowConfig.bgColor;
+                labelText = 'Okno';
+              } else {
+                const config = TYPE_CONFIG[item.type] || TYPE_CONFIG[TRASH_TYPES.OTHER];
+                IconComponent = config.icon;
+                iconColor = config.color;
+                iconBgColor = config.bgColor;
+                labelText = config.label;
+              }
 
               return (
                 <div
                   key={item.id}
-                  className="group flex items-center gap-3 p-2 rounded-lg bg-red-500/5 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all"
+                  className={`group flex items-center gap-3 p-2 rounded-lg ${
+                    item.type === TRASH_TYPES.WINDOW 
+                      ? 'bg-cyan-500/5 hover:bg-cyan-500/10 hover:border-cyan-500/20' 
+                      : 'bg-red-500/5 hover:bg-red-500/10 hover:border-red-500/20'
+                  } border border-transparent transition-all`}
                 >
-                  {/* Type Icon */}
-                  <div className={`p-2 rounded-lg ${config.bgColor}`}>
-                    <Icon className={`h-4 w-4 ${config.color}`} />
+                  {/* Type/Module Icon */}
+                  <div className={`p-2 rounded-lg ${iconBgColor}`}>
+                    <IconComponent className={`h-4 w-4 ${iconColor}`} />
                   </div>
 
                   {/* Item Info */}
@@ -453,8 +471,8 @@ const TrashModule = () => {
                       <span className="text-sm text-white truncate font-medium">
                         {item.name}
                       </span>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded ${config.bgColor} ${config.color}`}>
-                        {config.label}
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded ${iconBgColor} ${iconColor}`}>
+                        {labelText}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
