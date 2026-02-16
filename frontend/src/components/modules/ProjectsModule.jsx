@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { TrendingUp, Users, Calendar, ExternalLink } from 'lucide-react';
+import { TrendingUp, Users, Calendar, ExternalLink, Layout } from 'lucide-react';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import { ScrollArea } from '../ui/scroll-area';
 import { Progress } from '../ui/progress';
 import { Button } from '../ui/button';
 import ProjectWorldModule from './ProjectWorldModule';
+import ModuleHeader from './ModuleHeader';
 
 const ProjectsModule = () => {
   const { projects } = useWorkspace();
