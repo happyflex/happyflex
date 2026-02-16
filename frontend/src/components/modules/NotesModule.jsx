@@ -100,7 +100,7 @@ const NotesModule = () => {
                   size="icon"
                   variant="ghost"
                   className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-300"
-                  onClick={() => deleteNote(note.id)}
+                  onClick={() => handleDeleteNote(note)}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
