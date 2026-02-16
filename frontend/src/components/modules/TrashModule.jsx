@@ -56,6 +56,36 @@ const TYPE_CONFIG = {
     color: 'text-pink-400',
     bgColor: 'bg-pink-500/20'
   },
+  [TRASH_TYPES.GOAL]: { 
+    icon: Target, 
+    label: 'Cíle', 
+    color: 'text-emerald-400',
+    bgColor: 'bg-emerald-500/20'
+  },
+  [TRASH_TYPES.PROCESS]: { 
+    icon: GitBranch, 
+    label: 'Procesy', 
+    color: 'text-purple-400',
+    bgColor: 'bg-purple-500/20'
+  },
+  [TRASH_TYPES.CHART]: { 
+    icon: BarChart3, 
+    label: 'Grafy', 
+    color: 'text-cyan-400',
+    bgColor: 'bg-cyan-500/20'
+  },
+  [TRASH_TYPES.TIMER]: { 
+    icon: Timer, 
+    label: 'Časy', 
+    color: 'text-orange-400',
+    bgColor: 'bg-orange-500/20'
+  },
+  [TRASH_TYPES.MUSIC]: { 
+    icon: Music, 
+    label: 'Hudba', 
+    color: 'text-green-400',
+    bgColor: 'bg-green-500/20'
+  },
   [TRASH_TYPES.OTHER]: { 
     icon: Trash2, 
     label: 'Ostatní', 
