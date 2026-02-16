@@ -163,12 +163,24 @@ const TrashModule = () => {
         try {
           const storedPeople = localStorage.getItem('steward_people');
           const people = storedPeople ? JSON.parse(storedPeople) : [];
-          people.push(item.originalData);
-          localStorage.setItem('steward_people', JSON.stringify(people));
-          toast({
-            title: 'Osoba obnovena',
-            description: `${item.name} byl/a obnoven/a. Znovu otevřete modul Lidi pro zobrazení.`
-          });
+          // Check for duplicates by ID before adding
+          const personExists = people.some(p => p.id === item.originalData.id);
+          if (!personExists) {
+            people.push(item.originalData);
+            localStorage.setItem('steward_people', JSON.stringify(people));
+            // Dispatch custom event to notify PeopleModule to reload
+            window.dispatchEvent(new CustomEvent('steward-people-updated'));
+            toast({
+              title: 'Osoba obnovena',
+              description: `${item.name} byl/a obnoven/a`
+            });
+          } else {
+            toast({
+              title: 'Osoba již existuje',
+              description: `${item.name} je již v seznamu`,
+              variant: 'destructive'
+            });
+          }
         } catch (e) {
           console.error('Error restoring person:', e);
           toast({
