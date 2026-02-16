@@ -10,7 +10,8 @@ import {
   ListChecks,
   Clock,
   Layers,
-  AlertTriangle
+  AlertTriangle,
+  AppWindow
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useTrash, TRASH_TYPES } from '../../context/TrashContext';
