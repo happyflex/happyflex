@@ -87,22 +87,54 @@ const TrashModule = () => {
       case TRASH_TYPES.WINDOW:
         // Restore window to workspace
         addModule(item.originalData.type, item.metadata.position);
+        toast({
+          title: 'Okno obnoveno',
+          description: `${item.name} byl obnoven`
+        });
         break;
       case TRASH_TYPES.NOTE:
         // Restore note
         setNotes(prev => [...prev, item.originalData]);
+        toast({
+          title: 'Poznámka obnovena',
+          description: `${item.name} byla obnovena`
+        });
         break;
       case TRASH_TYPES.PROJECT:
         // Restore project
         setProjects(prev => [...prev, item.originalData]);
+        toast({
+          title: 'Projekt obnoven',
+          description: `${item.name} byl obnoven`
+        });
         break;
       case TRASH_TYPES.PERSON:
-        // Restore person
-        setContacts(prev => [...prev, item.originalData]);
+        // Restore person - use localStorage directly since PeopleModule uses its own state
+        try {
+          const storedPeople = localStorage.getItem('steward_people');
+          const people = storedPeople ? JSON.parse(storedPeople) : [];
+          people.push(item.originalData);
+          localStorage.setItem('steward_people', JSON.stringify(people));
+          toast({
+            title: 'Osoba obnovena',
+            description: `${item.name} byl/a obnoven/a. Znovu otevřete modul Lidi pro zobrazení.`
+          });
+        } catch (e) {
+          console.error('Error restoring person:', e);
+          toast({
+            title: 'Chyba',
+            description: 'Nepodařilo se obnovit osobu',
+            variant: 'destructive'
+          });
+        }
         break;
       case TRASH_TYPES.TASK:
         // Restore task
         setTasks(prev => [...prev, item.originalData]);
+        toast({
+          title: 'Úkol obnoven',
+          description: `${item.name} byl obnoven`
+        });
         break;
       default:
         break;
