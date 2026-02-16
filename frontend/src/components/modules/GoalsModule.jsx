@@ -28,6 +28,7 @@ const GOAL_STATUS = {
 };
 
 const GoalsModule = () => {
+  const { addToTrash, TRASH_TYPES } = useTrash();
   const [goals, setGoals] = useState([]);
   const [selectedGoal, setSelectedGoal] = useState(null);
   const [showAddGoalDialog, setShowAddGoalDialog] = useState(false);
