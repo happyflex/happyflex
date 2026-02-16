@@ -78,7 +78,97 @@ const ProjectsModule = () => {
         title="Projekty"
         subtitle={`${projects.length} projektů`}
         iconColor="text-blue-400"
+        actions={
+          <Button
+            size="sm"
+            onClick={() => setShowAddDialog(true)}
+            className="bg-cyan-500 hover:bg-cyan-400 text-white"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Nový projekt
+          </Button>
+        }
       />
+
+      {/* Add Project Dialog */}
+      {showAddDialog && (
+        <div className="mb-4 p-4 bg-[#0a1628] rounded-lg border border-cyan-500/30">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-sm font-medium text-white">Nový projekt</h4>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowAddDialog(false)}
+              className="h-6 w-6 text-gray-400 hover:text-red-400"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs text-gray-400 mb-1 block">Název projektu *</label>
+              <Input
+                placeholder="Název projektu..."
+                value={newProject.name}
+                onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
+                className="bg-[#0f1d35] border-cyan-500/30 text-white"
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-gray-400 mb-1 block">Status</label>
+                <select
+                  value={newProject.status}
+                  onChange={(e) => setNewProject({ ...newProject, status: e.target.value })}
+                  className="w-full px-3 py-2 bg-[#0f1d35] border border-cyan-500/30 rounded-md text-white text-sm"
+                >
+                  <option value="active">Aktivní</option>
+                  <option value="paused">Pozastavený</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-gray-400 mb-1 block">Deadline</label>
+                <Input
+                  type="date"
+                  value={newProject.deadline}
+                  onChange={(e) => setNewProject({ ...newProject, deadline: e.target.value })}
+                  className="bg-[#0f1d35] border-cyan-500/30 text-white"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label className="text-xs text-gray-400 mb-1 block">Tým (oddělte čárkou)</label>
+              <Input
+                placeholder="Jan, Marie, Petr..."
+                value={newProject.team}
+                onChange={(e) => setNewProject({ ...newProject, team: e.target.value })}
+                className="bg-[#0f1d35] border-cyan-500/30 text-white"
+              />
+            </div>
+            
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAddDialog(false)}
+                className="text-gray-400"
+              >
+                Zrušit
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleAddProject}
+                className="bg-cyan-500 hover:bg-cyan-400 text-white"
+              >
+                Vytvořit projekt
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <ScrollArea className="flex-1">
         <div className="space-y-4">
