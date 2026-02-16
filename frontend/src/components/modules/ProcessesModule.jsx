@@ -10,6 +10,7 @@ import { Badge } from '../ui/badge';
 import * as DialogPrimitive from '../ui/dialog';
 import { Textarea } from '../ui/textarea';
 import { toast } from '../../hooks/use-toast';
+import { useTrash } from '../../context/TrashContext';
 import ProcessCanvas from './ProcessCanvas';
 
 const Dialog = DialogPrimitive.Dialog;
@@ -18,6 +19,7 @@ const DialogHeader = DialogPrimitive.DialogHeader;
 const DialogTitle = DialogPrimitive.DialogTitle;
 
 const ProcessesModule = () => {
+  const { addToTrash, TRASH_TYPES } = useTrash();
   const [processes, setProcesses] = useState([]);
   const [goals, setGoals] = useState([]);
   const [selectedProcess, setSelectedProcess] = useState(null);
@@ -127,9 +129,24 @@ const ProcessesModule = () => {
   };
 
   const deleteProcess = (id) => {
+    // Find process and add to trash before deleting
+    const process = processes.find(p => p.id === id);
+    if (process) {
+      addToTrash({
+        type: TRASH_TYPES.PROCESS,
+        name: process.name,
+        data: process,
+        sourceModule: 'processes',
+        metadata: { 
+          stepsCount: process.steps?.length || 0,
+          goalId: process.goalId,
+          planId: process.planId
+        }
+      });
+    }
     setProcesses(prev => prev.filter(p => p.id !== id));
     if (selectedProcess?.id === id) setSelectedProcess(null);
-    toast({ title: 'Proces odstraněn' });
+    toast({ title: 'Proces přesunut do koše' });
   };
 
   // Get plan and goal info for a process
