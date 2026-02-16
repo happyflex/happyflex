@@ -1,16 +1,18 @@
 import React from 'react';
-import { TrendingUp, Activity } from 'lucide-react';
+import { TrendingUp, Activity, BarChart3 } from 'lucide-react';
 import { mockChartData } from '../../data/mockData';
+import ModuleHeader from './ModuleHeader';
 
 const ChartModule = () => {
   const maxValue = Math.max(...mockChartData.map(d => d.hodnota));
 
   return (
     <div className="h-full flex flex-col">
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold text-white">Statistiky produktivity</h3>
-        <p className="text-xs text-gray-400">Týdenní přehled</p>
-      </div>
+      <ModuleHeader
+        icon={BarChart3}
+        title="Statistiky"
+        subtitle="Týdenní přehled produktivity"
+      />
 
       <div className="flex-1 flex flex-col justify-end">
         <div className="flex items-end justify-between gap-4 h-48 mb-4">
