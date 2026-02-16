@@ -463,7 +463,15 @@ const DraggableModule = ({ module }) => {
             variant="ghost"
             size="icon"
             className="h-7 w-7 text-gray-400 hover:text-red-400 hover:bg-red-500/10"
-            onClick={() => removeModule(module.id)}
+            onClick={() => {
+              // Add to trash before removing
+              addWindowToTrash(module);
+              // Clear focus if this window is focused
+              if (focusedModuleId === module.id) {
+                clearFocusMode();
+              }
+              removeModule(module.id);
+            }}
           >
             <X className="h-4 w-4" />
           </Button>
