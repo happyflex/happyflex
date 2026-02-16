@@ -37,17 +37,31 @@ const GoalsModule = () => {
 
   // Load from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem('steward_goals');
-    if (saved) {
-      try {
-        setGoals(JSON.parse(saved));
-      } catch (e) {
-        console.error('Error loading goals:', e);
+    const loadGoals = () => {
+      const saved = localStorage.getItem('steward_goals');
+      if (saved) {
+        try {
+          setGoals(JSON.parse(saved));
+        } catch (e) {
+          console.error('Error loading goals:', e);
+          initializeDefaultGoals();
+        }
+      } else {
         initializeDefaultGoals();
       }
-    } else {
-      initializeDefaultGoals();
-    }
+    };
+
+    loadGoals();
+
+    // Listen for external updates (e.g., from trash restore)
+    const handleExternalUpdate = () => {
+      loadGoals();
+    };
+    window.addEventListener('steward-goals-updated', handleExternalUpdate);
+    
+    return () => {
+      window.removeEventListener('steward-goals-updated', handleExternalUpdate);
+    };
   }, []);
 
   // Auto-save
