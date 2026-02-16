@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useCallback } from 'react';
 import { 
   Trash2, 
   RotateCcw, 
@@ -11,14 +11,20 @@ import {
   Clock,
   Layers,
   AlertTriangle,
-  AppWindow
+  AppWindow,
+  Target,
+  GitBranch,
+  Music,
+  BarChart3,
+  Timer,
+  Calendar
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useTrash, TRASH_TYPES } from '../../context/TrashContext';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import { toast } from '../../hooks/use-toast';
 
-// Type configuration
+// Type configuration for content items
 const TYPE_CONFIG = {
   [TRASH_TYPES.WINDOW]: { 
     icon: Layout, 
@@ -56,6 +62,21 @@ const TYPE_CONFIG = {
     color: 'text-gray-400',
     bgColor: 'bg-gray-500/20'
   }
+};
+
+// Module icons for window items (by moduleType)
+const MODULE_ICONS = {
+  notes: { icon: Edit3, color: 'text-yellow-400', bgColor: 'bg-yellow-500/20' },
+  tasks: { icon: ListChecks, color: 'text-pink-400', bgColor: 'bg-pink-500/20' },
+  people: { icon: Users, color: 'text-indigo-400', bgColor: 'bg-indigo-500/20' },
+  projects: { icon: Layout, color: 'text-blue-400', bgColor: 'bg-blue-500/20' },
+  goals: { icon: Target, color: 'text-emerald-400', bgColor: 'bg-emerald-500/20' },
+  processes: { icon: GitBranch, color: 'text-purple-400', bgColor: 'bg-purple-500/20' },
+  music: { icon: Music, color: 'text-green-400', bgColor: 'bg-green-500/20' },
+  chart: { icon: BarChart3, color: 'text-cyan-400', bgColor: 'bg-cyan-500/20' },
+  timer: { icon: Timer, color: 'text-orange-400', bgColor: 'bg-orange-500/20' },
+  calendar: { icon: Calendar, color: 'text-red-400', bgColor: 'bg-red-500/20' },
+  trash: { icon: Trash2, color: 'text-red-400', bgColor: 'bg-red-500/20' }
 };
 
 const TrashModule = () => {
