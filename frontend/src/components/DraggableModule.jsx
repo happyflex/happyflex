@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Minus, Maximize2, Pin } from 'lucide-react';
+import { X, Minus, Maximize2, Pin, Trash2 } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { useTrash } from '../context/TrashContext';
 import { Button } from './ui/button';
