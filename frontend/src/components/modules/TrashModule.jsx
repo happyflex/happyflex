@@ -317,9 +317,19 @@ const TrashModule = () => {
       <div className="flex-1 overflow-y-auto p-2">
         {filteredItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-gray-500">
-            <Trash2 className="h-12 w-12 mb-3 opacity-30" />
-            <p className="text-sm">Koš je prázdný</p>
-            <p className="text-xs mt-1 opacity-70">Smazané položky se zobrazí zde</p>
+            {viewMode === 'content' ? (
+              <>
+                <Trash2 className="h-12 w-12 mb-3 opacity-30" />
+                <p className="text-sm">Koš je prázdný</p>
+                <p className="text-xs mt-1 opacity-70">Smazané položky se zobrazí zde</p>
+              </>
+            ) : (
+              <>
+                <AppWindow className="h-12 w-12 mb-3 opacity-30" />
+                <p className="text-sm">Žádná zavřená okna</p>
+                <p className="text-xs mt-1 opacity-70">Zavřená okna se zobrazí zde</p>
+              </>
+            )}
           </div>
         ) : (
           <div className="space-y-1">
