@@ -36,6 +36,7 @@ const AVAILABILITY = {
 };
 
 const PeopleModule = () => {
+  const { addPersonToTrash } = useTrash();
   const [people, setPeople] = useState([]);
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
