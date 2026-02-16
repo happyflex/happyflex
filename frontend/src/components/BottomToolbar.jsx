@@ -200,55 +200,37 @@ const BottomToolbar = () => {
       clickCountRef.current = 0;
       
       if (clicks === 1) {
-        // Single click - open trash module
-        addModule('trash');
-        toast({
-          title: 'Koš otevřen',
-          description: 'Správa smazaných položek',
-        });
+        // Single click - check if trash is already open
+        const existingTrash = modules.find(m => m.type === 'trash');
+        if (existingTrash) {
+          // Bring existing trash to front and highlight it
+          bringToFront(existingTrash.id);
+          // Flash effect via CSS class will be handled by the module
+          toast({
+            title: 'Koš je již otevřen',
+            description: 'Přesunut do popředí',
+          });
+        } else {
+          // Open new trash module
+          addModule('trash');
+          toast({
+            title: 'Koš otevřen',
+            description: 'Správa smazaných položek',
+          });
+        }
       } else if (clicks === 2) {
         // Double click - soft clear with confirmation
         setClearConfirmPending('soft');
-        toast({
-          title: '🗑️ Clear Workspace?',
-          description: 'Klikněte znovu pro potvrzení (bez pinned, focus, canvas)',
-          action: (
-            <Button 
-              size="sm" 
-              variant="destructive" 
-              onClick={handleSoftClear}
-              className="ml-2"
-            >
-              Potvrdit
-            </Button>
-          ),
-          duration: 3000,
-        });
         // Auto-cancel after timeout
-        setTimeout(() => setClearConfirmPending(null), 3000);
+        setTimeout(() => setClearConfirmPending(null), 4000);
       } else if (clicks >= 3) {
         // Triple click - hard clear with confirmation
         setClearConfirmPending('hard');
-        toast({
-          title: '⚠️ HARD CLEAR – zavřít úplně všechno?',
-          description: 'Zavře všechna okna včetně pinned a canvas!',
-          action: (
-            <Button 
-              size="sm" 
-              variant="destructive" 
-              onClick={handleHardClear}
-              className="ml-2 bg-red-600 hover:bg-red-700"
-            >
-              HARD CLEAR
-            </Button>
-          ),
-          duration: 4000,
-        });
         // Auto-cancel after timeout
         setTimeout(() => setClearConfirmPending(null), 4000);
       }
     }, 300); // 300ms window for multi-click detection
-  }, [addModule, handleSoftClear, handleHardClear]);
+  }, [addModule, modules, bringToFront]);
 
   const handleToolClick = (item) => {
     if (['notes', 'tasks', 'people', 'projects', 'goals', 'processes', 'chart', 'timer', 'calendar', 'music'].includes(item.type)) {
