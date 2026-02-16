@@ -127,6 +127,7 @@ const DraggableModule = ({ module }) => {
     setSnapPreview,
     setIsDraggingWindow
   } = useWorkspace();
+  const { addWindowToTrash } = useTrash();
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [resizeHandle, setResizeHandle] = useState(null);
