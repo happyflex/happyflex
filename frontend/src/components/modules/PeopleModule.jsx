@@ -188,9 +188,14 @@ const PeopleModule = () => {
   };
 
   const deletePerson = (id) => {
+    // Find person and add to trash before deleting
+    const person = people.find(p => p.id === id);
+    if (person) {
+      addPersonToTrash(person);
+    }
     setPeople(prev => prev.filter(p => p.id !== id));
     if (selectedPerson?.id === id) setSelectedPerson(null);
-    toast({ title: 'Osoba odstraněna' });
+    toast({ title: 'Osoba přesunuta do koše' });
   };
 
   // Todo/Checklist management
