@@ -62,9 +62,11 @@ const RightSidebar = () => {
     }
   };
 
-  const handleRemoveFromCanvas = (e, moduleId) => {
+  const handleRemoveFromCanvas = (e, module) => {
     e.stopPropagation();
-    removeFromCanvas(moduleId);
+    // Add to trash before removing (source = canvas)
+    addWindowToTrash({ ...module, _source: 'canvas' });
+    removeFromCanvas(module.id);
   };
 
   const handleMoveUp = (e, index) => {
