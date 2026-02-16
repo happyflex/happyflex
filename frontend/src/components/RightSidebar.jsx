@@ -17,7 +17,8 @@ const MODULE_LABELS = {
   chart: 'Graf',
   timer: 'Časovač',
   calendar: 'Kalendář',
-  music: 'Hudba'
+  music: 'Hudba',
+  trash: 'Koš'
 };
 
 // Mapování ikon modulů
@@ -32,7 +33,8 @@ const MODULE_ICONS = {
   chart: BarChart3,
   timer: Timer,
   calendar: Calendar,
-  music: Music
+  music: Music,
+  trash: Trash2
 };
 
 const RightSidebar = () => {
