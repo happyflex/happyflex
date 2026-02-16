@@ -1386,8 +1386,16 @@ const MusicModule = () => {
 
   return (
     <div className="h-full flex flex-col text-gray-200">
+      {/* Module Header */}
+      <ModuleHeader
+        icon={Music}
+        title="Hudba"
+        subtitle={currentTrack ? `Přehrává: ${currentTrack.title}` : `${library.length} skladeb v knihovně`}
+        iconColor="text-emerald-400"
+      />
+      
       {/* Header with tabs */}
-      <div className="flex items-center justify-between border-b border-cyan-500/20 px-2">
+      <div className="flex items-center justify-between border-b border-cyan-500/20 px-2 -mt-2">
         <div className="flex">
           {[
             { id: 'player', icon: Music, label: 'Přehrávač' },
