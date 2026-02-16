@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Edit3 } from 'lucide-react';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import { useTrash } from '../../context/TrashContext';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { Input } from '../ui/input';
 import { ScrollArea } from '../ui/scroll-area';
+import ModuleHeader from './ModuleHeader';
 
 const NotesModule = () => {
   const { notes, addNote, updateNote, deleteNote } = useWorkspace();
