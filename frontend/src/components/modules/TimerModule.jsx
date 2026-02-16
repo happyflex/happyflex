@@ -41,13 +41,17 @@ const TimerModule = () => {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-white mb-4">Časovač</h3>
+      <ModuleHeader
+        icon={Timer}
+        title="Časovač"
+        subtitle={timerActive ? 'Běží...' : 'Připraven'}
+        iconColor="text-orange-400"
+      />
         
-        <div className="text-center mb-6">
-          <div className="text-5xl font-bold text-white mb-4 font-mono">
-            {formatTime(timerSeconds)}
-          </div>
+      <div className="text-center mb-6">
+        <div className="text-5xl font-bold text-white mb-4 font-mono">
+          {formatTime(timerSeconds)}
+        </div>
           
           <div className="flex items-center justify-center gap-3">
             <Button
