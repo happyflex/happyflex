@@ -345,27 +345,77 @@ const BottomToolbar = () => {
             />
           </div>
 
-          {/* Trash Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleTrashClick}
-            className={`
-              h-12 w-12 rounded-xl transition-all duration-300 relative
-              ${clearConfirmPending 
-                ? 'bg-red-500/30 text-red-300 border border-red-500/50 animate-pulse' 
-                : 'text-red-400 hover:text-red-300 hover:bg-red-500/10 hover:scale-110 bg-red-500/5 border border-red-500/20'
-              }
-            `}
-            title="Koš (1x=otevřít, 2x=clear, 3x=hard clear)"
-          >
-            <Trash2 className="h-5 w-5" />
-            {trashStats.total > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                {trashStats.total > 99 ? '99+' : trashStats.total}
-              </span>
+          {/* Trash Button with inline confirm */}
+          <div className="relative trash-button-container">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleTrashClick}
+              className={`
+                h-12 w-12 rounded-xl transition-all duration-300
+                ${clearConfirmPending 
+                  ? 'bg-red-500/30 text-red-300 border border-red-500/50 animate-pulse' 
+                  : 'text-red-400 hover:text-red-300 hover:bg-red-500/10 hover:scale-110 bg-red-500/5 border border-red-500/20'
+                }
+              `}
+              title="Koš (1x=otevřít, 2x=clear, 3x=hard clear)"
+            >
+              <Trash2 className="h-5 w-5" />
+            </Button>
+            
+            {/* Inline confirm popup */}
+            {clearConfirmPending && (
+              <div className="absolute bottom-16 left-0 bg-[#0f1d35] border border-red-500/40 rounded-lg shadow-2xl p-3 min-w-[200px] z-50 animate-in fade-in slide-in-from-bottom-2">
+                {clearConfirmPending === 'soft' ? (
+                  <>
+                    <div className="text-xs font-medium text-red-400 mb-2">🗑️ Clear Workspace?</div>
+                    <p className="text-[10px] text-gray-400 mb-2">Zavře okna (bez pinned, focus)</p>
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        onClick={() => setClearConfirmPending(null)}
+                        className="text-xs h-7 px-2 text-gray-400"
+                      >
+                        Zrušit
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="destructive" 
+                        onClick={handleSoftClear}
+                        className="text-xs h-7 px-2"
+                      >
+                        Potvrdit
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-xs font-medium text-red-500 mb-2">⚠️ HARD CLEAR</div>
+                    <p className="text-[10px] text-gray-400 mb-2">Zavře VŠECHNA okna!</p>
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        onClick={() => setClearConfirmPending(null)}
+                        className="text-xs h-7 px-2 text-gray-400"
+                      >
+                        Zrušit
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="destructive" 
+                        onClick={handleHardClear}
+                        className="text-xs h-7 px-2 bg-red-600 hover:bg-red-700"
+                      >
+                        HARD CLEAR
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
             )}
-          </Button>
+          </div>
         </div>
 
         {/* Center - Module Tools */}
