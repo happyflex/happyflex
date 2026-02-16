@@ -18,6 +18,11 @@ export const TRASH_TYPES = {
   PROJECT: 'project',
   PERSON: 'person',
   TASK: 'task',
+  GOAL: 'goal',
+  PROCESS: 'process',
+  MUSIC: 'music',
+  CHART: 'chart',
+  TIMER: 'timer',
   OTHER: 'other'
 };
 
