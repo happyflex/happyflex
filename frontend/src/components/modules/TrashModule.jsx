@@ -91,7 +91,12 @@ const TrashModule = () => {
   
   const [activeFilter, setActiveFilter] = useState('all');
   const [confirmEmpty, setConfirmEmpty] = useState(false);
+  const [confirmHardEmpty, setConfirmHardEmpty] = useState(false);
   const [viewMode, setViewMode] = useState('content'); // 'content' = smazaný obsah, 'windows' = zavřená okna
+  
+  // Double click detection for empty button
+  const emptyClickCountRef = useRef(0);
+  const emptyClickTimerRef = useRef(null);
 
   const stats = useMemo(() => getTrashStats(), [getTrashStats, trashItems]);
 
