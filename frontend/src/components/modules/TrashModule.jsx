@@ -301,22 +301,34 @@ const TrashModule = () => {
             </span>
           </div>
           
-          {stats.total > 0 && (
+          {(viewMode === 'content' ? contentCount : windowsCount) > 0 && (
             <Button
               size="sm"
               variant="ghost"
-              onClick={handleEmptyTrash}
-              className={`text-xs ${confirmEmpty ? 'bg-red-500/30 text-red-300' : 'text-red-400 hover:text-red-300 hover:bg-red-500/20'}`}
+              onClick={handleEmptyTrashClick}
+              className={`text-xs ${
+                confirmHardEmpty 
+                  ? 'bg-red-600/40 text-red-200 animate-pulse' 
+                  : confirmEmpty 
+                    ? 'bg-red-500/30 text-red-300' 
+                    : 'text-red-400 hover:text-red-300 hover:bg-red-500/20'
+              }`}
+              title="1x = smazat aktuální režim, 2x = smazat vše"
             >
-              {confirmEmpty ? (
+              {confirmHardEmpty ? (
                 <>
                   <AlertTriangle className="h-3 w-3 mr-1" />
-                  Potvrdit smazání
+                  HARD CLEAR - vše?
+                </>
+              ) : confirmEmpty ? (
+                <>
+                  <AlertTriangle className="h-3 w-3 mr-1" />
+                  {viewMode === 'content' ? 'Smazat obsah?' : 'Smazat okna?'}
                 </>
               ) : (
                 <>
                   <Trash2 className="h-3 w-3 mr-1" />
-                  Vyprázdnit koš
+                  Vyprázdnit
                 </>
               )}
             </Button>
