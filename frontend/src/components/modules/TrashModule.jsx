@@ -331,7 +331,12 @@ const TrashModule = () => {
     { key: TRASH_TYPES.NOTE, label: 'Poznámky', icon: Edit3, count: stats.notes },
     { key: TRASH_TYPES.PROJECT, label: 'Projekty', icon: Layers, count: stats.projects },
     { key: TRASH_TYPES.PERSON, label: 'Lidi', icon: Users, count: stats.people },
-    { key: TRASH_TYPES.TASK, label: 'Úkoly', icon: ListChecks, count: stats.tasks }
+    { key: TRASH_TYPES.TASK, label: 'Úkoly', icon: ListChecks, count: stats.tasks },
+    { key: TRASH_TYPES.GOAL, label: 'Cíle', icon: Target, count: stats.goals },
+    { key: TRASH_TYPES.PROCESS, label: 'Procesy', icon: GitBranch, count: stats.processes },
+    { key: TRASH_TYPES.CHART, label: 'Grafy', icon: BarChart3, count: stats.charts },
+    { key: TRASH_TYPES.TIMER, label: 'Časy', icon: Timer, count: stats.timers },
+    { key: TRASH_TYPES.MUSIC, label: 'Hudba', icon: Music, count: stats.music }
   ];
 
   // Get icon config for window item based on moduleType
