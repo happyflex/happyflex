@@ -195,6 +195,11 @@ export const TrashProvider = ({ children }) => {
       projects: trashItems.filter(i => i.type === TRASH_TYPES.PROJECT).length,
       people: trashItems.filter(i => i.type === TRASH_TYPES.PERSON).length,
       tasks: trashItems.filter(i => i.type === TRASH_TYPES.TASK).length,
+      goals: trashItems.filter(i => i.type === TRASH_TYPES.GOAL).length,
+      processes: trashItems.filter(i => i.type === TRASH_TYPES.PROCESS).length,
+      charts: trashItems.filter(i => i.type === TRASH_TYPES.CHART).length,
+      timers: trashItems.filter(i => i.type === TRASH_TYPES.TIMER).length,
+      music: trashItems.filter(i => i.type === TRASH_TYPES.MUSIC).length,
       other: trashItems.filter(i => i.type === TRASH_TYPES.OTHER).length
     };
   }, [trashItems]);
