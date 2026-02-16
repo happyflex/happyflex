@@ -11,6 +11,7 @@ import { Badge } from '../ui/badge';
 import * as DialogPrimitive from '../ui/dialog';
 import { Checkbox } from '../ui/checkbox';
 import { toast } from '../../hooks/use-toast';
+import { useTrash } from '../../context/TrashContext';
 
 const Dialog = DialogPrimitive.Dialog;
 const DialogContent = DialogPrimitive.DialogContent;
