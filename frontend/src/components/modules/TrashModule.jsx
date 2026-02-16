@@ -385,26 +385,30 @@ const TrashModule = () => {
         {/* Content Filters - only show in content mode */}
         {viewMode === 'content' && (
           <div className="flex flex-wrap gap-1">
-            {filters.map(filter => (
-              <button
-                key={filter.key}
-                onClick={() => setActiveFilter(filter.key)}
-                className={`
-                  px-2 py-1 rounded text-xs transition-all
-                  ${activeFilter === filter.key 
-                    ? 'bg-red-500/30 text-red-300 border border-red-500/40' 
-                    : 'bg-red-500/10 text-gray-400 hover:text-gray-300 border border-transparent'
-                  }
-                  ${filter.count === 0 ? 'opacity-50' : ''}
-                `}
-                disabled={filter.count === 0 && filter.key !== 'all'}
-              >
-                {filter.label}
-                {filter.count > 0 && (
-                  <span className="ml-1 text-[10px] opacity-70">({filter.count})</span>
-                )}
-              </button>
-            ))}
+            {filters.map(filter => {
+              const FilterIcon = filter.icon;
+              return (
+                <button
+                  key={filter.key}
+                  onClick={() => setActiveFilter(filter.key)}
+                  className={`
+                    flex items-center gap-1 px-2 py-1 rounded text-xs transition-all
+                    ${activeFilter === filter.key 
+                      ? 'bg-red-500/30 text-red-300 border border-red-500/40' 
+                      : 'bg-red-500/10 text-gray-400 hover:text-gray-300 border border-transparent'
+                    }
+                    ${filter.count === 0 ? 'opacity-50' : ''}
+                  `}
+                  disabled={filter.count === 0 && filter.key !== 'all'}
+                >
+                  <FilterIcon className="h-3 w-3" />
+                  {filter.label}
+                  {filter.count > 0 && (
+                    <span className="ml-1 text-[10px] opacity-70">({filter.count})</span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
