@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X, ChevronUp, ChevronDown, GripVertical, Edit3, ListChecks, Users, Layout, Target, GitBranch, BarChart3, Timer, Calendar, Music } from 'lucide-react';
+import { X, ChevronUp, ChevronDown, GripVertical, Edit3, ListChecks, Users, Layout, Target, GitBranch, BarChart3, Timer, Calendar, Music, Trash2 } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
+import { useTrash } from '../context/TrashContext';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
 
