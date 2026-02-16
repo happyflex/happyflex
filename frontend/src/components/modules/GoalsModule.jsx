@@ -11,6 +11,7 @@ import { Badge } from '../ui/badge';
 import * as DialogPrimitive from '../ui/dialog';
 import { Textarea } from '../ui/textarea';
 import { toast } from '../../hooks/use-toast';
+import { useTrash } from '../../context/TrashContext';
 import PlanCanvas from './PlanCanvas';
 
 const Dialog = DialogPrimitive.Dialog;
