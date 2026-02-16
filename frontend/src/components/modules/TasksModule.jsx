@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Check, X } from 'lucide-react';
 import { useWorkspace } from '../../context/WorkspaceContext';
+import { useTrash } from '../../context/TrashContext';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { ScrollArea } from '../ui/scroll-area';
@@ -8,6 +9,7 @@ import { Checkbox } from '../ui/checkbox';
 
 const TasksModule = () => {
   const { tasks, addTask, toggleTask, deleteTask } = useWorkspace();
+  const { addTaskToTrash } = useTrash();
   const [isAdding, setIsAdding] = useState(false);
   const [newTask, setNewTask] = useState({ title: '', priority: 'medium', dueDate: '' });
 
@@ -17,6 +19,12 @@ const TasksModule = () => {
       setNewTask({ title: '', priority: 'medium', dueDate: '' });
       setIsAdding(false);
     }
+  };
+
+  const handleDeleteTask = (task) => {
+    // Add to trash before deleting
+    addTaskToTrash(task);
+    deleteTask(task.id);
   };
 
   const priorityColors = {
