@@ -271,14 +271,20 @@ const TrashModule = () => {
     return `před ${Math.floor(diff / 86400)} dny`;
   };
 
-  // Content filters (without Windows)
+  // Content filters with icons (without Windows)
   const filters = [
-    { key: 'all', label: 'Vše', count: contentCount },
-    { key: TRASH_TYPES.NOTE, label: 'Poznámky', count: stats.notes },
-    { key: TRASH_TYPES.PROJECT, label: 'Projekty', count: stats.projects },
-    { key: TRASH_TYPES.PERSON, label: 'Lidi', count: stats.people },
-    { key: TRASH_TYPES.TASK, label: 'Úkoly', count: stats.tasks }
+    { key: 'all', label: 'Vše', icon: Filter, count: contentCount },
+    { key: TRASH_TYPES.NOTE, label: 'Poznámky', icon: Edit3, count: stats.notes },
+    { key: TRASH_TYPES.PROJECT, label: 'Projekty', icon: Layers, count: stats.projects },
+    { key: TRASH_TYPES.PERSON, label: 'Lidi', icon: Users, count: stats.people },
+    { key: TRASH_TYPES.TASK, label: 'Úkoly', icon: ListChecks, count: stats.tasks }
   ];
+
+  // Get icon config for window item based on moduleType
+  const getWindowIconConfig = (item) => {
+    const moduleType = item.metadata?.moduleType || item.originalData?.type;
+    return MODULE_ICONS[moduleType] || { icon: AppWindow, color: 'text-cyan-400', bgColor: 'bg-cyan-500/20' };
+  };
 
   return (
     <div className="h-full flex flex-col bg-[#0f1d35]">
