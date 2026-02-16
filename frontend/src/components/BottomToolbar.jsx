@@ -87,9 +87,10 @@ const BottomToolbar = () => {
     deferredModules,
     removeFromCanvas,
     focusedModuleId,
-    clearFocusMode
+    clearFocusMode,
+    bringToFront
   } = useWorkspace();
-  const { addWindowToTrash, getTrashStats } = useTrash();
+  const { addWindowToTrash } = useTrash();
   
   const [layoutManagerOpen, setLayoutManagerOpen] = useState(false);
   const [workzonePopoverOpen, setWorkzonePopoverOpen] = useState(false);
@@ -99,9 +100,6 @@ const BottomToolbar = () => {
   const clickCountRef = useRef(0);
   const clickTimerRef = useRef(null);
   const [clearConfirmPending, setClearConfirmPending] = useState(null); // 'soft' | 'hard' | null
-
-  // Get trash stats for badge
-  const trashStats = getTrashStats();
 
   // Close popovers when clicking outside
   React.useEffect(() => {
