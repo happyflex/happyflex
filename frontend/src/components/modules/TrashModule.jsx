@@ -15,6 +15,7 @@ import {
 import { Button } from '../ui/button';
 import { useTrash, TRASH_TYPES } from '../../context/TrashContext';
 import { useWorkspace } from '../../context/WorkspaceContext';
+import { toast } from '../../hooks/use-toast';
 
 // Type configuration
 const TYPE_CONFIG = {
