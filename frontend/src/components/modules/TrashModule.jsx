@@ -65,7 +65,7 @@ const TrashModule = () => {
     emptyTrash,
     getTrashStats 
   } = useTrash();
-  const { addModule, setNotes, setContacts, setProjects, setTasks } = useWorkspace();
+  const { addModule, setNotes, setProjects, setTasks } = useWorkspace();
   
   const [activeFilter, setActiveFilter] = useState('all');
   const [confirmEmpty, setConfirmEmpty] = useState(false);
