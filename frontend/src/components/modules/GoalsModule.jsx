@@ -125,7 +125,7 @@ const GoalsModule = () => {
     const goal = goals.find(g => g.id === id);
     if (goal) {
       addToTrash({
-        type: TRASH_TYPES.OTHER,
+        type: TRASH_TYPES.GOAL,
         name: goal.name,
         data: goal,
         sourceModule: 'goals',
