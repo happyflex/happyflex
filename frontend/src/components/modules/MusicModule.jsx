@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+import ModuleHeader from './ModuleHeader';
 
 const API_BASE = process.env.REACT_APP_BACKEND_URL || '';
 
