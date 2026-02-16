@@ -376,8 +376,16 @@ const CalendarModule = () => {
 
   return (
     <div className="h-full flex flex-col text-gray-200">
+      {/* Module Header */}
+      <ModuleHeader
+        icon={CalendarIcon}
+        title="Kalendář"
+        subtitle={`${events.length} událostí`}
+        iconColor="text-red-400"
+      />
+      
       {/* Toolbar */}
-      <div className="flex items-center justify-between p-2 border-b border-cyan-500/20 flex-shrink-0">
+      <div className="flex items-center justify-between p-2 border-b border-cyan-500/20 flex-shrink-0 -mt-2">
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
