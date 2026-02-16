@@ -33,17 +33,22 @@ const NotesModule = () => {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-white">Moje poznámky</h3>
-        <Button
-          size="sm"
-          onClick={() => setIsAdding(!isAdding)}
-          className="bg-cyan-500 hover:bg-cyan-400 text-white"
-        >
-          <Plus className="h-4 w-4 mr-1" />
-          Nová
-        </Button>
-      </div>
+      <ModuleHeader
+        icon={Edit3}
+        title="Poznámky"
+        subtitle={`${notes.length} poznámek`}
+        iconColor="text-yellow-400"
+        actions={
+          <Button
+            size="sm"
+            onClick={() => setIsAdding(!isAdding)}
+            className="bg-cyan-500 hover:bg-cyan-400 text-white"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Nová
+          </Button>
+        }
+      />
 
       {isAdding && (
         <div className="mb-4 p-3 bg-[#0a1628] rounded-lg border border-cyan-500/30">
