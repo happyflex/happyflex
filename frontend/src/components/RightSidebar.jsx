@@ -37,6 +37,7 @@ const MODULE_ICONS = {
 
 const RightSidebar = () => {
   const { deferredModules, restoreModule, removeFromCanvas, reorderCanvasModule, deferModule, modules } = useWorkspace();
+  const { addWindowToTrash } = useTrash();
   const [draggedModule, setDraggedModule] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
 
