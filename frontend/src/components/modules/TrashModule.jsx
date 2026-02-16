@@ -70,14 +70,37 @@ const TrashModule = () => {
   
   const [activeFilter, setActiveFilter] = useState('all');
   const [confirmEmpty, setConfirmEmpty] = useState(false);
+  const [viewMode, setViewMode] = useState('content'); // 'content' = smazaný obsah, 'windows' = zavřená okna
 
   const stats = useMemo(() => getTrashStats(), [getTrashStats, trashItems]);
 
-  // Filter items
+  // Separate counts for content and windows
+  const contentCount = useMemo(() => {
+    return trashItems.filter(item => item.type !== TRASH_TYPES.WINDOW).length;
+  }, [trashItems]);
+
+  const windowsCount = useMemo(() => {
+    return trashItems.filter(item => item.type === TRASH_TYPES.WINDOW).length;
+  }, [trashItems]);
+
+  // Filter items based on view mode and active filter
   const filteredItems = useMemo(() => {
-    if (activeFilter === 'all') return trashItems;
-    return trashItems.filter(item => item.type === activeFilter);
-  }, [trashItems, activeFilter]);
+    let items = trashItems;
+    
+    // First filter by view mode
+    if (viewMode === 'content') {
+      items = items.filter(item => item.type !== TRASH_TYPES.WINDOW);
+    } else {
+      items = items.filter(item => item.type === TRASH_TYPES.WINDOW);
+    }
+    
+    // Then apply content filter (only in content mode)
+    if (viewMode === 'content' && activeFilter !== 'all') {
+      items = items.filter(item => item.type === activeFilter);
+    }
+    
+    return items;
+  }, [trashItems, activeFilter, viewMode]);
 
   // Handle restore
   const handleRestore = (trashId) => {
