@@ -366,8 +366,7 @@ metadata:
 test_plan:
   current_focus:
     - "People Module Persistence and Deletion"
-  stuck_tasks:
-    - "People Module Persistence and Deletion"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
