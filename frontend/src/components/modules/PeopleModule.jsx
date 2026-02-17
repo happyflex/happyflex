@@ -55,7 +55,18 @@ const PeopleModule = () => {
           const parsed = JSON.parse(saved);
           // If parsed is an array (even empty), use it
           if (Array.isArray(parsed)) {
-            setPeople(parsed);
+            // Migrate old contacts that don't have 'type' field
+            const migratedPeople = parsed.map(person => ({
+              ...person,
+              type: person.type || 'other',
+              role: person.role || person.position || '',
+              skills: person.skills || [],
+              availability: person.availability || 'unknown',
+              todos: person.todos || [],
+              calendar: person.calendar || [],
+              checklist: person.checklist || []
+            }));
+            setPeople(migratedPeople);
           } else {
             initializeDefaultPeople();
           }
@@ -77,7 +88,18 @@ const PeopleModule = () => {
         try {
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed)) {
-            setPeople(parsed);
+            // Also migrate on external update
+            const migratedPeople = parsed.map(person => ({
+              ...person,
+              type: person.type || 'other',
+              role: person.role || person.position || '',
+              skills: person.skills || [],
+              availability: person.availability || 'unknown',
+              todos: person.todos || [],
+              calendar: person.calendar || [],
+              checklist: person.checklist || []
+            }));
+            setPeople(migratedPeople);
           }
         } catch (e) {
           console.error('Error reloading people:', e);
