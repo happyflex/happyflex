@@ -241,7 +241,7 @@ const BottomToolbar = () => {
         setTimeout(() => setClearConfirmPending(null), 4000);
       }
     }, 300); // 300ms window for multi-click detection
-  }, [addModule, modules, bringToFront]);
+  }, [addModule, modules, deferredModules, bringToFront, restoreModule]);
 
   const handleToolClick = (item) => {
     if (['notes', 'tasks', 'people', 'projects', 'goals', 'processes', 'chart', 'timer', 'calendar', 'music'].includes(item.type)) {
