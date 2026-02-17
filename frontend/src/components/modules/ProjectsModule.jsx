@@ -29,7 +29,7 @@ const ProjectsModule = () => {
       addToTrash({
         type: TRASH_TYPES.PROJECT,
         name: project.name,
-        originalData: project,
+        data: project,
         sourceModule: 'Projekty'
       });
       setProjects(prev => prev.filter(p => p.id !== projectId));
