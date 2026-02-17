@@ -52,7 +52,13 @@ const PeopleModule = () => {
       const saved = localStorage.getItem('steward_people');
       if (saved) {
         try {
-          setPeople(JSON.parse(saved));
+          const parsed = JSON.parse(saved);
+          // If parsed is an array (even empty), use it
+          if (Array.isArray(parsed)) {
+            setPeople(parsed);
+          } else {
+            initializeDefaultPeople();
+          }
         } catch (e) {
           console.error('Error loading people:', e);
           initializeDefaultPeople();
@@ -69,7 +75,10 @@ const PeopleModule = () => {
       const saved = localStorage.getItem('steward_people');
       if (saved) {
         try {
-          setPeople(JSON.parse(saved));
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            setPeople(parsed);
+          }
         } catch (e) {
           console.error('Error reloading people:', e);
         }
