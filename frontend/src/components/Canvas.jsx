@@ -77,7 +77,20 @@ const SnapPreview = ({ zone }) => {
 };
 
 const Canvas = () => {
-  const { modules, activeWorkzone, restoreModule, snapPreview, addModule, bringToFront } = useWorkspace();
+  const { 
+    modules, 
+    activeWorkzone, 
+    restoreModule, 
+    snapPreview, 
+    addModule, 
+    bringToFront,
+    setNotes,
+    setTasks,
+    setProjects,
+    notes,
+    tasks,
+    projects
+  } = useWorkspace();
   const [isDragOverWorkspace, setIsDragOverWorkspace] = useState(false);
 
   // Map workzone color to Tailwind class
