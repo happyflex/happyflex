@@ -324,7 +324,7 @@ test_plan:
 
 agent_communication:
     - agent: "main"
-    - message: "Fixed Process and Goal deletion issue. The auto-save effects had condition 'if (length > 0)' which prevented saving when items were deleted. Now localStorage is always updated. Please test: 1) Open Procesy (Processes) module, 2) Delete a process, verify it disappears from the list AND appears in Trash, 3) Open Cíle (Goals) module, 4) Delete a goal, verify it disappears from the list AND appears in Trash."
+    - message: "Fixed the persistence issue. Added isInitialized ref to both ProcessesModule and GoalsModule. Now auto-save only triggers AFTER initial data load is complete. Please test: 1) Open Procesy module, add a new process, close the module window, reopen - verify item persists. 2) Delete a process - verify it disappears and goes to trash. 3) Same tests for Cíle module."
     - agent: "testing"
     - message: "✅ WINDOW CLOSING FUNCTIONALITY TEST COMPLETED SUCCESSFULLY. Key findings: 1) Bottom toolbar buttons work perfectly - all modules open correctly 2) X button closing works (minor overlay issues but core functionality operational) 3) Modules are properly removed from workspace when closed 4) Trash functionality working - shows closed windows with statistics 5) All tested modules (Notes, Tasks, Timer) open and close as expected. The module closing feature is fully functional."
     - agent: "testing"
