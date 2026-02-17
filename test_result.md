@@ -363,7 +363,7 @@ test_plan:
 
 agent_communication:
     - agent: "main"
-    - message: "Fixed persistence issue properly. Changed useState initial value from [] to null, and auto-save only triggers when state is not null. Added loading state UI while data loads. All CRUD functions now handle null state. Please test: 1) Open Cíle module, create new goal, close window, reopen - verify item persists. 2) Delete a goal - verify it disappears. 3) Same for Procesy module."
+    - message: "Fixed PeopleModule (Lidi) persistence issue - same fix as Goals/Processes. Changed useState from [] to null, auto-save only triggers when not null, added loading state, null-safe CRUD functions. Please test: 1) Open Lidi module, delete all contacts, close window, reopen - verify list stays empty (no contacts reappear). 2) Add new contact, close, reopen - verify it persists."
     - agent: "testing"
     - message: "✅ WINDOW CLOSING FUNCTIONALITY TEST COMPLETED SUCCESSFULLY. Key findings: 1) Bottom toolbar buttons work perfectly - all modules open correctly 2) X button closing works (minor overlay issues but core functionality operational) 3) Modules are properly removed from workspace when closed 4) Trash functionality working - shows closed windows with statistics 5) All tested modules (Notes, Tasks, Timer) open and close as expected. The module closing feature is fully functional."
     - agent: "testing"
