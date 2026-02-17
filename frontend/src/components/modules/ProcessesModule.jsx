@@ -142,17 +142,17 @@ const ProcessesModule = () => {
       steps: [],
       connections: []
     };
-    setProcesses(prev => [...prev, newProcess]);
+    setProcesses(prev => prev ? [...prev, newProcess] : [newProcess]);
     toast({ title: 'Proces vytvořen', description: processData.name });
   };
 
   const updateProcess = (id, updates) => {
-    setProcesses(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
+    setProcesses(prev => prev ? prev.map(p => p.id === id ? { ...p, ...updates } : p) : prev);
   };
 
   const deleteProcess = (id) => {
     // Find process and add to trash before deleting
-    const process = processes.find(p => p.id === id);
+    const process = processes?.find(p => p.id === id);
     if (process) {
       addToTrash({
         type: TRASH_TYPES.PROCESS,
@@ -166,7 +166,7 @@ const ProcessesModule = () => {
         }
       });
     }
-    setProcesses(prev => prev.filter(p => p.id !== id));
+    setProcesses(prev => prev ? prev.filter(p => p.id !== id) : prev);
     if (selectedProcess?.id === id) setSelectedProcess(null);
     toast({ title: 'Proces přesunut do koše' });
   };
