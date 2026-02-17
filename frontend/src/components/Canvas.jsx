@@ -86,10 +86,7 @@ const Canvas = () => {
     bringToFront,
     setNotes,
     setTasks,
-    setProjects,
-    notes,
-    tasks,
-    projects
+    setProjects
   } = useWorkspace();
   const [isDragOverWorkspace, setIsDragOverWorkspace] = useState(false);
 
