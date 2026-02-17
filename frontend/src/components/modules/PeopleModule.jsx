@@ -383,7 +383,7 @@ const PeopleModule = () => {
         <div className="flex-1 flex gap-3 overflow-hidden">
           {/* List */}
           <ScrollArea className={`${selectedPerson ? 'w-1/2' : 'w-full'} transition-all`}>
-            <div className="space-y-3 pr-2">
+            <div className="space-y-3 pr-2 py-2 px-1 overflow-visible">
               {Object.entries(groupedPeople).map(([type, typePersons]) => {
                 if (typePersons.length === 0) return null;
                 const typeInfo = PERSON_TYPES[type];
@@ -405,7 +405,7 @@ const PeopleModule = () => {
 
                     {/* People in category */}
                     {isExpanded && (
-                      <div className="space-y-2 pl-2">
+                      <div className="space-y-2 pl-2 py-1 overflow-visible">
                         {typePersons.map(person => (
                           <PersonCard
                             key={person.id}
