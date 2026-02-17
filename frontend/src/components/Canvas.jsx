@@ -158,9 +158,23 @@ const Canvas = () => {
           }}
         />
         
-        {/* Animated glow effects */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className={`absolute bottom-1/4 right-1/4 w-96 h-96 ${getPulseColorClass()} rounded-full blur-3xl animate-pulse transition-colors duration-500`} style={{ animationDelay: '1s' }}></div>
+        {/* Animated glow effects - slow subtle pulse */}
+        <div 
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"
+          style={{ animation: 'slow-pulse 8s ease-in-out infinite' }}
+        ></div>
+        <div 
+          className={`absolute bottom-1/4 right-1/4 w-96 h-96 ${getPulseColorClass()} rounded-full blur-3xl transition-colors duration-500`}
+          style={{ animation: 'slow-pulse 8s ease-in-out infinite', animationDelay: '4s' }}
+        ></div>
+        
+        {/* Slow pulse animation */}
+        <style>{`
+          @keyframes slow-pulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); }
+          }
+        `}</style>
       </div>
 
       {/* Empty state */}
