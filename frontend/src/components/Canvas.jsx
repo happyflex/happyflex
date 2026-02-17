@@ -302,7 +302,20 @@ const Canvas = () => {
       data-workspace="main"
       onDrop={handleDrop}
       onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
     >
+      {/* Drop zone overlay */}
+      {isDragOverWorkspace && (
+        <div className="absolute inset-0 z-[100] pointer-events-none">
+          <div className="absolute inset-4 border-2 border-dashed border-cyan-400/50 rounded-2xl bg-cyan-500/5 flex items-center justify-center">
+            <div className="text-center">
+              <div className="text-cyan-400 text-lg font-medium mb-1">Pusť pro obnovení</div>
+              <div className="text-cyan-400/60 text-sm">Položka bude obnovena z koše</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Futuristic background */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0a1628] via-[#0d1b3a] to-[#1a1f3a]">
         {/* Grid overlay */}
