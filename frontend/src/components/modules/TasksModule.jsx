@@ -99,81 +99,102 @@ const TasksModule = () => {
         </div>
       )}
 
-      <ScrollArea className="flex-1">
-        <div className="space-y-4">
-          {activeTasks.length > 0 && (
-            <div>
-              <h4 className="text-sm font-medium text-cyan-400 mb-2">Aktivní</h4>
-              <div className="space-y-2">
-                {activeTasks.map((task) => (
-                  <div
-                    key={task.id}
-                    className="group flex items-start gap-3 p-3 bg-[#0a1628] rounded-lg border border-cyan-500/20 hover:border-cyan-500/40 transition-all"
-                  >
-                    <Checkbox
-                      checked={task.completed}
-                      onCheckedChange={() => toggleTask(task.id)}
-                      className="mt-1"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-white font-medium">{task.title}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className={`text-xs px-2 py-0.5 rounded border ${priorityColors[task.priority]}`}>
-                          {priorityLabels[task.priority]}
-                        </span>
-                        {task.dueDate && (
-                          <span className="text-xs text-gray-500">
-                            {new Date(task.dueDate).toLocaleDateString('cs-CZ')}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-300"
-                      onClick={() => handleDeleteTask(task)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
+      {tasks.length === 0 && !isAdding ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center px-6">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-pink-500/10 flex items-center justify-center">
+              <ListChecks className="h-8 w-8 text-pink-400/50" />
             </div>
-          )}
-
-          {completedTasks.length > 0 && (
-            <div>
-              <h4 className="text-sm font-medium text-green-400 mb-2">Dokončené</h4>
-              <div className="space-y-2">
-                {completedTasks.map((task) => (
-                  <div
-                    key={task.id}
-                    className="group flex items-start gap-3 p-3 bg-[#0a1628] rounded-lg border border-green-500/20 opacity-60"
-                  >
-                    <Checkbox
-                      checked={task.completed}
-                      onCheckedChange={() => toggleTask(task.id)}
-                      className="mt-1"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-white line-through">{task.title}</p>
-                    </div>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-300"
-                      onClick={() => handleDeleteTask(task)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+            <h4 className="text-lg font-medium text-white mb-2">Žádné úkoly</h4>
+            <p className="text-sm text-gray-400 mb-4">
+              Začněte přidáním prvního úkolu a sledujte svůj pokrok.
+            </p>
+            <Button
+              onClick={() => setIsAdding(true)}
+              className="bg-cyan-500 hover:bg-cyan-400 text-white"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Vytvořit první úkol
+            </Button>
+          </div>
         </div>
-      </ScrollArea>
+      ) : (
+        <ScrollArea className="flex-1">
+          <div className="space-y-4">
+            {activeTasks.length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium text-cyan-400 mb-2">Aktivní</h4>
+                <div className="space-y-2">
+                  {activeTasks.map((task) => (
+                    <div
+                      key={task.id}
+                      className="group flex items-start gap-3 p-3 bg-[#0a1628] rounded-lg border border-cyan-500/20 hover:border-cyan-500/40 transition-all"
+                    >
+                      <Checkbox
+                        checked={task.completed}
+                        onCheckedChange={() => toggleTask(task.id)}
+                        className="mt-1"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-white font-medium">{task.title}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className={`text-xs px-2 py-0.5 rounded border ${priorityColors[task.priority]}`}>
+                            {priorityLabels[task.priority]}
+                          </span>
+                          {task.dueDate && (
+                            <span className="text-xs text-gray-500">
+                              {new Date(task.dueDate).toLocaleDateString('cs-CZ')}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-300"
+                        onClick={() => handleDeleteTask(task)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {completedTasks.length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium text-green-400 mb-2">Dokončené</h4>
+                <div className="space-y-2">
+                  {completedTasks.map((task) => (
+                    <div
+                      key={task.id}
+                      className="group flex items-start gap-3 p-3 bg-[#0a1628] rounded-lg border border-green-500/20 opacity-60"
+                    >
+                      <Checkbox
+                        checked={task.completed}
+                        onCheckedChange={() => toggleTask(task.id)}
+                        className="mt-1"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-white line-through">{task.title}</p>
+                      </div>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-300"
+                        onClick={() => handleDeleteTask(task)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+      )}
     </div>
   );
 };
