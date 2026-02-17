@@ -289,7 +289,8 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
                           </div>
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </ScrollArea>
