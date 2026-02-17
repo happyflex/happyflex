@@ -296,12 +296,17 @@ const ProcessesModule = () => {
 };
 
 // Process Card Component
-const ProcessCard = ({ process, goal, plan, isSelected, onSelect }) => {
+const ProcessCard = ({ process, goal, plan, isSelected, onSelect, onDelete }) => {
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    onDelete();
+  };
+
   return (
     <div
       onClick={onSelect}
       className={`
-        p-4 bg-[#0a1628] rounded-lg border transition-all cursor-pointer
+        group p-4 bg-[#0a1628] rounded-lg border transition-all cursor-pointer
         ${isSelected ? 'border-cyan-400 ring-1 ring-cyan-400/50' : 'border-cyan-500/20 hover:border-cyan-500/40'}
       `}
     >
@@ -310,6 +315,14 @@ const ProcessCard = ({ process, goal, plan, isSelected, onSelect }) => {
           <GitBranch className="h-5 w-5 text-cyan-400" />
           <h4 className="font-semibold text-white">{process.name}</h4>
         </div>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-300"
+          onClick={handleDelete}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
       
       <p className="text-sm text-gray-400 mb-3 line-clamp-2">{process.description}</p>
