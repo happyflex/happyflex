@@ -458,9 +458,14 @@ const PeopleModule = () => {
 };
 
 // Person Card Component
-const PersonCard = ({ person, isSelected, onSelect, onDragStart, onDragEnd, isDragging }) => {
+const PersonCard = ({ person, isSelected, onSelect, onDragStart, onDragEnd, isDragging, onDelete }) => {
   const typeInfo = PERSON_TYPES[person.type];
   const availInfo = AVAILABILITY[person.availability];
+
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    onDelete();
+  };
 
   return (
     <div
@@ -505,6 +510,16 @@ const PersonCard = ({ person, isSelected, onSelect, onDragStart, onDragEnd, isDr
             ))}
           </div>
         </div>
+
+        {/* Delete Button */}
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-300"
+          onClick={handleDelete}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
     </div>
   );
