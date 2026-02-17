@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Target, Plus, Calendar, CheckCircle2, Circle, 
   TrendingUp, FileText, ChevronRight, Edit2, Trash2,
@@ -34,6 +34,9 @@ const GoalsModule = () => {
   const [showAddGoalDialog, setShowAddGoalDialog] = useState(false);
   const [showPlanCanvas, setShowPlanCanvas] = useState(null); // { goalId, planId }
   const [filterStatus, setFilterStatus] = useState('all');
+  
+  // Track if initial load is complete to prevent overwriting localStorage
+  const isInitialized = useRef(false);
 
   // Load from localStorage
   useEffect(() => {
@@ -41,7 +44,8 @@ const GoalsModule = () => {
       const saved = localStorage.getItem('steward_goals');
       if (saved) {
         try {
-          setGoals(JSON.parse(saved));
+          const parsed = JSON.parse(saved);
+          setGoals(parsed);
         } catch (e) {
           console.error('Error loading goals:', e);
           initializeDefaultGoals();
@@ -49,13 +53,22 @@ const GoalsModule = () => {
       } else {
         initializeDefaultGoals();
       }
+      // Mark as initialized AFTER data is loaded
+      isInitialized.current = true;
     };
 
     loadGoals();
 
     // Listen for external updates (e.g., from trash restore)
     const handleExternalUpdate = () => {
-      loadGoals();
+      const saved = localStorage.getItem('steward_goals');
+      if (saved) {
+        try {
+          setGoals(JSON.parse(saved));
+        } catch (e) {
+          console.error('Error reloading goals:', e);
+        }
+      }
     };
     window.addEventListener('steward-goals-updated', handleExternalUpdate);
     
@@ -64,9 +77,11 @@ const GoalsModule = () => {
     };
   }, []);
 
-  // Auto-save - always save, even when empty (to handle deletions properly)
+  // Auto-save - only after initialization to prevent overwriting data
   useEffect(() => {
-    localStorage.setItem('steward_goals', JSON.stringify(goals));
+    if (isInitialized.current) {
+      localStorage.setItem('steward_goals', JSON.stringify(goals));
+    }
   }, [goals]);
 
   // Sync selectedGoal with goals changes
