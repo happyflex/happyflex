@@ -170,13 +170,13 @@ const PeopleModule = () => {
     setPeople(defaults);
   };
 
-  // Filter people
-  const filteredPeople = people.filter(person => {
+  // Filter people - handle null state
+  const filteredPeople = people ? people.filter(person => {
     const matchesSearch = person.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          person.role.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = filterType === 'all' || person.type === filterType;
     return matchesSearch && matchesType;
-  });
+  }) : [];
 
   // Group by type
   const groupedPeople = Object.keys(PERSON_TYPES).reduce((acc, type) => {
