@@ -86,12 +86,7 @@ export const WorkspaceProvider = ({ children }) => {
     }
   }, [tasks]);
 
-  // Auto-save contacts
-  useEffect(() => {
-    if (isInitialized.current) {
-      saveToStorage(STORAGE_KEYS.CONTACTS, contacts);
-    }
-  }, [contacts]);
+  // Note: contacts auto-save removed - managed by PeopleModule independently
 
   // Auto-save projects
   useEffect(() => {
