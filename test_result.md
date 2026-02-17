@@ -299,5 +299,5 @@ test_plan:
   test_priority: "sequential"
 
 agent_communication:
-    - agent: "testing"
-    - message: "Initial setup for testing the S.T.E.W.A.R.D. Workspace Dashboard. Will execute tests according to the user's request."
+    - agent: "main"
+    - message: "User requested testing of window closing functionality. Focus testing on: 1) Opening modules from bottom toolbar 2) Clicking X button to close windows 3) Verifying window is removed from workspace 4) Check if closed window goes to Trash module"
