@@ -160,16 +160,26 @@ const Canvas = () => {
     switch (itemType) {
       case 'note':
         // Use React state setter for immediate UI update
-        if (!notes.some(n => n && n.id === originalData.id)) {
-          setNotes(prev => [...(prev || []).filter(n => n && n.id), originalData]);
-        }
+        // Always use functional update to avoid stale closure issues
+        setNotes(prev => {
+          const validPrev = (prev || []).filter(n => n && n.id);
+          if (validPrev.some(n => n.id === originalData.id)) {
+            return validPrev;
+          }
+          return [...validPrev, originalData];
+        });
         break;
         
       case 'task':
         // Use React state setter for immediate UI update
-        if (!tasks.some(t => t && t.id === originalData.id)) {
-          setTasks(prev => [...(prev || []).filter(t => t && t.id), originalData]);
-        }
+        // Always use functional update to avoid stale closure issues
+        setTasks(prev => {
+          const validPrev = (prev || []).filter(t => t && t.id);
+          if (validPrev.some(t => t.id === originalData.id)) {
+            return validPrev;
+          }
+          return [...validPrev, originalData];
+        });
         break;
         
       case 'project':
