@@ -233,7 +233,7 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
                       return (
                         <div
                           key={layout.id}
-                          className="group p-4 bg-[#0a1628] rounded-lg border border-cyan-500/20 hover:border-cyan-500/40 transition-all"
+                          className="group/card p-4 bg-[#0a1628] rounded-lg border border-cyan-500/20 hover:border-cyan-500/40 transition-all"
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
@@ -243,17 +243,21 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
                               </p>
                               <div className="flex flex-wrap gap-1.5 mt-2">
                                 {/* Module count badge */}
-                                <span className="text-xs px-2 py-1 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+                                <span className="text-xs px-2 py-1 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 transition-all duration-200 group-hover/card:shadow-[0_0_8px_rgba(6,182,212,0.3)]">
                                   {layout.modules.length} modulů
                                 </span>
                                 
-                                {/* Module type chips */}
-                                {visibleModules.map(({ type, info }) => {
+                                {/* Module type chips with scan animation */}
+                                {visibleModules.map(({ type, info }, index) => {
                                   const IconComponent = info.icon;
                                   return (
                                     <span 
                                       key={type}
-                                      className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded ${info.bgColor} ${info.color} border ${info.borderColor}`}
+                                      className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded ${info.bgColor} ${info.color} border ${info.borderColor} transition-all duration-200 group-hover/card:animate-chip-scan`}
+                                      style={{ 
+                                        animationDelay: `${(index + 1) * 60}ms`,
+                                        animationFillMode: 'both'
+                                      }}
                                     >
                                       <IconComponent className="h-3 w-3" />
                                       {info.label}
@@ -263,7 +267,13 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
                                 
                                 {/* Hidden modules count */}
                                 {hiddenCount > 0 && (
-                                  <span className="text-xs px-2 py-1 rounded bg-gray-500/10 text-gray-400 border border-gray-500/30">
+                                  <span 
+                                    className="text-xs px-2 py-1 rounded bg-gray-500/10 text-gray-400 border border-gray-500/30 transition-all duration-200 group-hover/card:animate-chip-scan"
+                                    style={{ 
+                                      animationDelay: `${(visibleModules.length + 1) * 60}ms`,
+                                      animationFillMode: 'both'
+                                    }}
+                                  >
                                     +{hiddenCount}
                                   </span>
                                 )}
