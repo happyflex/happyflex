@@ -181,12 +181,12 @@ const GoalsModule = () => {
             plans: g.plans.map(p => p.id === planId ? { ...p, ...updates } : p)
           }
         : g
-    ));
+    ) : prev);
   };
 
   const deletePlan = (goalId, planId) => {
     // Find plan and add to trash before deleting
-    const goal = goals.find(g => g.id === goalId);
+    const goal = goals?.find(g => g.id === goalId);
     const plan = goal?.plans?.find(p => p.id === planId);
     if (plan) {
       addToTrash({
@@ -197,11 +197,11 @@ const GoalsModule = () => {
         metadata: { goalId, goalName: goal.name }
       });
     }
-    setGoals(prev => prev.map(g => 
+    setGoals(prev => prev ? prev.map(g => 
       g.id === goalId 
         ? { ...g, plans: g.plans.filter(p => p.id !== planId) }
         : g
-    ));
+    ) : prev);
     toast({ title: 'Plán přesunut do koše' });
   };
 
