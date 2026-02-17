@@ -212,21 +212,21 @@ const ProjectsModule = () => {
       ) : (
         <ScrollArea className="flex-1">
           <div className="space-y-4">
-            {projects.map((project) => (
+            {(projects || []).filter(p => p && typeof p === 'object' && p.id).map((project) => (
               <div
                 key={project.id}
                 className="group p-4 bg-[#0a1628] rounded-lg border border-cyan-500/20 hover:border-cyan-500/40 transition-all"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <h4 className="font-semibold text-white mb-1">{project.name}</h4>
-                    <span className={`text-xs px-2 py-1 rounded border ${statusColors[project.status]}`}>
-                      {statusLabels[project.status]}
+                    <h4 className="font-semibold text-white mb-1">{project.name || '(Bez názvu)'}</h4>
+                    <span className={`text-xs px-2 py-1 rounded border ${statusColors[project.status] || statusColors.active}`}>
+                      {statusLabels[project.status] || 'Aktivní'}
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-cyan-400">{project.progress}%</div>
+                      <div className="text-2xl font-bold text-cyan-400">{project.progress ?? 0}%</div>
                     </div>
                     <Button
                       size="icon"
@@ -247,16 +247,16 @@ const ProjectsModule = () => {
                   </div>
                 </div>
 
-                <Progress value={project.progress} className="h-2 mb-3" />
+                <Progress value={project.progress ?? 0} className="h-2 mb-3" />
 
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-xs text-gray-400">
                     <Calendar className="h-3 w-3" />
-                    <span>Deadline: {new Date(project.deadline).toLocaleDateString('cs-CZ')}</span>
+                    <span>Deadline: {project.deadline ? new Date(project.deadline).toLocaleDateString('cs-CZ') : 'Neurčeno'}</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-400">
                     <Users className="h-3 w-3" />
-                    <span>Tým: {project.team.join(', ')}</span>
+                    <span>Tým: {Array.isArray(project.team) ? project.team.join(', ') : '-'}</span>
                   </div>
                 </div>
               </div>
