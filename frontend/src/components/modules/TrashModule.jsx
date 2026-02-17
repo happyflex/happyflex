@@ -299,6 +299,34 @@ const TrashModule = () => {
     removeFromTrash(trashId);
   };
 
+  // Handle drag start for trash items
+  const handleDragStart = useCallback((e, item) => {
+    // Set drag data
+    const dragData = {
+      type: 'trash-restore',
+      trashId: item.id,
+      itemType: item.type,
+      itemName: item.name,
+      originalData: item.originalData,
+      metadata: item.metadata,
+      sourceModule: item.sourceModule
+    };
+    
+    e.dataTransfer.setData('application/json', JSON.stringify(dragData));
+    e.dataTransfer.effectAllowed = 'move';
+    
+    // Create custom drag image
+    const dragGhost = document.createElement('div');
+    dragGhost.className = 'fixed pointer-events-none z-[9999] px-3 py-2 rounded-lg bg-cyan-500/90 text-white text-sm font-medium shadow-lg shadow-cyan-500/50 flex items-center gap-2';
+    dragGhost.innerHTML = `<span>↩</span><span>${item.name}</span>`;
+    dragGhost.style.top = '-1000px';
+    document.body.appendChild(dragGhost);
+    e.dataTransfer.setDragImage(dragGhost, 20, 20);
+    
+    // Cleanup ghost after drag
+    setTimeout(() => dragGhost.remove(), 0);
+  }, []);
+
   // Empty only current mode items
   const emptyCurrentMode = useCallback(() => {
     const itemsToDelete = trashItems.filter(item => 
