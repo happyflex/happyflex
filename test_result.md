@@ -282,6 +282,21 @@ frontend:
         - agent: "testing"
         - comment: "Check that all elements display properly at different screen sizes"
 
+  - task: "Process and Goal Deletion"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/modules/ProcessesModule.jsx, /app/frontend/src/components/modules/GoalsModule.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Fixed localStorage auto-save condition that prevented proper deletion. Items should now disappear from source modules and appear in trash."
+        - working: true
+        - agent: "testing"
+        - comment: "✅ COMPREHENSIVE DELETION TEST PASSED. Tested both Process and Goal deletion functionality: 1) Created test process and goal items 2) Successfully deleted items using trash icon in detail panels 3) Verified items completely disappear from source module lists (Procesy and Cíle) 4) Confirmed deleted items appear correctly in Koš (Trash) module under 'Smazaný obsah' tab 5) The localStorage auto-save fix is working perfectly - no items remain visible after deletion. The bug where deleted items stayed visible in source modules has been completely resolved."
+
 metadata:
   created_by: "testing_agent"
   version: "1.0"
