@@ -278,6 +278,7 @@ const BottomToolbar = () => {
               variant="ghost"
               size="icon"
               onClick={() => setWorkzonePopoverOpen(!workzonePopoverOpen)}
+              onDoubleClick={handleWorkzoneReset}
               className={`
                 h-12 w-12 rounded-xl transition-all duration-300
                 ${activeWorkzone 
@@ -286,7 +287,7 @@ const BottomToolbar = () => {
                 }
                 hover:scale-110
               `}
-              title="Workzones"
+              title={activeWorkzone ? "Workzones (dvojklik pro vypnutí)" : "Workzones"}
             >
               <Zap className="h-5 w-5" />
             </Button>
