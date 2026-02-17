@@ -36,7 +36,7 @@ import { toast } from '../hooks/use-toast';
 
 // Workzones for switch action
 const WORKZONES = [
-  { id: 'problem-solving', name: 'Problem Solving', color: 'orange' },
+  { id: 'problem-solving', name: 'Problem Solving', color: 'purple' },
   { id: 'planning', name: 'Plánovací', color: 'yellow' },
   { id: 'executive', name: 'Exekutivní', color: 'green' }
 ];
