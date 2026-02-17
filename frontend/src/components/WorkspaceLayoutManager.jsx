@@ -224,40 +224,62 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    {layouts.map((layout) => (
-                      <div
-                        key={layout.id}
-                        className="group p-4 bg-[#0a1628] rounded-lg border border-cyan-500/20 hover:border-cyan-500/40 transition-all"
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-white mb-1">{layout.name}</h4>
-                            <p className="text-xs text-gray-500">
-                              {new Date(layout.timestamp).toLocaleString('cs-CZ')}
-                            </p>
-                            <div className="flex gap-2 mt-2">
-                              <span className="text-xs px-2 py-1 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
-                                {layout.modules.length} modulů
-                              </span>
-                              <span className="text-xs px-2 py-1 rounded bg-purple-500/10 text-purple-400 border border-purple-500/30">
-                                {layout.data.notes.length} poznámek
-                              </span>
-                              <span className="text-xs px-2 py-1 rounded bg-green-500/10 text-green-400 border border-green-500/30">
-                                {layout.data.tasks.length} úkolů
-                              </span>
+                    {layouts.map((layout) => {
+                      const uniqueModules = getUniqueModules(layout);
+                      const maxVisibleChips = 5;
+                      const visibleModules = uniqueModules.slice(0, maxVisibleChips);
+                      const hiddenCount = uniqueModules.length - maxVisibleChips;
+                      
+                      return (
+                        <div
+                          key={layout.id}
+                          className="group p-4 bg-[#0a1628] rounded-lg border border-cyan-500/20 hover:border-cyan-500/40 transition-all"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-white mb-1">{layout.name}</h4>
+                              <p className="text-xs text-gray-500">
+                                {new Date(layout.timestamp).toLocaleString('cs-CZ')}
+                              </p>
+                              <div className="flex flex-wrap gap-1.5 mt-2">
+                                {/* Module count badge */}
+                                <span className="text-xs px-2 py-1 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+                                  {layout.modules.length} modulů
+                                </span>
+                                
+                                {/* Module type chips */}
+                                {visibleModules.map(({ type, info }) => {
+                                  const IconComponent = info.icon;
+                                  return (
+                                    <span 
+                                      key={type}
+                                      className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded ${info.bgColor} ${info.color} border ${info.borderColor}`}
+                                    >
+                                      <IconComponent className="h-3 w-3" />
+                                      {info.label}
+                                    </span>
+                                  );
+                                })}
+                                
+                                {/* Hidden modules count */}
+                                {hiddenCount > 0 && (
+                                  <span className="text-xs px-2 py-1 rounded bg-gray-500/10 text-gray-400 border border-gray-500/30">
+                                    +{hiddenCount}
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              onClick={() => loadLayout(layout)}
-                              className="bg-cyan-500 hover:bg-cyan-400 text-white"
-                            >
-                              <FolderOpen className="h-4 w-4 mr-1" />
-                              Načíst
-                            </Button>
-                            <Button
-                              size="sm"
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                onClick={() => loadLayout(layout)}
+                                className="bg-cyan-500 hover:bg-cyan-400 text-white"
+                              >
+                                <FolderOpen className="h-4 w-4 mr-1" />
+                                Načíst
+                              </Button>
+                              <Button
+                                size="sm"
                               variant="ghost"
                               onClick={() => deleteLayout(layout.id)}
                               className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
