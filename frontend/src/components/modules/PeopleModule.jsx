@@ -200,21 +200,21 @@ const PeopleModule = () => {
       calendar: [],
       checklist: []
     };
-    setPeople(prev => [...prev, newPerson]);
+    setPeople(prev => prev ? [...prev, newPerson] : [newPerson]);
     toast({ title: 'Osoba přidána', description: `${personData.name} byl/a přidán/a do systému` });
   };
 
   const updatePerson = (id, updates) => {
-    setPeople(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
+    setPeople(prev => prev ? prev.map(p => p.id === id ? { ...p, ...updates } : p) : prev);
   };
 
   const deletePerson = (id) => {
     // Find person and add to trash before deleting
-    const person = people.find(p => p.id === id);
+    const person = people?.find(p => p.id === id);
     if (person) {
       addPersonToTrash(person);
     }
-    setPeople(prev => prev.filter(p => p.id !== id));
+    setPeople(prev => prev ? prev.filter(p => p.id !== id) : prev);
     if (selectedPerson?.id === id) setSelectedPerson(null);
     toast({ title: 'Osoba přesunuta do koše' });
   };
