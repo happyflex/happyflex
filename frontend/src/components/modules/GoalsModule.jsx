@@ -64,11 +64,9 @@ const GoalsModule = () => {
     };
   }, []);
 
-  // Auto-save
+  // Auto-save - always save, even when empty (to handle deletions properly)
   useEffect(() => {
-    if (goals.length > 0) {
-      localStorage.setItem('steward_goals', JSON.stringify(goals));
-    }
+    localStorage.setItem('steward_goals', JSON.stringify(goals));
   }, [goals]);
 
   // Sync selectedGoal with goals changes

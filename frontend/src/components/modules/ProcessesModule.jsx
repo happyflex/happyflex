@@ -67,11 +67,9 @@ const ProcessesModule = () => {
     }
   }, []);
 
-  // Auto-save processes
+  // Auto-save processes - always save, even when empty (to handle deletions properly)
   useEffect(() => {
-    if (processes.length > 0) {
-      localStorage.setItem('steward_processes', JSON.stringify(processes));
-    }
+    localStorage.setItem('steward_processes', JSON.stringify(processes));
   }, [processes]);
 
   // Sync selectedProcess with processes changes
