@@ -384,7 +384,7 @@ const PeopleModule = () => {
           {/* List */}
           <div className={`${selectedPerson ? 'w-1/2' : 'w-full'} transition-all`}>
             <ScrollArea className="h-full">
-              <div className="py-1 pr-3 pl-1">
+              <div className="py-2 px-3">
                 <div className="space-y-3">
                   {Object.entries(groupedPeople).map(([type, typePersons]) => {
                     if (typePersons.length === 0) return null;
@@ -407,7 +407,7 @@ const PeopleModule = () => {
 
                         {/* People in category */}
                         {isExpanded && (
-                          <div className="space-y-3 pl-2">
+                          <div className="space-y-3 pl-1">
                             {typePersons.map(person => (
                               <PersonCard
                                 key={person.id}
