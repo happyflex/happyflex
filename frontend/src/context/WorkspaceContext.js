@@ -83,7 +83,7 @@ export const WorkspaceProvider = ({ children }) => {
   // Auto-save notes
   useEffect(() => {
     if (isInitialized.current) {
-      saveToStorage(STORAGE_KEYS.NOTES, notes);
+      saveToStorage(STORAGE_KEYS.NOTES, normalizeArrayData(notes));
     }
   }, [notes]);
 
