@@ -362,7 +362,6 @@ metadata:
 
 test_plan:
   current_focus:
-    - "People Module Persistence and Deletion"
     - "Dashboard Loading"
     - "Right Sidebar"
     - "Header Components"
@@ -373,10 +372,9 @@ test_plan:
     - "Module Content - Projects"
     - "Module Content - Chart"
     - "Module Content - Timer"
-  stuck_tasks:
-    - "People Module Persistence and Deletion"
+  stuck_tasks: []
   test_all: true
-  test_priority: "stuck_first"
+  test_priority: "high_first"
 
 agent_communication:
     - agent: "main"
