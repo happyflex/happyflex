@@ -528,7 +528,7 @@ export const WorkspaceProvider = ({ children }) => {
     deferredModules,
     notes,
     tasks,
-    // contacts removed - managed by PeopleModule independently
+    contacts, // Empty array for backward compatibility
     projects,
     timerActive,
     timerSeconds,
