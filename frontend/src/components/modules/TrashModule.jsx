@@ -602,12 +602,19 @@ const TrashModule = () => {
               return (
                 <div
                   key={item.id}
-                  className={`group flex items-center gap-3 p-2 rounded-lg ${
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, item)}
+                  className={`group flex items-center gap-2 p-2 rounded-lg ${
                     item.type === TRASH_TYPES.WINDOW 
                       ? 'bg-cyan-500/5 hover:bg-cyan-500/10 hover:border-cyan-500/20' 
                       : 'bg-red-500/5 hover:bg-red-500/10 hover:border-red-500/20'
-                  } border border-transparent transition-all`}
+                  } border border-transparent transition-all cursor-grab active:cursor-grabbing`}
                 >
+                  {/* Drag Handle */}
+                  <div className="opacity-30 group-hover:opacity-60 transition-opacity cursor-grab">
+                    <GripVertical className="h-4 w-4 text-gray-400" />
+                  </div>
+
                   {/* Type/Module Icon */}
                   <div className={`p-2 rounded-lg ${iconBgColor}`}>
                     <IconComponent className={`h-4 w-4 ${iconColor}`} />
@@ -633,6 +640,11 @@ const TrashModule = () => {
                         </>
                       )}
                     </div>
+                  </div>
+
+                  {/* Drag hint */}
+                  <div className="text-[10px] text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity mr-1">
+                    Táhni do workspace
                   </div>
 
                   {/* Actions */}
