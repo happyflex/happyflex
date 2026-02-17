@@ -214,7 +214,7 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
           }
         }
         .layout-card:hover .chip-scannable {
-          animation: chip-scan 250ms ease-out forwards;
+          animation: chip-scan 400ms ease-out forwards;
         }
       `}</style>
 
