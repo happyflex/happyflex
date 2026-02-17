@@ -40,6 +40,21 @@ export const TrashProvider = ({ children }) => {
     isInitialized.current = true;
   }, []);
 
+  // Listen for trash-remove events from Canvas (drag and drop restore)
+  useEffect(() => {
+    const handleTrashRemove = (e) => {
+      const { trashId } = e.detail;
+      if (trashId) {
+        setTrashItems(prev => prev.filter(item => item.id !== trashId));
+      }
+    };
+
+    window.addEventListener('steward-trash-remove', handleTrashRemove);
+    return () => {
+      window.removeEventListener('steward-trash-remove', handleTrashRemove);
+    };
+  }, []);
+
   // Auto-save trash items
   useEffect(() => {
     if (isInitialized.current) {
