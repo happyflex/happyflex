@@ -41,7 +41,7 @@ const PeopleModule = () => {
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('all');
-  const [expandedCategories, setExpandedCategories] = useState(['team', 'supplier', 'investor', 'client']);
+  const [expandedCategories, setExpandedCategories] = useState(['team', 'supplier', 'investor', 'client', 'other']);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingPerson, setEditingPerson] = useState(null);
   const [draggedPerson, setDraggedPerson] = useState(null);
