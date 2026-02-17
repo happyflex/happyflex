@@ -194,6 +194,30 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
 
   return (
     <>
+      {/* Holographic scan animation styles */}
+      <style>{`
+        @keyframes chip-scan {
+          0% {
+            filter: brightness(1);
+            transform: scale(1);
+            box-shadow: none;
+          }
+          50% {
+            filter: brightness(1.2);
+            transform: scale(1.03);
+            box-shadow: 0 0 12px rgba(6, 182, 212, 0.4), inset 0 0 4px rgba(6, 182, 212, 0.1);
+          }
+          100% {
+            filter: brightness(1);
+            transform: scale(1);
+            box-shadow: none;
+          }
+        }
+        .group\\/card:hover .animate-chip-scan {
+          animation: chip-scan 250ms ease-out forwards;
+        }
+      `}</style>
+
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-2xl bg-[#0f1d35] border-cyan-500/30">
           <DialogHeader>
