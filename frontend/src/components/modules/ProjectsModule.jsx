@@ -229,6 +229,14 @@ const ProjectsModule = () => {
                       <div className="text-2xl font-bold text-cyan-400">{project.progress}%</div>
                     </div>
                     <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-300"
+                      onClick={() => deleteProject(project.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                    <Button
                       size="sm"
                       onClick={() => setSelectedProject(project)}
                       className="bg-cyan-500 hover:bg-cyan-400 text-white opacity-0 group-hover:opacity-100 transition-opacity"
