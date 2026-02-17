@@ -91,7 +91,7 @@ const PeopleModule = () => {
 
   // Sync selectedPerson with people changes
   useEffect(() => {
-    if (selectedPerson) {
+    if (selectedPerson && people) {
       const updatedPerson = people.find(p => p.id === selectedPerson.id);
       if (updatedPerson && JSON.stringify(updatedPerson) !== JSON.stringify(selectedPerson)) {
         setSelectedPerson(updatedPerson);
