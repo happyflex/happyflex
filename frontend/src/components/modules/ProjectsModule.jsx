@@ -170,51 +170,72 @@ const ProjectsModule = () => {
         </div>
       )}
 
-      <ScrollArea className="flex-1">
-        <div className="space-y-4">
-          {projects.map((project) => (
-            <div
-              key={project.id}
-              className="group p-4 bg-[#0a1628] rounded-lg border border-cyan-500/20 hover:border-cyan-500/40 transition-all"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex-1">
-                  <h4 className="font-semibold text-white mb-1">{project.name}</h4>
-                  <span className={`text-xs px-2 py-1 rounded border ${statusColors[project.status]}`}>
-                    {statusLabels[project.status]}
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-cyan-400">{project.progress}%</div>
-                  </div>
-                  <Button
-                    size="sm"
-                    onClick={() => setSelectedProject(project)}
-                    className="bg-cyan-500 hover:bg-cyan-400 text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <ExternalLink className="h-4 w-4 mr-1" />
-                    Otevřít
-                  </Button>
-                </div>
-              </div>
-
-              <Progress value={project.progress} className="h-2 mb-3" />
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-xs text-gray-400">
-                  <Calendar className="h-3 w-3" />
-                  <span>Deadline: {new Date(project.deadline).toLocaleDateString('cs-CZ')}</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-gray-400">
-                  <Users className="h-3 w-3" />
-                  <span>Tým: {project.team.join(', ')}</span>
-                </div>
-              </div>
+      {projects.length === 0 && !showAddDialog ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center px-6">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-500/10 flex items-center justify-center">
+              <Layout className="h-8 w-8 text-blue-400/50" />
             </div>
-          ))}
+            <h4 className="text-lg font-medium text-white mb-2">Žádné projekty</h4>
+            <p className="text-sm text-gray-400 mb-4">
+              Vytvořte svůj první projekt a začněte organizovat práci.
+            </p>
+            <Button
+              onClick={() => setShowAddDialog(true)}
+              className="bg-cyan-500 hover:bg-cyan-400 text-white"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Vytvořit první projekt
+            </Button>
+          </div>
         </div>
-      </ScrollArea>
+      ) : (
+        <ScrollArea className="flex-1">
+          <div className="space-y-4">
+            {projects.map((project) => (
+              <div
+                key={project.id}
+                className="group p-4 bg-[#0a1628] rounded-lg border border-cyan-500/20 hover:border-cyan-500/40 transition-all"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-white mb-1">{project.name}</h4>
+                    <span className={`text-xs px-2 py-1 rounded border ${statusColors[project.status]}`}>
+                      {statusLabels[project.status]}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-cyan-400">{project.progress}%</div>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => setSelectedProject(project)}
+                      className="bg-cyan-500 hover:bg-cyan-400 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <ExternalLink className="h-4 w-4 mr-1" />
+                      Otevřít
+                    </Button>
+                  </div>
+                </div>
+
+                <Progress value={project.progress} className="h-2 mb-3" />
+
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-xs text-gray-400">
+                    <Calendar className="h-3 w-3" />
+                    <span>Deadline: {new Date(project.deadline).toLocaleDateString('cs-CZ')}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-gray-400">
+                    <Users className="h-3 w-3" />
+                    <span>Tým: {project.team.join(', ')}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      )}
     </div>
   );
 };
