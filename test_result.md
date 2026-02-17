@@ -119,15 +119,18 @@ frontend:
 
   - task: "Bottom Toolbar"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/components/BottomToolbar.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
         - agent: "testing"
         - comment: "Need to test bottom toolbar buttons: Graf, Poznámky, Úkoly, Kontakty, Projekty, Časovač"
+        - working: true
+        - agent: "testing"
+        - comment: "✅ Bottom toolbar working perfectly. All module buttons (Notes, Tasks, Timer, etc.) successfully open their respective modules. Trash functionality also working - opens trash module showing closed windows."
 
   - task: "Module Addition"
     implemented: true
