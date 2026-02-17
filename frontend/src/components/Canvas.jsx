@@ -174,9 +174,15 @@ const Canvas = () => {
         
       case 'project':
         // Use React state setter for immediate UI update
-        if (!projects.some(p => p && p.id === originalData.id)) {
-          setProjects(prev => [...(prev || []).filter(p => p && p.id), originalData]);
-        }
+        // Always use functional update to avoid stale closure issues
+        setProjects(prev => {
+          const validPrev = (prev || []).filter(p => p && p.id);
+          // Check if project already exists
+          if (validPrev.some(p => p.id === originalData.id)) {
+            return validPrev; // Don't add duplicate
+          }
+          return [...validPrev, originalData];
+        });
         break;
         
       case 'person':
