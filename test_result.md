@@ -362,18 +362,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Dashboard Loading"
-    - "Right Sidebar"
-    - "Header Components"
-    - "Toast Notifications"
-    - "Module Content - Notes"
-    - "Module Content - Tasks"
-    - "Module Content - Contacts"
-    - "Module Content - Projects"
-    - "Module Content - Chart"
-    - "Module Content - Timer"
-  stuck_tasks: []
-  test_all: true
+    - "People Module Persistence and Deletion"
+  stuck_tasks:
+    - "People Module Persistence and Deletion"
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
