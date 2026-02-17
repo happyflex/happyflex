@@ -282,7 +282,7 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
                                       key={type}
                                       className={`chip-scannable inline-flex items-center gap-1 text-xs px-2 py-1 rounded ${info.bgColor} ${info.color} border ${info.borderColor}`}
                                       style={{ 
-                                        animationDelay: `${(index + 1) * 60}ms`,
+                                        animationDelay: `${(index + 1) * 120}ms`,
                                         animationFillMode: 'both'
                                       }}
                                     >
@@ -297,7 +297,7 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
                                   <span 
                                     className="chip-scannable text-xs px-2 py-1 rounded bg-gray-500/10 text-gray-400 border border-gray-500/30"
                                     style={{ 
-                                      animationDelay: `${(visibleModules.length + 1) * 60}ms`,
+                                      animationDelay: `${(visibleModules.length + 1) * 120}ms`,
                                       animationFillMode: 'both'
                                     }}
                                   >
