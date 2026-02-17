@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   GitBranch, Plus, Users, FileText, Target,
   ChevronRight, Edit2, Trash2, X, Layers
@@ -20,14 +20,11 @@ const DialogTitle = DialogPrimitive.DialogTitle;
 
 const ProcessesModule = () => {
   const { addToTrash, TRASH_TYPES } = useTrash();
-  const [processes, setProcesses] = useState([]);
+  const [processes, setProcesses] = useState(null); // null = not loaded yet
   const [goals, setGoals] = useState([]);
   const [selectedProcess, setSelectedProcess] = useState(null);
   const [showAddProcessDialog, setShowAddProcessDialog] = useState(false);
   const [showProcessCanvas, setShowProcessCanvas] = useState(null); // processId
-  
-  // Track if initial load is complete to prevent overwriting localStorage
-  const isInitialized = useRef(false);
 
   // Load processes from localStorage
   useEffect(() => {
@@ -44,8 +41,6 @@ const ProcessesModule = () => {
       } else {
         initializeDefaultProcesses();
       }
-      // Mark as initialized AFTER data is loaded
-      isInitialized.current = true;
     };
 
     loadProcesses();
@@ -80,9 +75,9 @@ const ProcessesModule = () => {
     }
   }, []);
 
-  // Auto-save processes - only after initialization to prevent overwriting data
+  // Auto-save processes - only when processes is not null (initialized)
   useEffect(() => {
-    if (isInitialized.current) {
+    if (processes !== null) {
       localStorage.setItem('steward_processes', JSON.stringify(processes));
     }
   }, [processes]);

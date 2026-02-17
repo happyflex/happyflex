@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Target, Plus, Calendar, CheckCircle2, Circle, 
   TrendingUp, FileText, ChevronRight, Edit2, Trash2,
