@@ -223,16 +223,16 @@ const PeopleModule = () => {
   const addTodoItem = (personId, text, isChecklist = false) => {
     const field = isChecklist ? 'checklist' : 'todos';
     const newItem = { id: `item-${Date.now()}`, text, completed: false };
-    setPeople(prev => prev.map(p => 
+    setPeople(prev => prev ? prev.map(p => 
       p.id === personId 
         ? { ...p, [field]: [...p[field], newItem] }
         : p
-    ));
+    ) : prev);
   };
 
   const toggleTodoItem = (personId, itemId, isChecklist = false) => {
     const field = isChecklist ? 'checklist' : 'todos';
-    setPeople(prev => prev.map(p => 
+    setPeople(prev => prev ? prev.map(p => 
       p.id === personId 
         ? { 
             ...p, 
@@ -241,16 +241,16 @@ const PeopleModule = () => {
             )
           }
         : p
-    ));
+    ) : prev);
   };
 
   const deleteTodoItem = (personId, itemId, isChecklist = false) => {
     const field = isChecklist ? 'checklist' : 'todos';
-    setPeople(prev => prev.map(p => 
+    setPeople(prev => prev ? prev.map(p => 
       p.id === personId 
         ? { ...p, [field]: p[field].filter(item => item.id !== itemId) }
         : p
-    ));
+    ) : prev);
   };
 
   // Drag handlers for drag & drop to projects
