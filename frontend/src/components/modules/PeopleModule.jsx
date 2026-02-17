@@ -298,7 +298,7 @@ const PeopleModule = () => {
               <Users className="h-5 w-5 text-cyan-400" />
               Lidi
             </h3>
-            <p className="text-xs text-gray-400">{people.length} osob v databázi</p>
+            <p className="text-xs text-gray-400">{people.length} {people.length === 1 ? 'osoba' : people.length >= 2 && people.length <= 4 ? 'osoby' : 'osob'} v databázi</p>
           </div>
           <Button
             size="sm"
@@ -310,92 +310,116 @@ const PeopleModule = () => {
           </Button>
         </div>
 
-        {/* Search & Filter */}
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Hledat osobu..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 bg-[#0a1628] border-cyan-500/30 text-white"
-            />
+        {/* Search & Filter - only show if there are people */}
+        {people.length > 0 && (
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Hledat osobu..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 bg-[#0a1628] border-cyan-500/30 text-white"
+              />
+            </div>
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className="bg-[#0a1628] border border-cyan-500/30 rounded-md px-3 text-sm text-white"
+            >
+              <option value="all">Všichni</option>
+              {Object.entries(PERSON_TYPES).map(([key, value]) => (
+                <option key={key} value={key}>{value.label}</option>
+              ))}
+            </select>
           </div>
-          <select
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-            className="bg-[#0a1628] border border-cyan-500/30 rounded-md px-3 text-sm text-white"
-          >
-            <option value="all">Všichni</option>
-            {Object.entries(PERSON_TYPES).map(([key, value]) => (
-              <option key={key} value={key}>{value.label}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* People List & Detail */}
-      <div className="flex-1 flex gap-3 overflow-hidden">
-        {/* List */}
-        <ScrollArea className={`${selectedPerson ? 'w-1/2' : 'w-full'} transition-all`}>
-          <div className="space-y-3 pr-2">
-            {Object.entries(groupedPeople).map(([type, typePersons]) => {
-              if (typePersons.length === 0) return null;
-              const typeInfo = PERSON_TYPES[type];
-              const TypeIcon = typeInfo.icon;
-              const isExpanded = expandedCategories.includes(type);
-
-              return (
-                <div key={type} className="space-y-2">
-                  {/* Category Header */}
-                  <button
-                    onClick={() => toggleCategory(type)}
-                    className="w-full flex items-center gap-2 px-2 py-1 text-sm font-medium text-gray-400 hover:text-white transition-colors"
-                  >
-                    {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                    <TypeIcon className="h-4 w-4" />
-                    <span>{typeInfo.label}</span>
-                    <Badge variant="outline" className="ml-auto text-xs">{typePersons.length}</Badge>
-                  </button>
-
-                  {/* People in category */}
-                  {isExpanded && (
-                    <div className="space-y-2 pl-2">
-                      {typePersons.map(person => (
-                        <PersonCard
-                          key={person.id}
-                          person={person}
-                          isSelected={selectedPerson?.id === person.id}
-                          onSelect={() => setSelectedPerson(person)}
-                          onDragStart={handleDragStart}
-                          onDragEnd={handleDragEnd}
-                          isDragging={draggedPerson?.id === person.id}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </ScrollArea>
-
-        {/* Detail Panel */}
-        {selectedPerson && (
-          <PersonDetailPanel
-            person={selectedPerson}
-            onClose={() => setSelectedPerson(null)}
-            onUpdate={(updates) => {
-              updatePerson(selectedPerson.id, updates);
-              setSelectedPerson(prev => ({ ...prev, ...updates }));
-            }}
-            onDelete={() => deletePerson(selectedPerson.id)}
-            onAddTodo={(text, isChecklist) => addTodoItem(selectedPerson.id, text, isChecklist)}
-            onToggleTodo={(itemId, isChecklist) => toggleTodoItem(selectedPerson.id, itemId, isChecklist)}
-            onDeleteTodo={(itemId, isChecklist) => deleteTodoItem(selectedPerson.id, itemId, isChecklist)}
-          />
         )}
       </div>
+
+      {/* Empty State */}
+      {people.length === 0 ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center px-6">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-cyan-500/10 flex items-center justify-center">
+              <Users className="h-8 w-8 text-cyan-400/50" />
+            </div>
+            <h4 className="text-lg font-medium text-white mb-2">Žádné kontakty</h4>
+            <p className="text-sm text-gray-400 mb-4">
+              Začněte přidáním první osoby do vaší databáze kontaktů.
+            </p>
+            <Button
+              onClick={() => setShowAddDialog(true)}
+              className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border border-cyan-500/40"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Přidat první kontakt
+            </Button>
+          </div>
+        </div>
+      ) : (
+        /* People List & Detail */
+        <div className="flex-1 flex gap-3 overflow-hidden">
+          {/* List */}
+          <ScrollArea className={`${selectedPerson ? 'w-1/2' : 'w-full'} transition-all`}>
+            <div className="space-y-3 pr-2">
+              {Object.entries(groupedPeople).map(([type, typePersons]) => {
+                if (typePersons.length === 0) return null;
+                const typeInfo = PERSON_TYPES[type];
+                const TypeIcon = typeInfo.icon;
+                const isExpanded = expandedCategories.includes(type);
+
+                return (
+                  <div key={type} className="space-y-2">
+                    {/* Category Header */}
+                    <button
+                      onClick={() => toggleCategory(type)}
+                      className="w-full flex items-center gap-2 px-2 py-1 text-sm font-medium text-gray-400 hover:text-white transition-colors"
+                    >
+                      {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                      <TypeIcon className="h-4 w-4" />
+                      <span>{typeInfo.label}</span>
+                      <Badge variant="outline" className="ml-auto text-xs">{typePersons.length}</Badge>
+                    </button>
+
+                    {/* People in category */}
+                    {isExpanded && (
+                      <div className="space-y-2 pl-2">
+                        {typePersons.map(person => (
+                          <PersonCard
+                            key={person.id}
+                            person={person}
+                            isSelected={selectedPerson?.id === person.id}
+                            onSelect={() => setSelectedPerson(person)}
+                            onDragStart={handleDragStart}
+                            onDragEnd={handleDragEnd}
+                            isDragging={draggedPerson?.id === person.id}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </ScrollArea>
+
+          {/* Detail Panel */}
+          {selectedPerson && (
+            <PersonDetailPanel
+              person={selectedPerson}
+              onClose={() => setSelectedPerson(null)}
+              onUpdate={(updates) => {
+                updatePerson(selectedPerson.id, updates);
+                setSelectedPerson(prev => ({ ...prev, ...updates }));
+              }}
+              onDelete={() => deletePerson(selectedPerson.id)}
+              onAddTodo={(text, isChecklist) => addTodoItem(selectedPerson.id, text, isChecklist)}
+              onToggleTodo={(itemId, isChecklist) => toggleTodoItem(selectedPerson.id, itemId, isChecklist)}
+              onDeleteTodo={(itemId, isChecklist) => deleteTodoItem(selectedPerson.id, itemId, isChecklist)}
+            />
+          )}
+        </div>
+      )}
 
       {/* Add Person Dialog */}
       <AddPersonDialog
