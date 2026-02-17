@@ -82,8 +82,8 @@ const Canvas = () => {
   // Map workzone color to Tailwind class
   const getIconColorClass = () => {
     switch (activeWorkzone?.color) {
-      case 'orange':
-        return 'text-orange-400';
+      case 'purple':
+        return 'text-purple-400';
       case 'yellow':
         return 'text-yellow-400';
       case 'green':
@@ -95,8 +95,8 @@ const Canvas = () => {
 
   const getIconBackgroundClass = () => {
     switch (activeWorkzone?.color) {
-      case 'orange':
-        return 'bg-gradient-to-br from-orange-500/20 to-red-500/20 border-orange-500/30';
+      case 'purple':
+        return 'bg-gradient-to-br from-purple-500/20 to-violet-500/20 border-purple-500/30';
       case 'yellow':
         return 'bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border-yellow-500/30';
       case 'green':
