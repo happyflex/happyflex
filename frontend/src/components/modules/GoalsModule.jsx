@@ -205,13 +205,13 @@ const GoalsModule = () => {
     toast({ title: 'Plán přesunut do koše' });
   };
 
-  // Filter goals
-  const filteredGoals = goals.filter(goal => 
+  // Filter goals - handle null state
+  const filteredGoals = goals ? goals.filter(goal => 
     filterStatus === 'all' || goal.status === filterStatus
-  );
+  ) : [];
 
   // If Plan Canvas is open
-  if (showPlanCanvas) {
+  if (showPlanCanvas && goals) {
     const goal = goals.find(g => g.id === showPlanCanvas.goalId);
     const plan = goal?.plans.find(p => p.id === showPlanCanvas.planId);
     
@@ -222,6 +222,18 @@ const GoalsModule = () => {
         onClose={() => setShowPlanCanvas(null)}
         onUpdate={(updates) => updatePlan(showPlanCanvas.goalId, showPlanCanvas.planId, updates)}
       />
+    );
+  }
+
+  // Loading state
+  if (goals === null) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-center text-gray-500">
+          <Target className="h-8 w-8 mx-auto mb-2 animate-pulse" />
+          <p className="text-sm">Načítání cílů...</p>
+        </div>
+      </div>
     );
   }
 

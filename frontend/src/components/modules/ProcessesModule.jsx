@@ -179,7 +179,7 @@ const ProcessesModule = () => {
   };
 
   // If Process Canvas is open
-  if (showProcessCanvas) {
+  if (showProcessCanvas && processes) {
     const process = processes.find(p => p.id === showProcessCanvas);
     const { goal, plan } = getProcessContext(process);
     
@@ -191,6 +191,18 @@ const ProcessesModule = () => {
         onClose={() => setShowProcessCanvas(null)}
         onUpdate={(updates) => updateProcess(showProcessCanvas, updates)}
       />
+    );
+  }
+
+  // Loading state
+  if (processes === null) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-center text-gray-500">
+          <GitBranch className="h-8 w-8 mx-auto mb-2 animate-pulse" />
+          <p className="text-sm">Načítání procesů...</p>
+        </div>
+      </div>
     );
   }
 
