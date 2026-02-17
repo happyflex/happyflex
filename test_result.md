@@ -338,9 +338,9 @@ frontend:
 
   - task: "People Module Persistence and Deletion"
     implemented: true
-    working: true
+    working: false
     file: "/app/frontend/src/components/modules/PeopleModule.jsx"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
