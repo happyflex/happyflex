@@ -12,6 +12,7 @@ import { toast } from '../../hooks/use-toast';
 
 const ProjectsModule = () => {
   const { projects, setProjects } = useWorkspace();
+  const { addToTrash, TRASH_TYPES } = useTrash();
   const [selectedProject, setSelectedProject] = useState(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newProject, setNewProject] = useState({
@@ -20,6 +21,24 @@ const ProjectsModule = () => {
     deadline: '',
     team: ''
   });
+
+  // Delete project function
+  const deleteProject = (projectId) => {
+    const project = projects.find(p => p.id === projectId);
+    if (project) {
+      addToTrash({
+        type: TRASH_TYPES.PROJECT,
+        name: project.name,
+        originalData: project,
+        sourceModule: 'Projekty'
+      });
+      setProjects(prev => prev.filter(p => p.id !== projectId));
+      toast({
+        title: "Projekt přesunut do koše",
+        description: project.name
+      });
+    }
+  };
 
   // If project is selected, show Project World
   if (selectedProject) {
