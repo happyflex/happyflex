@@ -37,7 +37,7 @@ export const WorkspaceProvider = ({ children }) => {
   );
   // contacts state kept for backward compatibility with ContactsModule,
   // but NOT auto-saved. PeopleModule manages contacts independently.
-  const [contacts] = useState([]);
+  const [contacts, setContacts] = useState([]);
   const [projects, setProjects] = useState(() => 
     initializeState(STORAGE_KEYS.PROJECTS, mockProjects)
   );
