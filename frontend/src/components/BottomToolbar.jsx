@@ -201,23 +201,33 @@ const BottomToolbar = () => {
       clickCountRef.current = 0;
       
       if (clicks === 1) {
-        // Single click - check if trash is already open
+        // Single click - check if trash is already open in workspace
         const existingTrash = modules.find(m => m.type === 'trash');
         if (existingTrash) {
           // Bring existing trash to front and highlight it
           bringToFront(existingTrash.id);
-          // Flash effect via CSS class will be handled by the module
           toast({
             title: 'Koš je již otevřen',
             description: 'Přesunut do popředí',
           });
         } else {
-          // Open new trash module
-          addModule('trash');
-          toast({
-            title: 'Koš otevřen',
-            description: 'Správa smazaných položek',
-          });
+          // Check if trash exists in CANVAS (deferredModules)
+          const canvasTrash = deferredModules.find(m => m.type === 'trash');
+          if (canvasTrash) {
+            // Restore trash from CANVAS to workspace
+            restoreModule(canvasTrash.id);
+            toast({
+              title: 'Koš obnoven',
+              description: 'Přesunut z CANVAS do workspace',
+            });
+          } else {
+            // Open new trash module (no existing instance anywhere)
+            addModule('trash');
+            toast({
+              title: 'Koš otevřen',
+              description: 'Správa smazaných položek',
+            });
+          }
         }
       } else if (clicks === 2) {
         // Double click - soft clear with confirmation
