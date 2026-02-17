@@ -35,9 +35,7 @@ export const WorkspaceProvider = ({ children }) => {
   const [tasks, setTasks] = useState(() => 
     initializeState(STORAGE_KEYS.TASKS, mockTasks)
   );
-  const [contacts, setContacts] = useState(() => 
-    initializeState(STORAGE_KEYS.CONTACTS, mockContacts)
-  );
+  // Note: contacts are managed by PeopleModule independently
   const [projects, setProjects] = useState(() => 
     initializeState(STORAGE_KEYS.PROJECTS, mockProjects)
   );
