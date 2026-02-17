@@ -174,7 +174,7 @@ const GoalsModule = () => {
   };
 
   const updatePlan = (goalId, planId, updates) => {
-    setGoals(prev => prev.map(g => 
+    setGoals(prev => prev ? prev.map(g => 
       g.id === goalId 
         ? {
             ...g,
