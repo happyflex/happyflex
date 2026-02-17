@@ -134,17 +134,17 @@ const GoalsModule = () => {
       createdAt: new Date().toISOString(),
       plans: []
     };
-    setGoals(prev => [...prev, newGoal]);
+    setGoals(prev => prev ? [...prev, newGoal] : [newGoal]);
     toast({ title: 'Cíl vytvořen', description: `${goalData.name}` });
   };
 
   const updateGoal = (id, updates) => {
-    setGoals(prev => prev.map(g => g.id === id ? { ...g, ...updates } : g));
+    setGoals(prev => prev ? prev.map(g => g.id === id ? { ...g, ...updates } : g) : prev);
   };
 
   const deleteGoal = (id) => {
     // Find goal and add to trash before deleting
-    const goal = goals.find(g => g.id === id);
+    const goal = goals?.find(g => g.id === id);
     if (goal) {
       addToTrash({
         type: TRASH_TYPES.GOAL,
@@ -154,7 +154,7 @@ const GoalsModule = () => {
         metadata: { status: goal.status, plansCount: goal.plans?.length || 0 }
       });
     }
-    setGoals(prev => prev.filter(g => g.id !== id));
+    setGoals(prev => prev ? prev.filter(g => g.id !== id) : prev);
     if (selectedGoal?.id === id) setSelectedGoal(null);
     toast({ title: 'Cíl přesunut do koše' });
   };
@@ -165,11 +165,11 @@ const GoalsModule = () => {
       ...planData,
       areas: []
     };
-    setGoals(prev => prev.map(g => 
+    setGoals(prev => prev ? prev.map(g => 
       g.id === goalId 
         ? { ...g, plans: [...g.plans, newPlan] }
         : g
-    ));
+    ) : prev);
     toast({ title: 'Plán přidán', description: planData.name });
   };
 
