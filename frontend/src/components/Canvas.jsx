@@ -138,6 +138,12 @@ const Canvas = () => {
   const handleTrashContentRestore = (data) => {
     const { itemType, originalData, trashId, sourceModule } = data;
     
+    // Validate originalData before restore
+    if (!originalData || typeof originalData !== 'object' || !originalData.id) {
+      console.warn('Invalid originalData for restore:', originalData);
+      return false;
+    }
+    
     // Get the module type for opening
     const moduleTypeMap = {
       'note': 'notes',
@@ -154,22 +160,22 @@ const Canvas = () => {
     switch (itemType) {
       case 'note':
         // Use React state setter for immediate UI update
-        if (!notes.some(n => n.id === originalData.id)) {
-          setNotes(prev => [...prev, originalData]);
+        if (!notes.some(n => n && n.id === originalData.id)) {
+          setNotes(prev => [...(prev || []).filter(n => n && n.id), originalData]);
         }
         break;
         
       case 'task':
         // Use React state setter for immediate UI update
-        if (!tasks.some(t => t.id === originalData.id)) {
-          setTasks(prev => [...prev, originalData]);
+        if (!tasks.some(t => t && t.id === originalData.id)) {
+          setTasks(prev => [...(prev || []).filter(t => t && t.id), originalData]);
         }
         break;
         
       case 'project':
         // Use React state setter for immediate UI update
-        if (!projects.some(p => p.id === originalData.id)) {
-          setProjects(prev => [...prev, originalData]);
+        if (!projects.some(p => p && p.id === originalData.id)) {
+          setProjects(prev => [...(prev || []).filter(p => p && p.id), originalData]);
         }
         break;
         
@@ -177,9 +183,10 @@ const Canvas = () => {
         // People use independent state in PeopleModule - update localStorage and dispatch event
         const peopleData = localStorage.getItem('steward_contacts');
         const people = peopleData ? JSON.parse(peopleData) : [];
-        if (!people.some(p => p.id === originalData.id)) {
-          people.push(originalData);
-          localStorage.setItem('steward_contacts', JSON.stringify(people));
+        const validPeople = people.filter(p => p && p.id);
+        if (!validPeople.some(p => p.id === originalData.id)) {
+          validPeople.push(originalData);
+          localStorage.setItem('steward_contacts', JSON.stringify(validPeople));
           window.dispatchEvent(new CustomEvent('steward-people-updated'));
         }
         break;
@@ -188,9 +195,10 @@ const Canvas = () => {
         // Goals use independent state in GoalsModule - update localStorage and dispatch event
         const goalsData = localStorage.getItem('steward_goals');
         const goals = goalsData ? JSON.parse(goalsData) : [];
-        if (!goals.some(g => g.id === originalData.id)) {
-          goals.push(originalData);
-          localStorage.setItem('steward_goals', JSON.stringify(goals));
+        const validGoals = goals.filter(g => g && g.id);
+        if (!validGoals.some(g => g.id === originalData.id)) {
+          validGoals.push(originalData);
+          localStorage.setItem('steward_goals', JSON.stringify(validGoals));
           window.dispatchEvent(new CustomEvent('steward-goals-updated'));
         }
         break;
@@ -199,9 +207,10 @@ const Canvas = () => {
         // Processes use independent state in ProcessesModule - update localStorage and dispatch event
         const processesData = localStorage.getItem('steward_processes');
         const processes = processesData ? JSON.parse(processesData) : [];
-        if (!processes.some(p => p.id === originalData.id)) {
-          processes.push(originalData);
-          localStorage.setItem('steward_processes', JSON.stringify(processes));
+        const validProcesses = processes.filter(p => p && p.id);
+        if (!validProcesses.some(p => p.id === originalData.id)) {
+          validProcesses.push(originalData);
+          localStorage.setItem('steward_processes', JSON.stringify(validProcesses));
           window.dispatchEvent(new CustomEvent('steward-processes-updated'));
         }
         break;
