@@ -86,6 +86,7 @@ const BottomToolbar = () => {
     removeModule,
     deferredModules,
     removeFromCanvas,
+    restoreModule,
     focusedModuleId,
     clearFocusMode,
     bringToFront
