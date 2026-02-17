@@ -50,13 +50,16 @@ const PeopleModule = () => {
   useEffect(() => {
     const loadPeople = () => {
       const saved = localStorage.getItem('steward_people');
+      console.log('[PeopleModule] Loading from localStorage:', saved);
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
+          console.log('[PeopleModule] Parsed data:', parsed);
           // If parsed is an array (even empty), use it
           if (Array.isArray(parsed)) {
             setPeople(parsed);
           } else {
+            console.log('[PeopleModule] Not an array, initializing defaults');
             initializeDefaultPeople();
           }
         } catch (e) {
@@ -64,6 +67,7 @@ const PeopleModule = () => {
           initializeDefaultPeople();
         }
       } else {
+        console.log('[PeopleModule] No saved data, initializing defaults');
         initializeDefaultPeople();
       }
     };
@@ -94,6 +98,7 @@ const PeopleModule = () => {
   // Auto-save - only when people is not null (initialized)
   useEffect(() => {
     if (people !== null) {
+      console.log('[PeopleModule] Auto-saving:', people);
       localStorage.setItem('steward_people', JSON.stringify(people));
     }
   }, [people]);
