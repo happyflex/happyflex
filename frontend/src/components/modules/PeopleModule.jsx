@@ -49,7 +49,7 @@ const PeopleModule = () => {
   // Load from localStorage
   useEffect(() => {
     const loadPeople = () => {
-      const saved = localStorage.getItem('steward_people');
+      const saved = localStorage.getItem('steward_contacts');
       console.log('[PeopleModule] Loading from localStorage:', saved);
       if (saved) {
         try {
@@ -76,7 +76,7 @@ const PeopleModule = () => {
 
     // Listen for external updates (e.g., from trash restore)
     const handleExternalUpdate = () => {
-      const saved = localStorage.getItem('steward_people');
+      const saved = localStorage.getItem('steward_contacts');
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
@@ -99,7 +99,7 @@ const PeopleModule = () => {
   useEffect(() => {
     if (people !== null) {
       console.log('[PeopleModule] Auto-saving:', people);
-      localStorage.setItem('steward_people', JSON.stringify(people));
+      localStorage.setItem('steward_contacts', JSON.stringify(people));
     }
   }, [people]);
 
