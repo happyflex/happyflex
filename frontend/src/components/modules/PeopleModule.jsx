@@ -37,7 +37,7 @@ const AVAILABILITY = {
 
 const PeopleModule = () => {
   const { addPersonToTrash } = useTrash();
-  const [people, setPeople] = useState([]);
+  const [people, setPeople] = useState(null); // null = not loaded yet
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('all');
@@ -66,7 +66,14 @@ const PeopleModule = () => {
 
     // Listen for external updates (e.g., from trash restore)
     const handleExternalUpdate = () => {
-      loadPeople();
+      const saved = localStorage.getItem('steward_people');
+      if (saved) {
+        try {
+          setPeople(JSON.parse(saved));
+        } catch (e) {
+          console.error('Error reloading people:', e);
+        }
+      }
     };
     window.addEventListener('steward-people-updated', handleExternalUpdate);
     
@@ -75,9 +82,9 @@ const PeopleModule = () => {
     };
   }, []);
 
-  // Auto-save
+  // Auto-save - only when people is not null (initialized)
   useEffect(() => {
-    if (people.length > 0) {
+    if (people !== null) {
       localStorage.setItem('steward_people', JSON.stringify(people));
     }
   }, [people]);
