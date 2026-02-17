@@ -106,6 +106,20 @@ const Canvas = () => {
     }
   };
 
+  // Get background pulse color based on active workzone
+  const getPulseColorClass = () => {
+    switch (activeWorkzone?.color) {
+      case 'purple':
+        return 'bg-purple-500/10';
+      case 'yellow':
+        return 'bg-yellow-500/10';
+      case 'green':
+        return 'bg-green-500/10';
+      default:
+        return 'bg-cyan-500/10';
+    }
+  };
+
   const handleDrop = (e) => {
     e.preventDefault();
     try {
