@@ -235,10 +235,23 @@ const ProcessesModule = () => {
         <ScrollArea className={`${selectedProcess ? 'w-1/2' : 'w-full'} transition-all`}>
           <div className="space-y-3 pr-2">
             {processes.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
-                <GitBranch className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                <p className="text-sm">Zatím nemáte žádné procesy</p>
-                <p className="text-xs mt-1">Vytvořte proces, který popíše tok práce</p>
+              <div className="flex items-center justify-center h-full min-h-[200px]">
+                <div className="text-center px-6">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-500/10 flex items-center justify-center">
+                    <GitBranch className="h-8 w-8 text-purple-400/50" />
+                  </div>
+                  <h4 className="text-lg font-medium text-white mb-2">Žádné procesy</h4>
+                  <p className="text-sm text-gray-400 mb-4">
+                    Vytvořte proces, který popíše tok práce od plánu k výsledku.
+                  </p>
+                  <Button
+                    onClick={() => setShowAddProcessDialog(true)}
+                    className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border border-cyan-500/40"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Vytvořit první proces
+                  </Button>
+                </div>
               </div>
             ) : (
               processes.map(process => {
