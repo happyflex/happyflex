@@ -18,11 +18,17 @@ const initializeState = (key, defaultValue) => {
   return stored !== null ? stored : defaultValue;
 };
 
+// Normalize array data - remove null/undefined/invalid items
+const normalizeArrayData = (data, requiredField = 'id') => {
+  if (!Array.isArray(data)) return [];
+  return data.filter(item => item && typeof item === 'object' && item[requiredField]);
+};
+
 export const WorkspaceProvider = ({ children }) => {
   // Track if initial load is complete
   const isInitialized = useRef(false);
   
-  // Initialize state from localStorage
+  // Initialize state from localStorage with normalization
   const [modules, setModules] = useState(() => 
     initializeState(STORAGE_KEYS.WORKSPACE_MODULES, [])
   );
@@ -30,16 +36,16 @@ export const WorkspaceProvider = ({ children }) => {
     initializeState(STORAGE_KEYS.DEFERRED_MODULES, [])
   );
   const [notes, setNotes] = useState(() => 
-    initializeState(STORAGE_KEYS.NOTES, mockNotes)
+    normalizeArrayData(initializeState(STORAGE_KEYS.NOTES, mockNotes))
   );
   const [tasks, setTasks] = useState(() => 
-    initializeState(STORAGE_KEYS.TASKS, mockTasks)
+    normalizeArrayData(initializeState(STORAGE_KEYS.TASKS, mockTasks))
   );
   // contacts state kept for backward compatibility with ContactsModule,
   // but NOT auto-saved. PeopleModule manages contacts independently.
   const [contacts, setContacts] = useState([]);
   const [projects, setProjects] = useState(() => 
-    initializeState(STORAGE_KEYS.PROJECTS, mockProjects)
+    normalizeArrayData(initializeState(STORAGE_KEYS.PROJECTS, mockProjects))
   );
   const [timerActive, setTimerActive] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(() => {
