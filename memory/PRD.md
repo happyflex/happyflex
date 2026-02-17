@@ -227,4 +227,4 @@ project_world_{projectId}: {
 - Testing agent iteration_4: Pending (Kalendář - manuálně otestován)
 
 ## Preview URL
-https://trash-restore-debug.preview.emergentagent.com
+https://steward-code.preview.emergentagent.com
