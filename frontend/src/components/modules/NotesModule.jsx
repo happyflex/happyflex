@@ -89,39 +89,60 @@ const NotesModule = () => {
         </div>
       )}
 
-      <ScrollArea className="flex-1">
-        <div className="space-y-3 pr-2">
-          {notes.map((note) => (
-            <div
-              key={note.id}
-              className="group p-4 rounded-lg border transition-all duration-200 hover:shadow-lg hover:shadow-cyan-500/10 cursor-pointer"
-              style={{
-                backgroundColor: `${note.color}15`,
-                borderColor: `${note.color}50`
-              }}
-            >
-              <div className="flex items-start justify-between mb-2">
-                <h4 className="font-semibold text-white">{note.title}</h4>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-300"
-                  onClick={() => handleDeleteNote(note)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-              <p className="text-sm text-gray-300 whitespace-pre-wrap">{note.content}</p>
-              <div className="mt-2 flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: note.color }}></div>
-                <span className="text-xs text-gray-500">
-                  {new Date(note.createdAt).toLocaleDateString('cs-CZ')}
-                </span>
-              </div>
+      {notes.length === 0 && !isAdding ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center px-6">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-yellow-500/10 flex items-center justify-center">
+              <Edit3 className="h-8 w-8 text-yellow-400/50" />
             </div>
-          ))}
+            <h4 className="text-lg font-medium text-white mb-2">Žádné poznámky</h4>
+            <p className="text-sm text-gray-400 mb-4">
+              Začněte přidáním první poznámky pro vaše myšlenky a nápady.
+            </p>
+            <Button
+              onClick={() => setIsAdding(true)}
+              className="bg-cyan-500 hover:bg-cyan-400 text-white"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Vytvořit první poznámku
+            </Button>
+          </div>
         </div>
-      </ScrollArea>
+      ) : (
+        <ScrollArea className="flex-1">
+          <div className="space-y-3 pr-2">
+            {notes.map((note) => (
+              <div
+                key={note.id}
+                className="group p-4 rounded-lg border transition-all duration-200 hover:shadow-lg hover:shadow-cyan-500/10 cursor-pointer"
+                style={{
+                  backgroundColor: `${note.color}15`,
+                  borderColor: `${note.color}50`
+                }}
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="font-semibold text-white">{note.title}</h4>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-300"
+                    onClick={() => handleDeleteNote(note)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+                <p className="text-sm text-gray-300 whitespace-pre-wrap">{note.content}</p>
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: note.color }}></div>
+                  <span className="text-xs text-gray-500">
+                    {new Date(note.createdAt).toLocaleDateString('cs-CZ')}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      )}
     </div>
   );
 };
