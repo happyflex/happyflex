@@ -417,6 +417,7 @@ const PeopleModule = () => {
                                 onDragStart={handleDragStart}
                                 onDragEnd={handleDragEnd}
                                 isDragging={draggedPerson?.id === person.id}
+                                onDelete={() => deletePerson(person.id)}
                               />
                             ))}
                           </div>
