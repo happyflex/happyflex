@@ -623,10 +623,10 @@ const TrashModule = () => {
                   {/* Item Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-white truncate font-medium">
+                      <span className="text-sm text-white font-medium whitespace-nowrap">
                         {item.name}
                       </span>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded ${iconBgColor} ${iconColor}`}>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded shrink-0 ${iconBgColor} ${iconColor}`}>
                         {labelText}
                       </span>
                     </div>
