@@ -90,7 +90,7 @@ export const WorkspaceProvider = ({ children }) => {
   // Auto-save tasks
   useEffect(() => {
     if (isInitialized.current) {
-      saveToStorage(STORAGE_KEYS.TASKS, tasks);
+      saveToStorage(STORAGE_KEYS.TASKS, normalizeArrayData(tasks));
     }
   }, [tasks]);
 
@@ -99,7 +99,7 @@ export const WorkspaceProvider = ({ children }) => {
   // Auto-save projects
   useEffect(() => {
     if (isInitialized.current) {
-      saveToStorage(STORAGE_KEYS.PROJECTS, projects);
+      saveToStorage(STORAGE_KEYS.PROJECTS, normalizeArrayData(projects));
     }
   }, [projects]);
 
