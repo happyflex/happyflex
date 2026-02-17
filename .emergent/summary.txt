@@ -1,178 +1,150 @@
 <analysis>**original_problem_statement:**
-The user initiated a series of feature requests and bug fixes for a React-based S.T.E.W.A.R.D. dashboard application.
+The user's initial request was to fix several issues related to the Koš (Trash) functionality in the S.T.E.W.A.R.D. Workspace Dashboard application.
 
-Initial requests focused on UI/UX improvements, which were completed:
-1.  **Rename trash module:** Renamed to Koš, added a trash icon, and updated all relevant UI parts.
-2.  **Unify module headers:** Created a consistent header (icon + title) inside every module window by implementing a reusable  component.
-3.  **Add New Project button:** Implemented a button and a creation dialog for the Projects module.
+PRODUCT REQUIREMENTS:
+1.  **Fix Drag-and-Drop Restore:** When an item (window or content) is dragged from the Trash to the Workspace, it must be removed from the Trash.
+2.  **Fix Truncated Titles:** Item titles in the Trash list should display fully and not be truncated.
+3.  **Fix Content Restore:** When deleted content (like a note or task) is restored from the Trash, it must immediately reappear in its parent module without requiring a page refresh.
+4.  **Fix Hover Effect Clipping:** In the Lidi (People) module, the contact cards get visually clipped when they scale up on hover. This needs to be fixed so the entire card is visible.
+5.  **Unify Delete Actions:** Add a consistent trash can icon for direct deletion on item cards in the Cíle (Goals), Procesy (Processes), Lidi (People), and Projekty (Projects) modules, and replace the existing 'X' icon in the Úkoly (Tasks) module. The behavior should match the existing delete icon in the Poznámky (Notes) module.
+6.  **Fix Projects Module Crash:** The Projekty (Projects) module crashes with a Cannot read properties of null error after a project is restored from the Trash.
+7.  **Fix Project Restore UI Update:** After a project is restored from the Trash, it is correctly removed from the Trash, but it does not reappear in the Projects module UI. This needs to be fixed.
 
-Subsequent requests involved a major overhaul of the Koš (Trash) module, with some tasks completed and others leading to bugs:
-4.  **Trash UX Improvements:** Made the trash module a single-instance window, prevented it from saving itself, and improved the confirmation dialog placement.
-5.  **Separate Trash Views:** Implemented two distinct modes within the Trash module: Smazaný obsah (Deleted Content) and Zavřená okna (Closed Windows), selectable via toggle buttons.
-6.  **Advanced Trash Features:** Added mode-aware emptying, module icons for closed windows, and UI tweaks. However, this introduced new bugs and some parts of the request were not completed.
-
-The current set of tasks is to fix critical bugs related to deleting/restoring items and to complete the previously requested features for the Trash module.
-
-**User's preferred language**: čeština (Czech)
+**User's preferred language**: Czech. The next agent MUST respond in Czech.
 
 **what currently exists?**
-The project is a complex frontend-only React application (S.T.E.W.A.R.D. dashboard) that uses a window manager, multiple functional modules (Projects, Notes, People, etc.), and a sophisticated Trash module. State is managed via React Context and persisted in the browser's . The Trash module has been recently updated to feature two separate views for deleted content and closed windows, but this has introduced several bugs.
+A full-stack application, S.T.E.W.A.R.D. Workspace, with a React frontend. The application features a modular dashboard where users can manage notes, tasks, projects, people, etc. State is managed via a combination of React Context (, ),  for persistence, and custom DOM events for cross-component updates. The backend was not involved in this session.
 
 **Last working item**:
-*   **Last item agent was working:** Addressing a new set of critical bugs reported by the user concerning the core functionality of deleting and restoring items from various modules, and finishing an incomplete feature request for the Trash module filters.
-*   **Status:** IN PROGRESS
-*   **Agent Testing Done:** N
-*   **Which testing method agent to use?** Frontend testing agent
-*   **User Testing Done:** Y
+-   **Last item agent was working**: The agent was fixing a bug where restoring a project from the Trash via drag-and-drop removes it from the Trash UI but fails to add it back to the Projects module's UI. The agent attempted a fix by modifying  to remove a potentially stale state check before calling the context's  function.
+-   **Status**: IN PROGRESS
+-   **Agent Testing Done**: Y (The last test confirmed the fix was not successful).
+-   **Which testing method agent to use?**: Frontend testing agent
+-   **User Testing Done**: Y (The user reported the issue).
 
 **All Pending/In progress Issue list**:
-*   **Issue 1 (P0): Deleting Process items does not work.** The item is neither removed from its module nor added to the trash.
-*   **Issue 2 (P0): Deleting Goal items is incomplete.** The item is sent to the trash but remains visible in the Goals module.
-*   **Issue 3 (P0): Restoring People items from trash creates duplicates.** The restored person appears multiple times in the People module.
-*   **Issue 4 (P1): HARD CLEAR confirmation logic is broken.** After double-clicking the Vyprázdnit koš button, the final confirmation click is misinterpreted as a new action, preventing the HARD CLEAR from executing.
-*   **Issue 5 (P2): The red badge on the Zavřená okna button has an inconsistent color.** The user wants it to be a darker, semi-transparent red, identical to the Smazaný obsah badge.
+-   Issue 1: Project does not reappear in the module UI after being restored from Trash (P0)
+-   Issue 2: Module close button ('x') is not functional (P1)
 
-**Issues Detail:**
-*   **Issue 1: Deleting Process items does not work.**
-    *   **Attempted fixes:** None. The agent's investigation revealed that the  function in  never calls the  function from the .
-    *   **Next debug checklist:**
-        1.  Edit .
-        2.  Locate the  handler.
-        3.  Implement the call to , passing the process data.
-        4.  Update the module's state to filter out the deleted process.
-        5.  Ensure a  is defined and used.
-    *   **Why fix this issue and what will be achieved with the fix?** This is a critical bug blocking a core user action. Fixing it will restore the ability to manage processes correctly.
-    *   **Status:** NOT STARTED
-    *   **Is recurring issue?** N
-    *   **Should Test frontend/backend/both after fix?** Frontend
+**Issues Detail**:
+-   **Issue 1: Project does not reappear in the module UI after being restored from Trash**
+    -   **Attempted fixes**: The agent modified  to remove a client-side check () before calling the  update function from . The hypothesis was that a stale closure was preventing the update. However, the final test showed the project was still not appearing in the module after being restored.
+    -   **Next debug checklist**:
+        1.  ****: Verify the  logic again. Compare it with the working  logic to spot any differences.
+        2.  ****: In the  and  functions, add logging to inspect the  and  objects for the 'project' type to ensure they are correct and complete.
+        3.  ****: Check if the component is correctly re-rendering when the  array in  is updated. A  or similar optimization might be causing stale UI.
+    -   **Why fix this issue and what will be achieved with the fix?**: This is a critical bug that breaks the project restore functionality, a core feature of the application.
+    -   **Status**: IN PROGRESS
+    -   **Is recurring issue?**: Y
+    -   **Should Test frontend/backend/both after fix?**: Frontend
+    -   **Blocked on other issue**: None
 
-*   **Issue 2: Deleting Goal items is incomplete.**
-    *   **Attempted fixes:** None. The agent noted that  adds the item to trash but fails to update its own UI.
-    *   **Next debug checklist:**
-        1.  Edit .
-        2.  In the  function, after calling , ensure the local state is updated by filtering out the deleted goal before calling .
-    *   **Why fix this issue and what will be achieved with the fix?** The UI becomes inconsistent and confusing for the user. The fix will ensure that deleted items are correctly removed from view.
-    *   **Status:** NOT STARTED
-    *   **Is recurring issue?** N
-    *   **Should Test frontend/backend/both after fix?** Frontend
+-   **Issue 2: Module close button ('x') is not functional**
+    -   **Attempted fixes**: At the beginning of the session, the agent tried to test closing the Notes module and found that clicking the 'x' icon did nothing. The agent tried different selectors and coordinate-based clicks, which all failed. The task was then abandoned when the user provided a new set of priorities.
+    -   **Next debug checklist**:
+        1.  Identify the component that renders the module frame/header.
+        2.  Inspect the  handler attached to the close button ( icon).
+        3.  Verify that the handler function is correctly being called and that it dispatches the action to remove the module from the active canvas state (likely managed in ).
+    -   **Why fix this issue and what will be achieved with the fix?**: This is a fundamental UI bug. Users cannot close modules, rendering the workspace unusable.
+    -   **Status**: NOT STARTED
+    -   **Is recurring issue?**: N
+    -   **Should Test frontend/backend/both after fix?**: Frontend
+    -   **Blocked on other issue**: None
 
-*   **Issue 3: Restoring People items from trash causes duplicates.**
-    *   **Attempted fixes:** A previous fix in  modified the restore logic to write directly to . This is the likely cause of the bug due to state synchronization issues.
-    *   **Next debug checklist:**
-        1.  Refactor state management in . It should ideally use the central  instead of its own  logic.
-        2.  Modify the  function in . Instead of direct  manipulation, it should call a centralized function (e.g., in ) that handles adding a person and ensures no duplicates are created.
-    *   **Why fix this issue and what will be achieved with the fix?** Restoring data is a critical function, and this bug leads to data corruption and a poor user experience.
-    *   **Status:** IN PROGRESS
-    *   **Is recurring issue?** Y
-    *   **Should Test frontend/backend/both after fix?** Frontend
-
-*   **Issue 4: HARD CLEAR confirmation logic is broken.**
-    *   **Attempted fixes:** The agent modified  in  to manage a confirmation state, but the logic is still flawed.
-    *   **Next debug checklist:**
-        1.  Edit .
-        2.  In , add a condition at the very beginning: if the component is in a confirmation state ( is true), the next click should *only* execute the hard clear action and reset the state, bypassing all other single/double-click logic.
-    *   **Why fix this issue and what will be achieved with the fix?** This is a key feature for managing the trash, and it is currently unusable.
-    *   **Status:** IN PROGRESS
-    *   **Is recurring issue?** Y
-    *   **Should Test frontend/backend/both after fix?** Frontend
-
-*   **Issue 5: The red badge on the Zavřená okna button has an inconsistent color.**
-    *   **Attempted fixes:** The agent changed the Tailwind CSS class to . The user reported it's still not correct.
-    *   **Next debug checklist:**
-        1.  Edit .
-        2.  Carefully inspect the classes applied to the badge on the Smazaný obsah button and ensure the exact same classes (including color, opacity, text color, etc.) are applied to the Zavřená okna button's badge.
-    *   **Why fix this issue and what will be achieved with the fix?** A minor UI polish to satisfy the user's request for visual consistency.
-    *   **Status:** IN PROGRESS
-    *   **Is recurring issue?** Y
-    *   **Should Test frontend/backend/both after fix?** Frontend
+**In progress Task List**:
+There are no in-progress tasks, only bug fixes.
 
 **Upcoming and Future Tasks**
-*   **Upcoming Tasks:**
-    *   **(P1) Add Missing Filters to Trash Module:** The user requested additional filters for the Smazaný obsah view.
-        *   **Missing Filters:** Grafy (Statistics), Časy (Timer), Cíle (Goals), Procesy (Processes), Hudba (Music).
-        *   **Where to resume:** In , add the new filter configurations to the  constant. Also, ensure corresponding types exist in  in  and are used by the respective modules upon deletion.
+There are no upcoming or future tasks.
 
 **Completed work in this session**
-- **UI: Renamed 'trash' to 'Koš' and added icon** across , , and .
-- **UI: Unified all module headers** by creating and implementing a reusable  component across seven modules.
-- **Feature: Added Add New Project functionality** to .
-- **UX: Overhauled the Trash (Koš) module** by removing the icon badge, implementing single-instance logic, and improving the HARD CLEAR dialog placement ().
-- **Feature: Created separate views for Deleted Content and Closed Windows** in , with a toggle and distinct UI for each mode.
+-   **Trash/Restore Logic**:
+    -   Items are now correctly removed from the Trash UI after being restored ().
+    -   Restored content (Notes, Tasks) now appears immediately in modules without a page refresh ().
+-   **UI/UX Enhancements**:
+    -   Item titles in the Trash module are no longer truncated ().
+    -   The visual clipping issue on contact card hover in the People module has been resolved by adding more padding ().
+    -   Added a consistent trash can icon for quick deletion to item cards in the Goals, Processes, People, Projects, and Tasks modules for a unified UX.
+-   **Crash Fix**:
+    -   Fixed a runtime crash in the Projects module caused by  items in the project list after a restore operation by adding defensive filtering (, ).
 
 **Earlier issues found/mentioned but not fixed**
-All known issues are captured in the **All Pending/In progress Issue list**.
+-   **Issue 1: Module close button not working**
+    -   **Debug checklist**:
+        1.  The agent was unable to close the Poznámky (Notes) module via the UI at the start of the session.
+        2.  The task was abandoned in favor of other user requests.
+        3.  The  handler on the close icon in the module wrapper component needs to be investigated.
+    -   **Why to solve this issue and what will be achieved with this?**: It is a critical UI bug preventing users from managing their workspace.
+    -   **Should Test frontend/backend/both after fix**: Frontend
+    -   **Is recurring issue?**: N
 
 **Known issue recurrence from previous fork**
-- None identified in the provided history.
+-   None.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **Frontend:** React, Vite, Tailwind CSS
-- **State Management:** React Context API (, ). Some modules also use  with direct  access, which is a source of bugs.
-- **Persistence:** All application state is stored in the browser's .
+-   **Frontend**: React, Tailwind CSS, Radix UI.
+-   **State Management**: A hybrid system using React Context for shared state,  for data persistence, and custom DOM events for triggering updates in decoupled components.
+-   **Drag and Drop**: Native HTML Drag and Drop API for restoring items from the Trash.
 
 **key DB schema**
-N/A. Data is stored in  with keys like , , , etc.
+-   N/A (Data is persisted in browser ).
 
 **changes in tech stack**
-None.
+-   None.
 
 **All files of reference**
-- : Central file for most of the current bugs and features.
-- : Contains core trash logic and type definitions.
-- , , : These modules contain the broken deletion/restoration logic.
-- : The file containing the main trash icon and the broken HARD CLEAR logic.
+-   : Manages drag-and-drop logic and content restoration.
+-   : Manages state for notes, tasks, projects, etc.
+-   : Manages the state of the trash can.
+-   : UI for the Projects module; was fixed to prevent crashes and is related to the current pending issue.
+-   : UI for the People module; CSS was fixed.
+-   , , : UIs for various modules; modified to add delete icons.
+-   , , : Card components modified to include delete icons.
 
 **Areas that need refactoring**:
-- **State Management in :** The module's reliance on its own  logic instead of the central  is the likely cause of the duplication bug. It should be refactored to use the shared context.
-- **Inconsistent Deletion Logic:** Deletion behavior is implemented differently across , , and others. This should be standardized, potentially by creating a unified delete handler in .
+-   The state management system is fragile. The mix of React Context, direct  manipulation, and custom DOM events for updates has led to several bugs related to UI not updating correctly. Centralizing all state mutations through context provider functions would make the application more robust and easier to debug.
 
 **key api endpoints**
-N/A. This is a frontend-only application.
+-   N/A.
 
 **Critical Info for New Agent**
-- **Priority:** The P0 bugs related to deleting and restoring content are critical and must be fixed first.
-- **State Management:** Be extremely cautious when dealing with  and React state. The bugs in  are a direct result of inconsistencies between these two. Prefer using the centralized  where possible.
-- **User Focus:** The user has a keen eye for UI/UX details. Ensure that fixes for visual issues (like the badge color) and interaction behaviors (like the HARD CLEAR clicks) are precise.
+-   You must respond to the user in **Czech**.
+-   The current state management is complex. Debugging UI update issues often requires checking , , and whether the relevant component is listening for the correct custom DOM event.
+-   The main pending issue is that restored projects don't appear in the . The logic for restoring other content types (like notes) is working correctly and can be used as a reference.
+-   An earlier, unresolved bug prevents users from closing modules using the 'x' button. This is a high-priority issue to address after the current one.
 
 **documents and test reports created in this job**
-None.
+-   None.
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User:** Reports critical bugs: 1)  restore creates duplicates, 2)  delete doesn't work, 3)  delete is incomplete. Also reiterates the request for missing filters in the Trash. (PENDING)
-2.  **User:** Reports that  confirmation is broken and the badge color on the  button is wrong. (PENDING)
-3.  **Agent:** Summarizes the implementation of advanced Trash features.
-4.  **User:** Requests advanced Trash features: mode-aware clearing, double-click for hard clear, module icons for closed windows, and more filters. (PARTIALLY IMPLEMENTED, BUGS INTRODUCED)
-5.  **Agent:** Summarizes the implementation of separate Trash views.
-6.  **User:** Requests separating deleted content and closed windows into two views. (COMPLETED)
-7.  **Agent:** Summarizes the successful implementation of adding a New Project button.
-8.  **User:** Reports that the Projects module is missing a button to add new projects. (COMPLETED)
-9.  **Agent:** Summarizes the successful implementation of unified module headers.
-10. **User:** Requests unifying all module headers with an icon and title. (COMPLETED)
+1.  **User:** When I restore a project from the trash, it disappears from the trash but doesn't reappear in the Projects module. (PENDING)
+2.  **User:** Deleting and restoring a project causes a crash in the Projects module. (FIXED)
+3.  **User:** Add delete icons to all module item cards for consistency. (DONE)
+4.  **User:** The hover effect on People cards is still slightly clipped on the sides. Please fix it. (FIXED)
+5.  **User:** Fix the visual clipping of contact cards on hover in the People module. (DONE)
+6.  **User:** Restoring content from the trash requires a page refresh to see the change. (FIXED)
+7.  **User:** A list of three bugs with the Trash functionality (item not removed, title truncated, content restore fails). (DONE)
+8.  **User:** Test opening and closing the Notes module. (STARTED, revealed a bug, then abandoned).
+9.  **User:** Can you see my steward-6.0 GitHub branch? (ANSWERED)
+10. **(Initial):** Asks about the steward-6.0 GitHub branch. (ANSWERED)
 
 **Project Health Check:**
-*   **Broken:**
-    *   Content deletion in Processes and Goals modules.
-    *   Content restoration in the People module.
-    *   The HARD CLEAR confirmation functionality in the Trash module.
-
-*   **Mocked:**
-    *   None.
+-   **Broken**: The restore project functionality is broken. The UI for closing modules is also broken.
 
 **3rd Party Integrations**
-*   None.
+-   None.
 
 **Testing status**
-- **Testing agent used after significant changes:** No
-- **Troubleshoot agent used after agent stuck in loop:** No
-- **Test files created:** None
-- **Known regressions:**
-    - Restoring items from the People module, which previously worked, now creates duplicates.
+-   **Testing agent used after significant changes**: YES
+-   **Troubleshoot agent used after agent stuck in loop**: NO
+-   **Test files created**: None.
+-   **Known regressions**: The project restore functionality is not working as intended.
 
 **Credentials to test flow:**
-N/A
+-   N/A
 
 **What agent forgot to execute**
-- The agent did not add all the filters requested by the user for the Trash module's Smazaný obsah view. The request included filters for Grafy, Časy, Cíle, Procesy, and Hudba, but these were not implemented.</analysis>
+-   The agent did not fix the bug with the module close button ('x' icon) not working. This issue was identified early in the session but was deprioritized based on subsequent user requests and never revisited.</analysis>
