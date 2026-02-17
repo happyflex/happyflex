@@ -256,6 +256,18 @@ const BottomToolbar = () => {
     });
   };
 
+  // Reset workzone to default (no active workzone)
+  const handleWorkzoneReset = () => {
+    if (activeWorkzone) {
+      setActiveWorkzone(null);
+      setWorkzonePopoverOpen(false);
+      toast({
+        title: 'Workzone vypnuta',
+        description: 'Vráceno do výchozího režimu',
+      });
+    }
+  };
+
   return (
     <>
       <div className="fixed bottom-0 left-0 right-0 h-20 bg-[#0a1628]/95 backdrop-blur-lg border-t border-cyan-500/20 flex items-center justify-between px-8 z-50">
