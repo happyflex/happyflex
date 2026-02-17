@@ -150,29 +150,31 @@ const Canvas = () => {
     
     const moduleType = moduleTypeMap[itemType] || sourceModule;
     
-    // Restore data based on type
+    // Restore data based on type - use React state setters for immediate update
     switch (itemType) {
       case 'note':
-        const notesData = localStorage.getItem('steward_notes');
-        const notes = notesData ? JSON.parse(notesData) : [];
+        // Use React state setter for immediate UI update
         if (!notes.some(n => n.id === originalData.id)) {
-          notes.push(originalData);
-          localStorage.setItem('steward_notes', JSON.stringify(notes));
-          window.dispatchEvent(new CustomEvent('steward-notes-updated'));
+          setNotes(prev => [...prev, originalData]);
         }
         break;
         
       case 'task':
-        const tasksData = localStorage.getItem('steward_tasks');
-        const tasks = tasksData ? JSON.parse(tasksData) : [];
+        // Use React state setter for immediate UI update
         if (!tasks.some(t => t.id === originalData.id)) {
-          tasks.push(originalData);
-          localStorage.setItem('steward_tasks', JSON.stringify(tasks));
-          window.dispatchEvent(new CustomEvent('steward-tasks-updated'));
+          setTasks(prev => [...prev, originalData]);
+        }
+        break;
+        
+      case 'project':
+        // Use React state setter for immediate UI update
+        if (!projects.some(p => p.id === originalData.id)) {
+          setProjects(prev => [...prev, originalData]);
         }
         break;
         
       case 'person':
+        // People use independent state in PeopleModule - update localStorage and dispatch event
         const peopleData = localStorage.getItem('steward_contacts');
         const people = peopleData ? JSON.parse(peopleData) : [];
         if (!people.some(p => p.id === originalData.id)) {
@@ -182,17 +184,8 @@ const Canvas = () => {
         }
         break;
         
-      case 'project':
-        const projectsData = localStorage.getItem('steward_projects');
-        const projects = projectsData ? JSON.parse(projectsData) : [];
-        if (!projects.some(p => p.id === originalData.id)) {
-          projects.push(originalData);
-          localStorage.setItem('steward_projects', JSON.stringify(projects));
-          window.dispatchEvent(new CustomEvent('steward-projects-updated'));
-        }
-        break;
-        
       case 'goal':
+        // Goals use independent state in GoalsModule - update localStorage and dispatch event
         const goalsData = localStorage.getItem('steward_goals');
         const goals = goalsData ? JSON.parse(goalsData) : [];
         if (!goals.some(g => g.id === originalData.id)) {
@@ -203,6 +196,7 @@ const Canvas = () => {
         break;
         
       case 'process':
+        // Processes use independent state in ProcessesModule - update localStorage and dispatch event
         const processesData = localStorage.getItem('steward_processes');
         const processes = processesData ? JSON.parse(processesData) : [];
         if (!processes.some(p => p.id === originalData.id)) {
