@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Check, X, ListChecks } from 'lucide-react';
+import { Plus, Check, ListChecks, Trash2 } from 'lucide-react';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import { useTrash } from '../../context/TrashContext';
 import { Button } from '../ui/button';
