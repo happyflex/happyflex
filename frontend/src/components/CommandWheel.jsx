@@ -191,7 +191,7 @@ const CommandWheel = () => {
   // Get workzone color
   const workzoneColor = useMemo(() => {
     switch (activeWorkzone?.color) {
-      case 'orange': return { ring: 'rgba(251, 146, 60, 0.6)', glow: 'rgba(251, 146, 60, 0.3)', accent: '#fb923c' };
+      case 'purple': return { ring: 'rgba(168, 85, 247, 0.6)', glow: 'rgba(168, 85, 247, 0.3)', accent: '#a855f7' };
       case 'yellow': return { ring: 'rgba(250, 204, 21, 0.6)', glow: 'rgba(250, 204, 21, 0.3)', accent: '#facc15' };
       case 'green': return { ring: 'rgba(74, 222, 128, 0.6)', glow: 'rgba(74, 222, 128, 0.3)', accent: '#4ade80' };
       default: return { ring: 'rgba(34, 211, 238, 0.6)', glow: 'rgba(34, 211, 238, 0.3)', accent: '#22d3ee' };
