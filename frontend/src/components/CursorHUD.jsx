@@ -63,7 +63,7 @@ const CursorHUD = () => {
   const getColor = () => {
     if (workzonePulse) {
       switch (workzonePulse) {
-        case 'orange': return '#f97316';
+        case 'purple': return '#a855f7';
         case 'yellow': return '#eab308';
         case 'green': return '#22c55e';
         default: return '#06b6d4';
