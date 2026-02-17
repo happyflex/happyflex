@@ -465,9 +465,9 @@ const PersonCard = ({ person, isSelected, onSelect, onDragStart, onDragEnd, isDr
       onDragEnd={onDragEnd}
       onClick={onSelect}
       className={`
-        group p-3 bg-[#0a1628] rounded-lg border transition-all cursor-pointer
-        ${isSelected ? 'border-cyan-400 ring-1 ring-cyan-400/50' : 'border-cyan-500/20 hover:border-cyan-500/40'}
-        ${isDragging ? 'opacity-50 scale-95' : 'hover:scale-[1.02]'}
+        group p-3 bg-[#0a1628] rounded-lg border transition-all cursor-pointer relative
+        ${isSelected ? 'border-cyan-400 ring-1 ring-cyan-400/50 z-10' : 'border-cyan-500/20 hover:border-cyan-500/40'}
+        ${isDragging ? 'opacity-50 scale-95' : 'hover:scale-[1.02] hover:z-20 hover:shadow-lg hover:shadow-cyan-500/20'}
       `}
       data-testid={`person-card-${person.id}`}
     >
