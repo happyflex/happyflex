@@ -267,6 +267,18 @@ const PeopleModule = () => {
     setDraggedPerson(null);
   };
 
+  // Loading state
+  if (people === null) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-center text-gray-500">
+          <Users className="h-8 w-8 mx-auto mb-2 animate-pulse" />
+          <p className="text-sm">Načítání kontaktů...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-full flex flex-col bg-transparent">
       {/* Header */}
