@@ -336,6 +336,21 @@ frontend:
         - agent: "testing"
         - comment: "✅ PROCESS MODULE LOADING TEST PASSED. Successfully tested: 1) Module Opening: Procesy module opens correctly from bottom toolbar 2) Module Loading: No stuck loading states, module loads promptly 3) UI Elements: 'Nový proces' button visible and accessible 4) Module Display: Shows existing default process 'Onboarding nového zákazníka' with proper context (goal and plan information) 5) Module Navigation: All UI elements render correctly. The process module loading functionality is working properly. Note: Process creation still requires both goal and plan selection, but the module itself loads and displays correctly."
 
+  - task: "People Module Persistence and Deletion"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/modules/PeopleModule.jsx"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Applied same localStorage persistence fix as Goals/Processes modules. Changed useState from [] to null, auto-save only when not null, added loading state, null-safe CRUD functions."
+        - working: false
+        - agent: "testing"
+        - comment: "❌ CRITICAL PERSISTENCE FAILURE. Comprehensive testing revealed: 1) DELETION WORKS: Successfully deleted all 4 contacts using trash button in detail panel 2) PERSISTENCE FAILS: After deleting all contacts and reopening module, ALL 4 CONTACTS REAPPEARED! 3) ROOT CAUSE: localStorage persistence mechanism is faulty - deleted contacts are being restored on module reload 4) IMPACT: Delete functionality is unusable - contacts always return after module close/reopen 5) The main agent's fix did NOT resolve the persistence issue for PeopleModule, unlike Goals/Processes where it worked. This is a critical data persistence bug requiring immediate attention."
+
 metadata:
   created_by: "testing_agent"
   version: "1.0"
