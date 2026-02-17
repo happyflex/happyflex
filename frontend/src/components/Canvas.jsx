@@ -77,7 +77,8 @@ const SnapPreview = ({ zone }) => {
 };
 
 const Canvas = () => {
-  const { modules, activeWorkzone, restoreModule, snapPreview } = useWorkspace();
+  const { modules, activeWorkzone, restoreModule, snapPreview, addModule, bringToFront } = useWorkspace();
+  const [isDragOverWorkspace, setIsDragOverWorkspace] = useState(false);
 
   // Map workzone color to Tailwind class
   const getIconColorClass = () => {
@@ -120,12 +121,154 @@ const Canvas = () => {
     }
   };
 
+  // Handle restoring content items from trash
+  const handleTrashContentRestore = (data) => {
+    const { itemType, originalData, trashId, sourceModule } = data;
+    
+    // Get the module type for opening
+    const moduleTypeMap = {
+      'note': 'notes',
+      'task': 'tasks',
+      'person': 'people',
+      'project': 'projects',
+      'goal': 'goals',
+      'process': 'processes'
+    };
+    
+    const moduleType = moduleTypeMap[itemType] || sourceModule;
+    
+    // Restore data based on type
+    switch (itemType) {
+      case 'note':
+        const notesData = localStorage.getItem('steward_notes');
+        const notes = notesData ? JSON.parse(notesData) : [];
+        if (!notes.some(n => n.id === originalData.id)) {
+          notes.push(originalData);
+          localStorage.setItem('steward_notes', JSON.stringify(notes));
+          window.dispatchEvent(new CustomEvent('steward-notes-updated'));
+        }
+        break;
+        
+      case 'task':
+        const tasksData = localStorage.getItem('steward_tasks');
+        const tasks = tasksData ? JSON.parse(tasksData) : [];
+        if (!tasks.some(t => t.id === originalData.id)) {
+          tasks.push(originalData);
+          localStorage.setItem('steward_tasks', JSON.stringify(tasks));
+          window.dispatchEvent(new CustomEvent('steward-tasks-updated'));
+        }
+        break;
+        
+      case 'person':
+        const peopleData = localStorage.getItem('steward_contacts');
+        const people = peopleData ? JSON.parse(peopleData) : [];
+        if (!people.some(p => p.id === originalData.id)) {
+          people.push(originalData);
+          localStorage.setItem('steward_contacts', JSON.stringify(people));
+          window.dispatchEvent(new CustomEvent('steward-people-updated'));
+        }
+        break;
+        
+      case 'project':
+        const projectsData = localStorage.getItem('steward_projects');
+        const projects = projectsData ? JSON.parse(projectsData) : [];
+        if (!projects.some(p => p.id === originalData.id)) {
+          projects.push(originalData);
+          localStorage.setItem('steward_projects', JSON.stringify(projects));
+          window.dispatchEvent(new CustomEvent('steward-projects-updated'));
+        }
+        break;
+        
+      case 'goal':
+        const goalsData = localStorage.getItem('steward_goals');
+        const goals = goalsData ? JSON.parse(goalsData) : [];
+        if (!goals.some(g => g.id === originalData.id)) {
+          goals.push(originalData);
+          localStorage.setItem('steward_goals', JSON.stringify(goals));
+          window.dispatchEvent(new CustomEvent('steward-goals-updated'));
+        }
+        break;
+        
+      case 'process':
+        const processesData = localStorage.getItem('steward_processes');
+        const processes = processesData ? JSON.parse(processesData) : [];
+        if (!processes.some(p => p.id === originalData.id)) {
+          processes.push(originalData);
+          localStorage.setItem('steward_processes', JSON.stringify(processes));
+          window.dispatchEvent(new CustomEvent('steward-processes-updated'));
+        }
+        break;
+    }
+    
+    // Open or focus the module
+    if (moduleType) {
+      const existingModule = modules.find(m => m.type === moduleType);
+      if (existingModule) {
+        bringToFront(existingModule.id);
+      } else {
+        addModule(moduleType);
+      }
+      
+      // Dispatch event to select the restored item in the module
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('steward-select-item', {
+          detail: { moduleType, itemId: originalData.id }
+        }));
+      }, 300);
+    }
+    
+    return true;
+  };
+
   const handleDrop = (e) => {
     e.preventDefault();
+    setIsDragOverWorkspace(false);
+    
     try {
       const data = JSON.parse(e.dataTransfer.getData('application/json'));
+      
+      // Handle canvas-to-workspace restore
       if (data.type === 'canvas-to-workspace' && data.moduleId) {
         restoreModule(data.moduleId);
+        return;
+      }
+      
+      // Handle trash-to-workspace restore
+      if (data.type === 'trash-restore') {
+        const { itemType, trashId, itemName, originalData, metadata } = data;
+        
+        // Remove from trash
+        window.dispatchEvent(new CustomEvent('steward-trash-remove', {
+          detail: { trashId }
+        }));
+        
+        if (itemType === 'window') {
+          // Restore window
+          const position = {
+            x: e.clientX - 200,
+            y: e.clientY - 100
+          };
+          addModule(originalData.type, position);
+          
+          // Show toast
+          window.dispatchEvent(new CustomEvent('steward-toast', {
+            detail: {
+              title: 'Okno obnoveno',
+              description: `${itemName} bylo obnoveno z koše`
+            }
+          }));
+        } else {
+          // Restore content item
+          handleTrashContentRestore(data);
+          
+          // Show toast
+          window.dispatchEvent(new CustomEvent('steward-toast', {
+            detail: {
+              title: 'Obnoveno z koše',
+              description: `${itemName} byl/a obnoven/a`
+            }
+          }));
+        }
       }
     } catch (error) {
       console.error('Drop error:', error);
@@ -135,6 +278,22 @@ const Canvas = () => {
   const handleDragOver = (e) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
+    
+    // Check if it's a trash restore drag
+    try {
+      const types = e.dataTransfer.types;
+      if (types.includes('application/json')) {
+        setIsDragOverWorkspace(true);
+      }
+    } catch (error) {
+      // Ignore errors during dragover
+    }
+  };
+
+  const handleDragLeave = (e) => {
+    // Only set to false if we're actually leaving the workspace
+    if (e.currentTarget.contains(e.relatedTarget)) return;
+    setIsDragOverWorkspace(false);
   };
 
   return (
