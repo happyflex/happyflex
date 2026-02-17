@@ -305,6 +305,7 @@ const GoalsModule = () => {
                   goal={goal}
                   isSelected={selectedGoal?.id === goal.id}
                   onSelect={() => setSelectedGoal(goal)}
+                  onDelete={() => deleteGoal(goal.id)}
                 />
               ))
             )}
