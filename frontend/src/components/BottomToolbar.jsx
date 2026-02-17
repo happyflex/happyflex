@@ -30,13 +30,13 @@ const WORKZONES = [
   { 
     id: 'problem-solving', 
     name: 'Problem Solving Zóna', 
-    color: 'orange',
-    bgColor: 'bg-orange-500/20',
-    borderColor: 'border-orange-500/40',
-    textColor: 'text-orange-400',
-    glowColor: 'shadow-orange-500/50',
-    dotColor: 'bg-orange-500',
-    shadowColor: 'shadow-lg shadow-orange-500/30'
+    color: 'purple',
+    bgColor: 'bg-purple-500/20',
+    borderColor: 'border-purple-500/40',
+    textColor: 'text-purple-400',
+    glowColor: 'shadow-purple-500/50',
+    dotColor: 'bg-purple-500',
+    shadowColor: 'shadow-lg shadow-purple-500/30'
   },
   { 
     id: 'planning', 
