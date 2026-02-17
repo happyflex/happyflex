@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Save, FolderOpen, Trash2, X } from 'lucide-react';
+import { 
+  Save, FolderOpen, Trash2, X,
+  FileText, ListChecks, Users, Layout, Target, GitBranch, 
+  BarChart3, Timer, Calendar, Music, Trash2 as TrashIcon
+} from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -7,6 +11,31 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { ScrollArea } from './ui/scroll-area';
 import { toast } from '../hooks/use-toast';
 import { STORAGE_KEYS } from '../utils/persistence';
+
+// Module type to icon and label mapping
+const MODULE_INFO = {
+  notes: { icon: FileText, label: 'Poznámky', color: 'text-yellow-400', bgColor: 'bg-yellow-500/10', borderColor: 'border-yellow-500/30' },
+  tasks: { icon: ListChecks, label: 'Úkoly', color: 'text-pink-400', bgColor: 'bg-pink-500/10', borderColor: 'border-pink-500/30' },
+  people: { icon: Users, label: 'Lidi', color: 'text-cyan-400', bgColor: 'bg-cyan-500/10', borderColor: 'border-cyan-500/30' },
+  projects: { icon: Layout, label: 'Projekty', color: 'text-blue-400', bgColor: 'bg-blue-500/10', borderColor: 'border-blue-500/30' },
+  goals: { icon: Target, label: 'Cíle', color: 'text-emerald-400', bgColor: 'bg-emerald-500/10', borderColor: 'border-emerald-500/30' },
+  processes: { icon: GitBranch, label: 'Procesy', color: 'text-purple-400', bgColor: 'bg-purple-500/10', borderColor: 'border-purple-500/30' },
+  chart: { icon: BarChart3, label: 'Statistiky', color: 'text-cyan-400', bgColor: 'bg-cyan-500/10', borderColor: 'border-cyan-500/30' },
+  timer: { icon: Timer, label: 'Časovač', color: 'text-orange-400', bgColor: 'bg-orange-500/10', borderColor: 'border-orange-500/30' },
+  calendar: { icon: Calendar, label: 'Kalendář', color: 'text-blue-400', bgColor: 'bg-blue-500/10', borderColor: 'border-blue-500/30' },
+  music: { icon: Music, label: 'Hudba', color: 'text-green-400', bgColor: 'bg-green-500/10', borderColor: 'border-green-500/30' },
+  trash: { icon: TrashIcon, label: 'Koš', color: 'text-red-400', bgColor: 'bg-red-500/10', borderColor: 'border-red-500/30' }
+};
+
+// Get unique module types from layout
+const getUniqueModules = (layout) => {
+  const moduleTypes = layout.modules.map(m => m.type);
+  const uniqueTypes = [...new Set(moduleTypes)];
+  return uniqueTypes.map(type => ({
+    type,
+    info: MODULE_INFO[type] || { icon: FileText, label: type, color: 'text-gray-400', bgColor: 'bg-gray-500/10', borderColor: 'border-gray-500/30' }
+  }));
+};
 
 const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
   const workspace = useWorkspace();
