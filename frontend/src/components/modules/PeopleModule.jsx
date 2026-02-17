@@ -382,47 +382,49 @@ const PeopleModule = () => {
         /* People List & Detail */
         <div className="flex-1 flex gap-3 overflow-hidden">
           {/* List */}
-          <div className={`${selectedPerson ? 'w-1/2' : 'w-full'} transition-all overflow-hidden`}>
+          <div className={`${selectedPerson ? 'w-1/2' : 'w-full'} transition-all`}>
             <ScrollArea className="h-full">
-              <div className="space-y-3 p-2 overflow-visible">
-                {Object.entries(groupedPeople).map(([type, typePersons]) => {
-                  if (typePersons.length === 0) return null;
-                  const typeInfo = PERSON_TYPES[type];
-                  const TypeIcon = typeInfo.icon;
-                  const isExpanded = expandedCategories.includes(type);
+              <div className="py-1 pr-3 pl-1">
+                <div className="space-y-3">
+                  {Object.entries(groupedPeople).map(([type, typePersons]) => {
+                    if (typePersons.length === 0) return null;
+                    const typeInfo = PERSON_TYPES[type];
+                    const TypeIcon = typeInfo.icon;
+                    const isExpanded = expandedCategories.includes(type);
 
-                  return (
-                    <div key={type} className="space-y-2 overflow-visible">
-                      {/* Category Header */}
-                      <button
-                        onClick={() => toggleCategory(type)}
-                        className="w-full flex items-center gap-2 px-2 py-1 text-sm font-medium text-gray-400 hover:text-white transition-colors"
-                      >
-                        {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                        <TypeIcon className="h-4 w-4" />
-                        <span>{typeInfo.label}</span>
-                        <Badge variant="outline" className="ml-auto text-xs">{typePersons.length}</Badge>
-                      </button>
+                    return (
+                      <div key={type} className="space-y-2">
+                        {/* Category Header */}
+                        <button
+                          onClick={() => toggleCategory(type)}
+                          className="w-full flex items-center gap-2 px-2 py-1 text-sm font-medium text-gray-400 hover:text-white transition-colors"
+                        >
+                          {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                          <TypeIcon className="h-4 w-4" />
+                          <span>{typeInfo.label}</span>
+                          <Badge variant="outline" className="ml-auto text-xs">{typePersons.length}</Badge>
+                        </button>
 
-                      {/* People in category */}
-                      {isExpanded && (
-                        <div className="space-y-3 pl-2 overflow-visible">
-                          {typePersons.map(person => (
-                            <PersonCard
-                              key={person.id}
-                              person={person}
-                              isSelected={selectedPerson?.id === person.id}
-                              onSelect={() => setSelectedPerson(person)}
-                              onDragStart={handleDragStart}
-                              onDragEnd={handleDragEnd}
-                              isDragging={draggedPerson?.id === person.id}
-                            />
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                        {/* People in category */}
+                        {isExpanded && (
+                          <div className="space-y-3 pl-2">
+                            {typePersons.map(person => (
+                              <PersonCard
+                                key={person.id}
+                                person={person}
+                                isSelected={selectedPerson?.id === person.id}
+                                onSelect={() => setSelectedPerson(person)}
+                                onDragStart={handleDragStart}
+                                onDragEnd={handleDragEnd}
+                                isDragging={draggedPerson?.id === person.id}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </ScrollArea>
           </div>
