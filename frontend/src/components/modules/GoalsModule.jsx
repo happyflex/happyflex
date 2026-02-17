@@ -29,14 +29,11 @@ const GOAL_STATUS = {
 
 const GoalsModule = () => {
   const { addToTrash, TRASH_TYPES } = useTrash();
-  const [goals, setGoals] = useState([]);
+  const [goals, setGoals] = useState(null); // null = not loaded yet
   const [selectedGoal, setSelectedGoal] = useState(null);
   const [showAddGoalDialog, setShowAddGoalDialog] = useState(false);
   const [showPlanCanvas, setShowPlanCanvas] = useState(null); // { goalId, planId }
   const [filterStatus, setFilterStatus] = useState('all');
-  
-  // Track if initial load is complete to prevent overwriting localStorage
-  const isInitialized = useRef(false);
 
   // Load from localStorage
   useEffect(() => {
@@ -53,8 +50,6 @@ const GoalsModule = () => {
       } else {
         initializeDefaultGoals();
       }
-      // Mark as initialized AFTER data is loaded
-      isInitialized.current = true;
     };
 
     loadGoals();
@@ -77,9 +72,9 @@ const GoalsModule = () => {
     };
   }, []);
 
-  // Auto-save - only after initialization to prevent overwriting data
+  // Auto-save - only when goals is not null (initialized)
   useEffect(() => {
-    if (isInitialized.current) {
+    if (goals !== null) {
       localStorage.setItem('steward_goals', JSON.stringify(goals));
     }
   }, [goals]);
