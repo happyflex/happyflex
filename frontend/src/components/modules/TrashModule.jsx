@@ -191,13 +191,13 @@ const TrashModule = () => {
       case TRASH_TYPES.PERSON:
         // Restore person - use localStorage directly since PeopleModule uses its own state
         try {
-          const storedPeople = localStorage.getItem('steward_people');
+          const storedPeople = localStorage.getItem('steward_contacts');
           const people = storedPeople ? JSON.parse(storedPeople) : [];
           // Check for duplicates by ID before adding
           const personExists = people.some(p => p.id === item.originalData.id);
           if (!personExists) {
             people.push(item.originalData);
-            localStorage.setItem('steward_people', JSON.stringify(people));
+            localStorage.setItem('steward_contacts', JSON.stringify(people));
             // Dispatch custom event to notify PeopleModule to reload
             window.dispatchEvent(new CustomEvent('steward-people-updated'));
             toast({
