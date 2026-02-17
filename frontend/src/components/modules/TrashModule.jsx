@@ -17,7 +17,8 @@ import {
   Music,
   BarChart3,
   Timer,
-  Calendar
+  Calendar,
+  GripVertical
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useTrash, TRASH_TYPES } from '../../context/TrashContext';
