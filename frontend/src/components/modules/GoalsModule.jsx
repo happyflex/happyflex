@@ -280,10 +280,23 @@ const GoalsModule = () => {
         <ScrollArea className={`${selectedGoal ? 'w-1/2' : 'w-full'} transition-all`}>
           <div className="space-y-3 pr-2">
             {filteredGoals.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
-                <Target className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                <p className="text-sm">Zatím nemáte žádné strategické cíle</p>
-                <p className="text-xs mt-1">Začněte tím, že definujete, kam chcete dojít</p>
+              <div className="flex items-center justify-center h-full min-h-[200px]">
+                <div className="text-center px-6">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                    <Target className="h-8 w-8 text-emerald-400/50" />
+                  </div>
+                  <h4 className="text-lg font-medium text-white mb-2">Žádné cíle</h4>
+                  <p className="text-sm text-gray-400 mb-4">
+                    Začněte definováním strategických cílů pro váš projekt.
+                  </p>
+                  <Button
+                    onClick={() => setShowAddGoalDialog(true)}
+                    className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border border-cyan-500/40"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Vytvořit první cíl
+                  </Button>
+                </div>
               </div>
             ) : (
               filteredGoals.map(goal => (
