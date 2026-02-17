@@ -264,6 +264,7 @@ const ProcessesModule = () => {
                     plan={plan}
                     isSelected={selectedProcess?.id === process.id}
                     onSelect={() => setSelectedProcess(process)}
+                    onDelete={() => deleteProcess(process.id)}
                   />
                 );
               })
