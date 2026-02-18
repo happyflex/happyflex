@@ -626,6 +626,46 @@ export const WorkspaceProvider = ({ children }) => {
     }
   }, [deferredModules, reorderCanvasModule]);
 
+  // ===== LAYOUT RESTORE FUNCTIONS =====
+  // Direct module restore for layout loading (bypasses addModule logic)
+  const restoreModules = useCallback((moduleSnapshots) => {
+    // Create modules with complete state directly
+    const restoredModules = moduleSnapshots.map((snapshot, index) => ({
+      id: `module-${Date.now()}-${index}`,
+      type: snapshot.type,
+      position: snapshot.position || { x: 30, y: 30 },
+      size: snapshot.size || { width: 400, height: 300 },
+      zIndex: snapshot.zIndex || index,
+      pinMode: snapshot.pinMode || 'none',
+      isMaximized: snapshot.isMaximized || false,
+      snappedState: snapshot.snappedState || null
+    }));
+    
+    setModules(restoredModules);
+    return restoredModules;
+  }, []);
+
+  // Direct CANVAS restore
+  const restoreDeferredModules = useCallback((canvasSnapshots) => {
+    const restoredDeferred = canvasSnapshots.map((snapshot, index) => ({
+      id: `deferred-${Date.now()}-${index}`,
+      type: snapshot.type,
+      position: snapshot.position || { x: 100, y: 100 },
+      size: snapshot.size || { width: 400, height: 300 },
+      zIndex: snapshot.zIndex || 0
+    }));
+    
+    setDeferredModules(restoredDeferred);
+    return restoredDeferred;
+  }, []);
+
+  // Clear all modules (for layout restore)
+  const clearAllModules = useCallback(() => {
+    setModules([]);
+    setDeferredModules([]);
+    setFocusedModuleId(null);
+  }, []);
+
   const addNote = useCallback((note) => {
     setNotes(prev => [...prev, { ...note, id: Date.now().toString(), createdAt: new Date().toISOString() }]);
   }, []);
