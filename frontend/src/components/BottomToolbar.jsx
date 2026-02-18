@@ -16,7 +16,8 @@ import {
   Calendar,
   Music,
   Grid3x3,
-  Trash2
+  Trash2,
+  Folder
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { useWorkspace } from '../context/WorkspaceContext';
