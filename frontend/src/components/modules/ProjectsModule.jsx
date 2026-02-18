@@ -67,7 +67,11 @@ const ProjectsModule = () => {
     return (
       <ProjectWorldModule 
         project={selectedProject} 
-        onBack={() => setSelectedProject(null)} 
+        onBack={() => {
+          setSelectedProject(null);
+          setInitialNodePath(null);
+        }}
+        initialPath={initialNodePath}
       />
     );
   }
