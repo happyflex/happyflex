@@ -604,6 +604,11 @@ const DraggableModule = ({ module }) => {
         dragStateRef.current = null;
       }
       
+      // Clear resize start ref
+      if (resizeStartRef.current) {
+        resizeStartRef.current = null;
+      }
+      
       // Apply snap if preview is active
       if (isDragging && currentSnapZone) {
         // Save state before snap-maximize
