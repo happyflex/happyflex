@@ -104,6 +104,7 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
             const parsed = JSON.parse(goalsState);
             viewState.openGoalId = parsed.openGoalId || null;
             viewState.activeSection = parsed.activeSection || 'overview';
+            viewState.planCanvasState = parsed.planCanvasState || null;
           }
           break;
         }
@@ -111,8 +112,8 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
           const projectsState = localStorage.getItem('steward_projects_view_state');
           if (projectsState) {
             const parsed = JSON.parse(projectsState);
-            viewState.openProjectPath = parsed.openProjectPath || [];
-            viewState.selectedElementId = parsed.selectedElementId || null;
+            viewState.openProjectId = parsed.openProjectId || null;
+            viewState.nodePath = parsed.nodePath || null;
           }
           break;
         }
@@ -122,6 +123,35 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
             const parsed = JSON.parse(calendarState);
             viewState.view = parsed.view || 'month';
             viewState.selectedDate = parsed.selectedDate || null;
+          }
+          break;
+        }
+        case 'files': {
+          const filesState = localStorage.getItem('steward_files_view_state');
+          if (filesState) {
+            const parsed = JSON.parse(filesState);
+            viewState.activeSource = parsed.activeSource || 'local';
+            viewState.selectedFolderId = parsed.selectedFolderId || null;
+            viewState.expandedFolders = parsed.expandedFolders || [];
+          }
+          break;
+        }
+        case 'processes': {
+          const processesState = localStorage.getItem('steward_processes_view_state');
+          if (processesState) {
+            const parsed = JSON.parse(processesState);
+            viewState.selectedProcessId = parsed.selectedProcessId || null;
+            viewState.showProcessCanvasId = parsed.showProcessCanvasId || null;
+          }
+          break;
+        }
+        case 'people': {
+          const peopleState = localStorage.getItem('steward_people_view_state');
+          if (peopleState) {
+            const parsed = JSON.parse(peopleState);
+            viewState.selectedPersonId = parsed.selectedPersonId || null;
+            viewState.filterType = parsed.filterType || 'all';
+            viewState.searchQuery = parsed.searchQuery || '';
           }
           break;
         }
@@ -140,15 +170,6 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
             const parsed = JSON.parse(tasksState);
             viewState.filter = parsed.filter || 'all';
             viewState.selectedTaskId = parsed.selectedTaskId || null;
-          }
-          break;
-        }
-        case 'people': {
-          const peopleState = localStorage.getItem('steward_people_view_state');
-          if (peopleState) {
-            const parsed = JSON.parse(peopleState);
-            viewState.selectedContactId = parsed.selectedContactId || null;
-            viewState.filter = parsed.filter || 'all';
           }
           break;
         }
