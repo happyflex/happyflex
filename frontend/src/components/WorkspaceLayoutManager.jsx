@@ -80,108 +80,11 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
     }
   };
 
-  // Collect view state for each module based on its type
-  const collectModuleViewState = (moduleType, moduleId) => {
-    const viewState = {};
-    
-    // Try to get view state from localStorage based on module type
-    // Each module stores its own view preferences
-    try {
-      switch (moduleType) {
-        case 'music': {
-          const musicState = localStorage.getItem('steward_music_view_state');
-          if (musicState) {
-            const parsed = JSON.parse(musicState);
-            viewState.activeTab = parsed.activeTab || 'player';
-            viewState.miniMode = parsed.miniMode || false;
-            viewState.selectedPlaylist = parsed.selectedPlaylist || null;
-          }
-          break;
-        }
-        case 'goals': {
-          const goalsState = localStorage.getItem('steward_goals_view_state');
-          if (goalsState) {
-            const parsed = JSON.parse(goalsState);
-            viewState.openGoalId = parsed.openGoalId || null;
-            viewState.activeSection = parsed.activeSection || 'overview';
-            viewState.planCanvasState = parsed.planCanvasState || null;
-          }
-          break;
-        }
-        case 'projects': {
-          const projectsState = localStorage.getItem('steward_projects_view_state');
-          if (projectsState) {
-            const parsed = JSON.parse(projectsState);
-            viewState.openProjectId = parsed.openProjectId || null;
-            viewState.nodePath = parsed.nodePath || null;
-          }
-          break;
-        }
-        case 'calendar': {
-          const calendarState = localStorage.getItem('steward_calendar_view_state');
-          if (calendarState) {
-            const parsed = JSON.parse(calendarState);
-            viewState.view = parsed.view || 'month';
-            viewState.selectedDate = parsed.selectedDate || null;
-          }
-          break;
-        }
-        case 'files': {
-          const filesState = localStorage.getItem('steward_files_view_state');
-          if (filesState) {
-            const parsed = JSON.parse(filesState);
-            viewState.activeSource = parsed.activeSource || 'local';
-            viewState.selectedFolderId = parsed.selectedFolderId || null;
-            viewState.expandedFolders = parsed.expandedFolders || [];
-          }
-          break;
-        }
-        case 'processes': {
-          const processesState = localStorage.getItem('steward_processes_view_state');
-          if (processesState) {
-            const parsed = JSON.parse(processesState);
-            viewState.selectedProcessId = parsed.selectedProcessId || null;
-            viewState.showProcessCanvasId = parsed.showProcessCanvasId || null;
-          }
-          break;
-        }
-        case 'people': {
-          const peopleState = localStorage.getItem('steward_people_view_state');
-          if (peopleState) {
-            const parsed = JSON.parse(peopleState);
-            viewState.selectedPersonId = parsed.selectedPersonId || null;
-            viewState.filterType = parsed.filterType || 'all';
-            viewState.searchQuery = parsed.searchQuery || '';
-          }
-          break;
-        }
-        case 'notes': {
-          const notesState = localStorage.getItem('steward_notes_view_state');
-          if (notesState) {
-            const parsed = JSON.parse(notesState);
-            viewState.selectedNoteId = parsed.selectedNoteId || null;
-            viewState.filter = parsed.filter || 'all';
-          }
-          break;
-        }
-        case 'tasks': {
-          const tasksState = localStorage.getItem('steward_tasks_view_state');
-          if (tasksState) {
-            const parsed = JSON.parse(tasksState);
-            viewState.filter = parsed.filter || 'all';
-            viewState.selectedTaskId = parsed.selectedTaskId || null;
-          }
-          break;
-        }
-        default:
-          // No specific view state for this module type
-          break;
-      }
-    } catch (e) {
-      console.warn(`Could not collect view state for ${moduleType}:`, e);
-    }
-    
-    return viewState;
+  // Get view state directly from module in context (not localStorage)
+  // This ensures we capture the current live state of each module
+  const getModuleViewState = (moduleId) => {
+    const module = workspace.modules.find(m => m.id === moduleId);
+    return module?.viewState || {};
   };
 
   const saveLayout = () => {
