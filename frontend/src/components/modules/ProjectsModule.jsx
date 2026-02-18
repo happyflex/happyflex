@@ -14,6 +14,7 @@ const ProjectsModule = () => {
   const { projects, setProjects } = useWorkspace();
   const { addToTrash, TRASH_TYPES } = useTrash();
   const [selectedProject, setSelectedProject] = useState(null);
+  const [initialNodePath, setInitialNodePath] = useState(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newProject, setNewProject] = useState({
     name: '',
@@ -25,11 +26,13 @@ const ProjectsModule = () => {
   // Listen for project element restore events to open the correct project
   useEffect(() => {
     const handleElementRestored = (event) => {
-      const { projectId } = event.detail || {};
+      const { projectId, nodePath } = event.detail || {};
       if (projectId) {
         // Find and select the project
         const project = projects.find(p => p.id === projectId);
         if (project) {
+          // Store the nodePath to pass to ProjectWorldModule
+          setInitialNodePath(nodePath || null);
           setSelectedProject(project);
         }
       }
