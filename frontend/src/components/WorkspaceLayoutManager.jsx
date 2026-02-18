@@ -265,47 +265,6 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
     }
   };
 
-  // Restore module-specific view state to localStorage
-  const restoreModuleViewState = (moduleType, viewState) => {
-    if (!viewState || Object.keys(viewState).length === 0) return;
-    
-    try {
-      switch (moduleType) {
-        case 'music':
-          localStorage.setItem('steward_music_view_state', JSON.stringify(viewState));
-          break;
-        case 'goals':
-          localStorage.setItem('steward_goals_view_state', JSON.stringify(viewState));
-          break;
-        case 'projects':
-          localStorage.setItem('steward_projects_view_state', JSON.stringify(viewState));
-          break;
-        case 'calendar':
-          localStorage.setItem('steward_calendar_view_state', JSON.stringify(viewState));
-          break;
-        case 'files':
-          localStorage.setItem('steward_files_view_state', JSON.stringify(viewState));
-          break;
-        case 'processes':
-          localStorage.setItem('steward_processes_view_state', JSON.stringify(viewState));
-          break;
-        case 'people':
-          localStorage.setItem('steward_people_view_state', JSON.stringify(viewState));
-          break;
-        case 'notes':
-          localStorage.setItem('steward_notes_view_state', JSON.stringify(viewState));
-          break;
-        case 'tasks':
-          localStorage.setItem('steward_tasks_view_state', JSON.stringify(viewState));
-          break;
-        default:
-          break;
-      }
-    } catch (e) {
-      console.warn(`Could not restore view state for ${moduleType}:`, e);
-    }
-  };
-
   const deleteLayout = (id) => {
     const layout = layouts.find(l => l.id === id);
     const updatedLayouts = layouts.filter(l => l.id !== id);
