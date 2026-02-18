@@ -186,6 +186,10 @@ const DraggableModule = ({ module }) => {
   const [currentSnapZone, setCurrentSnapZone] = useState(null);
   const moduleRef = useRef(null);
   
+  // Use ref for modules to avoid effect re-runs when other modules change
+  const modulesRef = useRef(modules);
+  modulesRef.current = modules;
+  
   // Store last valid rect for resize fallback
   const lastValidRect = useRef({ 
     x: module.position.x, 
