@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Save, FolderOpen, Trash2, X,
+  Save, FolderOpen, Trash2, X, Clock,
   FileText, ListChecks, Users, Layout, Target, GitBranch, 
-  BarChart3, Timer, Calendar, Music, Trash2 as TrashIcon
+  BarChart3, Timer, Calendar, Music, Trash2 as TrashIcon, Files
 } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { Button } from './ui/button';
@@ -24,7 +24,8 @@ const MODULE_INFO = {
   timer: { icon: Timer, label: 'Časovač', color: 'text-orange-400', bgColor: 'bg-orange-500/10', borderColor: 'border-orange-500/30' },
   calendar: { icon: Calendar, label: 'Kalendář', color: 'text-blue-400', bgColor: 'bg-blue-500/10', borderColor: 'border-blue-500/30' },
   music: { icon: Music, label: 'Hudba', color: 'text-green-400', bgColor: 'bg-green-500/10', borderColor: 'border-green-500/30' },
-  trash: { icon: TrashIcon, label: 'Koš', color: 'text-red-400', bgColor: 'bg-red-500/10', borderColor: 'border-red-500/30' }
+  trash: { icon: TrashIcon, label: 'Koš', color: 'text-red-400', bgColor: 'bg-red-500/10', borderColor: 'border-red-500/30' },
+  files: { icon: Files, label: 'Soubory', color: 'text-amber-400', bgColor: 'bg-amber-500/10', borderColor: 'border-amber-500/30' }
 };
 
 // Get unique module types from layout
@@ -35,6 +36,22 @@ const getUniqueModules = (layout) => {
     type,
     info: MODULE_INFO[type] || { icon: FileText, label: type, color: 'text-gray-400', bgColor: 'bg-gray-500/10', borderColor: 'border-gray-500/30' }
   }));
+};
+
+// Format date for display
+const formatDate = (dateStr) => {
+  if (!dateStr) return null;
+  try {
+    return new Date(dateStr).toLocaleString('cs-CZ', {
+      day: 'numeric',
+      month: 'numeric', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch {
+    return null;
+  }
 };
 
 const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
@@ -63,6 +80,89 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
     }
   };
 
+  // Collect view state for each module based on its type
+  const collectModuleViewState = (moduleType, moduleId) => {
+    const viewState = {};
+    
+    // Try to get view state from localStorage based on module type
+    // Each module stores its own view preferences
+    try {
+      switch (moduleType) {
+        case 'music': {
+          const musicState = localStorage.getItem('steward_music_view_state');
+          if (musicState) {
+            const parsed = JSON.parse(musicState);
+            viewState.activeTab = parsed.activeTab || 'player';
+            viewState.miniMode = parsed.miniMode || false;
+            viewState.selectedPlaylist = parsed.selectedPlaylist || null;
+          }
+          break;
+        }
+        case 'goals': {
+          const goalsState = localStorage.getItem('steward_goals_view_state');
+          if (goalsState) {
+            const parsed = JSON.parse(goalsState);
+            viewState.openGoalId = parsed.openGoalId || null;
+            viewState.activeSection = parsed.activeSection || 'overview';
+          }
+          break;
+        }
+        case 'projects': {
+          const projectsState = localStorage.getItem('steward_projects_view_state');
+          if (projectsState) {
+            const parsed = JSON.parse(projectsState);
+            viewState.openProjectPath = parsed.openProjectPath || [];
+            viewState.selectedElementId = parsed.selectedElementId || null;
+          }
+          break;
+        }
+        case 'calendar': {
+          const calendarState = localStorage.getItem('steward_calendar_view_state');
+          if (calendarState) {
+            const parsed = JSON.parse(calendarState);
+            viewState.view = parsed.view || 'month';
+            viewState.selectedDate = parsed.selectedDate || null;
+          }
+          break;
+        }
+        case 'notes': {
+          const notesState = localStorage.getItem('steward_notes_view_state');
+          if (notesState) {
+            const parsed = JSON.parse(notesState);
+            viewState.selectedNoteId = parsed.selectedNoteId || null;
+            viewState.filter = parsed.filter || 'all';
+          }
+          break;
+        }
+        case 'tasks': {
+          const tasksState = localStorage.getItem('steward_tasks_view_state');
+          if (tasksState) {
+            const parsed = JSON.parse(tasksState);
+            viewState.filter = parsed.filter || 'all';
+            viewState.selectedTaskId = parsed.selectedTaskId || null;
+          }
+          break;
+        }
+        case 'people': {
+          const peopleState = localStorage.getItem('steward_people_view_state');
+          if (peopleState) {
+            const parsed = JSON.parse(peopleState);
+            viewState.selectedContactId = parsed.selectedContactId || null;
+            viewState.filter = parsed.filter || 'all';
+          }
+          break;
+        }
+        default:
+          // No specific view state for this module type
+          break;
+      }
+    } catch (e) {
+      console.warn(`Could not collect view state for ${moduleType}:`, e);
+    }
+    
+    return viewState;
+  };
+
   const saveLayout = () => {
     if (!layoutName.trim()) {
       toast({
@@ -73,17 +173,57 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
       return;
     }
 
+    const now = new Date().toISOString();
+    
+    // Build complete window state for each module
+    const moduleSnapshots = workspace.modules.map(m => ({
+      // Core identity
+      id: m.id,
+      type: m.type,
+      
+      // Position and size
+      position: { ...m.position },
+      size: { ...m.size },
+      zIndex: m.zIndex || 0,
+      
+      // Window state flags
+      pinMode: m.pinMode || 'none', // 'none' | 'pin' | 'lock' | 'top'
+      isMaximized: m.isMaximized || false,
+      snappedState: m.snappedState || null, // 'left-half', 'right-half', etc.
+      
+      // Module-specific view state (lightweight snapshot)
+      viewState: collectModuleViewState(m.type, m.id)
+    }));
+
+    // Build CANVAS (deferred modules) state
+    const canvasSnapshots = workspace.deferredModules.map((m, index) => ({
+      id: m.id,
+      type: m.type,
+      position: m.position ? { ...m.position } : null,
+      size: m.size ? { ...m.size } : null,
+      zIndex: m.zIndex || 0,
+      order: index, // Preserve order in canvas
+      viewState: collectModuleViewState(m.type, m.id)
+    }));
+
     const newLayout = {
       id: Date.now().toString(),
       name: layoutName.trim(),
-      timestamp: new Date().toISOString(),
-      modules: workspace.modules.map(m => ({
-        id: m.id,
-        type: m.type,
-        position: m.position,
-        size: m.size,
-        zIndex: m.zIndex
-      })),
+      
+      // Timestamps
+      createdAt: now,
+      lastUsedAt: now,
+      
+      // Legacy field for backward compatibility
+      timestamp: now,
+      
+      // Complete module snapshots (workspace)
+      modules: moduleSnapshots,
+      
+      // CANVAS items
+      canvasModules: canvasSnapshots,
+      
+      // Legacy deferred modules format (backward compatibility)
       deferredModules: workspace.deferredModules.map(m => ({
         id: m.id,
         type: m.type,
@@ -91,13 +231,21 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
         size: m.size,
         zIndex: m.zIndex
       })),
+      
+      // Focus mode state
+      focusedModuleId: workspace.focusedModuleId,
+      
+      // Application data
       data: {
         notes: workspace.notes,
         tasks: workspace.tasks,
         contacts: workspace.contacts,
         projects: workspace.projects,
         timerSeconds: workspace.timerSeconds
-      }
+      },
+      
+      // Layout version for future migrations
+      version: 2
     };
 
     const updatedLayouts = [...layouts, newLayout];
@@ -108,75 +256,234 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
 
     toast({
       title: 'Layout uložen',
-      description: `"${newLayout.name}" byl úspěšně uložen`
+      description: `"${newLayout.name}" byl úspěšně uložen s kompletním stavem`
     });
   };
 
-  const loadLayout = (layout) => {
+  const loadLayout = async (layout) => {
     try {
-      // Zavřeme všechny současné moduly
-      const currentModules = [...workspace.modules];
-      currentModules.forEach(m => workspace.removeModule(m.id));
+      // Update lastUsedAt timestamp
+      const now = new Date().toISOString();
+      const updatedLayouts = layouts.map(l => 
+        l.id === layout.id ? { ...l, lastUsedAt: now } : l
+      );
+      localStorage.setItem(STORAGE_KEYS.SAVED_LAYOUTS, JSON.stringify(updatedLayouts));
+      setLayouts(updatedLayouts);
       
-      // Vymažeme současná data
-      const currentNotes = [...workspace.notes];
-      currentNotes.forEach(n => workspace.deleteNote(n.id));
+      // ===== STEP 1: Clear current state =====
+      // Clear focus mode first
+      workspace.clearFocusMode();
+      
+      // Remove all current modules
+      const currentModules = [...workspace.modules];
+      for (const m of currentModules) {
+        workspace.removeModule(m.id);
+      }
+      
+      // Clear deferred modules (CANVAS)
+      const currentDeferred = [...workspace.deferredModules];
+      for (const m of currentDeferred) {
+        workspace.removeFromCanvas(m.id);
+      }
 
-      const currentTasks = [...workspace.tasks];
-      currentTasks.forEach(t => workspace.deleteTask(t.id));
+      // Wait for state to settle
+      await new Promise(resolve => setTimeout(resolve, 100));
 
-      // Načteme data z layoutu - postupně přidáme
-      setTimeout(() => {
-        layout.data.notes.forEach(note => {
-          workspace.addNote({
-            title: note.title,
-            content: note.content,
-            color: note.color
-          });
-        });
+      // ===== STEP 2: Restore application data =====
+      if (layout.data) {
+        // Clear and restore notes
+        const currentNotes = [...workspace.notes];
+        for (const n of currentNotes) {
+          workspace.deleteNote(n.id);
+        }
+        
+        // Clear and restore tasks
+        const currentTasks = [...workspace.tasks];
+        for (const t of currentTasks) {
+          workspace.deleteTask(t.id);
+        }
 
-        layout.data.tasks.forEach(task => {
-          workspace.addTask({
-            title: task.title,
-            priority: task.priority,
-            dueDate: task.dueDate,
-            completed: task.completed
-          });
-        });
+        await new Promise(resolve => setTimeout(resolve, 50));
 
-        // Obnovíme moduly s jejich původní pozicí a velikostí
-        layout.modules.forEach((moduleData, index) => {
-          setTimeout(() => {
-            const newModule = {
-              id: `module-${Date.now()}-${index}`,
-              type: moduleData.type,
-              position: moduleData.position,
-              size: moduleData.size,
-              zIndex: moduleData.zIndex
-            };
-            workspace.addModule(moduleData.type, moduleData.position);
-            // Aktualizujeme velikost po přidání
-            setTimeout(() => {
+        // Restore notes
+        if (layout.data.notes) {
+          for (const note of layout.data.notes) {
+            workspace.addNote({
+              title: note.title,
+              content: note.content,
+              color: note.color
+            });
+          }
+        }
+
+        // Restore tasks
+        if (layout.data.tasks) {
+          for (const task of layout.data.tasks) {
+            workspace.addTask({
+              title: task.title,
+              priority: task.priority,
+              dueDate: task.dueDate,
+              completed: task.completed
+            });
+          }
+        }
+
+        // Restore timer
+        if (layout.data.timerSeconds !== undefined) {
+          workspace.setTimerSeconds(layout.data.timerSeconds);
+        }
+      }
+
+      // ===== STEP 3: Restore modules with positions/sizes =====
+      const moduleIdMap = {}; // Map old IDs to new IDs
+      
+      for (let i = 0; i < layout.modules.length; i++) {
+        const moduleData = layout.modules[i];
+        
+        // Skip invalid modules
+        if (!moduleData || !moduleData.type) {
+          console.warn('Skipping invalid module in layout:', moduleData);
+          continue;
+        }
+        
+        try {
+          // Add module with position
+          workspace.addModule(moduleData.type, moduleData.position);
+          
+          // Wait for module to be created
+          await new Promise(resolve => setTimeout(resolve, 80));
+          
+          // Find the newly created module
+          const newModules = workspace.modules;
+          const newModule = newModules[newModules.length - 1];
+          
+          if (newModule) {
+            moduleIdMap[moduleData.id] = newModule.id;
+            
+            // Update size if different from default
+            if (moduleData.size) {
               workspace.updateModuleSize(newModule.id, moduleData.size);
-            }, 100);
-          }, index * 100);
-        });
+            }
+            
+            // ===== STEP 4: Apply window state flags =====
+            // Apply pinMode (pin/lock/top)
+            if (moduleData.pinMode && moduleData.pinMode !== 'none') {
+              // Cycle through modes until we reach the desired one
+              let currentMode = 'none';
+              const targetMode = moduleData.pinMode;
+              const modeOrder = ['none', 'pin', 'lock', 'top'];
+              
+              while (currentMode !== targetMode) {
+                workspace.togglePinMode(newModule.id);
+                await new Promise(resolve => setTimeout(resolve, 30));
+                const currentIndex = modeOrder.indexOf(currentMode);
+                currentMode = modeOrder[(currentIndex + 1) % modeOrder.length];
+              }
+            }
+            
+            // ===== STEP 5: Restore module view state =====
+            if (moduleData.viewState && Object.keys(moduleData.viewState).length > 0) {
+              restoreModuleViewState(moduleData.type, moduleData.viewState);
+            }
+          }
+        } catch (moduleError) {
+          console.warn(`Failed to restore module ${moduleData.type}:`, moduleError);
+          // Continue with next module
+        }
+      }
 
-        workspace.setTimerSeconds(layout.data.timerSeconds || 0);
-      }, 300);
+      // ===== STEP 6: Restore CANVAS items =====
+      const canvasItems = layout.canvasModules || layout.deferredModules || [];
+      
+      // Sort by order if available
+      const sortedCanvasItems = [...canvasItems].sort((a, b) => 
+        (a.order || 0) - (b.order || 0)
+      );
+      
+      for (const canvasItem of sortedCanvasItems) {
+        if (!canvasItem || !canvasItem.type) continue;
+        
+        try {
+          // Create a temporary module to defer
+          // First add to workspace, then defer it
+          workspace.addModule(canvasItem.type, canvasItem.position || { x: 100, y: 100 });
+          
+          await new Promise(resolve => setTimeout(resolve, 50));
+          
+          // Find and defer the module
+          const latestModules = workspace.modules;
+          const addedModule = latestModules[latestModules.length - 1];
+          
+          if (addedModule) {
+            workspace.deferModule(addedModule.id);
+            
+            // Restore view state for canvas item
+            if (canvasItem.viewState && Object.keys(canvasItem.viewState).length > 0) {
+              restoreModuleViewState(canvasItem.type, canvasItem.viewState);
+            }
+          }
+        } catch (canvasError) {
+          console.warn(`Failed to restore canvas item ${canvasItem.type}:`, canvasError);
+        }
+      }
+
+      // ===== STEP 7: Restore focus mode =====
+      if (layout.focusedModuleId) {
+        // Find the new ID for the focused module
+        const newFocusedId = moduleIdMap[layout.focusedModuleId];
+        if (newFocusedId) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          workspace.setFocusMode(newFocusedId);
+        }
+      }
 
       onClose();
       toast({
         title: 'Layout načten',
-        description: `"${layout.name}" byl obnoven s ${layout.modules.length} moduly`
+        description: `"${layout.name}" byl obnoven s ${layout.modules.length} moduly a kompletním stavem`
       });
     } catch (error) {
       console.error('Error loading layout:', error);
       toast({
         title: 'Chyba',
-        description: 'Nepodařilo se načíst layout',
+        description: 'Nepodařilo se načíst layout: ' + error.message,
         variant: 'destructive'
       });
+    }
+  };
+
+  // Restore module-specific view state to localStorage
+  const restoreModuleViewState = (moduleType, viewState) => {
+    if (!viewState || Object.keys(viewState).length === 0) return;
+    
+    try {
+      switch (moduleType) {
+        case 'music':
+          localStorage.setItem('steward_music_view_state', JSON.stringify(viewState));
+          break;
+        case 'goals':
+          localStorage.setItem('steward_goals_view_state', JSON.stringify(viewState));
+          break;
+        case 'projects':
+          localStorage.setItem('steward_projects_view_state', JSON.stringify(viewState));
+          break;
+        case 'calendar':
+          localStorage.setItem('steward_calendar_view_state', JSON.stringify(viewState));
+          break;
+        case 'notes':
+          localStorage.setItem('steward_notes_view_state', JSON.stringify(viewState));
+          break;
+        case 'tasks':
+          localStorage.setItem('steward_tasks_view_state', JSON.stringify(viewState));
+          break;
+        case 'people':
+          localStorage.setItem('steward_people_view_state', JSON.stringify(viewState));
+          break;
+        default:
+          break;
+      }
+    } catch (e) {
+      console.warn(`Could not restore view state for ${moduleType}:`, e);
     }
   };
 
@@ -223,7 +530,7 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
           <DialogHeader>
             <DialogTitle className="text-white">Správa Workspace Layoutů</DialogTitle>
             <DialogDescription className="text-gray-400">
-              Uložte nebo načtěte rozložení workspace s daty modulů
+              Uložte nebo načtěte rozložení workspace s kompletním stavem modulů
             </DialogDescription>
           </DialogHeader>
 
@@ -253,6 +560,11 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
                       const maxVisibleChips = 5;
                       const visibleModules = uniqueModules.slice(0, maxVisibleChips);
                       const hiddenCount = uniqueModules.length - maxVisibleChips;
+                      const canvasCount = (layout.canvasModules || layout.deferredModules || []).length;
+                      
+                      // Get timestamps with fallbacks
+                      const createdAt = formatDate(layout.createdAt || layout.timestamp);
+                      const lastUsedAt = formatDate(layout.lastUsedAt);
                       
                       return (
                         <div
@@ -262,10 +574,19 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <h4 className="font-semibold text-white mb-1">{layout.name}</h4>
-                              <p className="text-xs text-gray-500">
-                                {new Date(layout.timestamp).toLocaleString('cs-CZ')}
-                              </p>
-                              <div className="flex flex-wrap gap-1.5 mt-2">
+                              
+                              {/* Timestamps */}
+                              <div className="text-xs text-gray-500 space-y-0.5 mb-2">
+                                <p>Vytvořeno: {createdAt}</p>
+                                {lastUsedAt && lastUsedAt !== createdAt && (
+                                  <p className="flex items-center gap-1">
+                                    <Clock className="h-3 w-3" />
+                                    Naposledy použito: {lastUsedAt}
+                                  </p>
+                                )}
+                              </div>
+                              
+                              <div className="flex flex-wrap gap-1.5">
                                 {/* Module count badge */}
                                 <span 
                                   className="chip-scannable text-xs px-2 py-1 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30"
@@ -273,6 +594,26 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
                                 >
                                   {layout.modules.length} modulů
                                 </span>
+                                
+                                {/* Canvas count badge */}
+                                {canvasCount > 0 && (
+                                  <span 
+                                    className="chip-scannable text-xs px-2 py-1 rounded bg-purple-500/10 text-purple-400 border border-purple-500/30"
+                                    style={{ animationDelay: '50ms', animationFillMode: 'both' }}
+                                  >
+                                    {canvasCount} v CANVAS
+                                  </span>
+                                )}
+                                
+                                {/* Focus mode indicator */}
+                                {layout.focusedModuleId && (
+                                  <span 
+                                    className="chip-scannable text-xs px-2 py-1 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30"
+                                    style={{ animationDelay: '75ms', animationFillMode: 'both' }}
+                                  >
+                                    Focus mode
+                                  </span>
+                                )}
                                 
                                 {/* Module type chips with scan animation */}
                                 {visibleModules.map(({ type, info }, index) => {
@@ -282,7 +623,7 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
                                       key={type}
                                       className={`chip-scannable inline-flex items-center gap-1 text-xs px-2 py-1 rounded ${info.bgColor} ${info.color} border ${info.borderColor}`}
                                       style={{ 
-                                        animationDelay: `${(index + 1) * 100}ms`,
+                                        animationDelay: `${(index + 2) * 100}ms`,
                                         animationFillMode: 'both'
                                       }}
                                     >
@@ -297,7 +638,7 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
                                   <span 
                                     className="chip-scannable text-xs px-2 py-1 rounded bg-gray-500/10 text-gray-400 border border-gray-500/30"
                                     style={{ 
-                                      animationDelay: `${(visibleModules.length + 1) * 100}ms`,
+                                      animationDelay: `${(visibleModules.length + 2) * 100}ms`,
                                       animationFillMode: 'both'
                                     }}
                                   >
@@ -306,7 +647,7 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
                                 )}
                               </div>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 ml-3">
                               <Button
                                 size="sm"
                                 onClick={() => loadLayout(layout)}
@@ -317,15 +658,15 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
                               </Button>
                               <Button
                                 size="sm"
-                              variant="ghost"
-                              onClick={() => deleteLayout(layout.id)}
-                              className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                                variant="ghost"
+                                onClick={() => deleteLayout(layout.id)}
+                                className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                      </div>
                       );
                     })}
                   </div>
@@ -342,7 +683,7 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
           <DialogHeader>
             <DialogTitle className="text-white">Uložit Layout</DialogTitle>
             <DialogDescription className="text-gray-400">
-              Zadejte název pro aktuální rozložení workspace
+              Zadejte název pro aktuální rozložení workspace. Uloží se kompletní stav včetně pozic, velikostí, pin/focus režimů a vnitřního stavu modulů.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -354,6 +695,10 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
               className="bg-[#0a1628] border-cyan-500/30 text-white"
               autoFocus
             />
+            <div className="text-xs text-gray-500">
+              Aktuální stav: {workspace.modules.length} modulů, {workspace.deferredModules.length} v CANVAS
+              {workspace.focusedModuleId && ', Focus mode aktivní'}
+            </div>
             <div className="flex gap-2 justify-end">
               <Button
                 variant="ghost"
