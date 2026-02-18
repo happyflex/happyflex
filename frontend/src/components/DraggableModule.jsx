@@ -309,6 +309,8 @@ const DraggableModule = ({ module }) => {
     setIsDraggingWindow(true);
     bringToFront(module.id);
     
+    // FIXED: Calculate grab offset from window's current position (viewport coords)
+    // Use clientX/clientY (viewport) and module position to get precise grab point
     const rect = moduleRef.current.getBoundingClientRect();
     setDragOffset({
       x: e.clientX - rect.left,
