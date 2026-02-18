@@ -274,7 +274,7 @@ const Canvas = () => {
                   window.dispatchEvent(new CustomEvent('steward-project-element-restored', {
                     detail: { projectId, nodePath: path }
                   }));
-                }, 50);
+                }, 10);
               }
             } catch (e) {
               console.error('Error restoring project element:', e);
