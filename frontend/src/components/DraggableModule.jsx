@@ -252,11 +252,6 @@ const DraggableModule = ({ module }) => {
       height: Math.max(WORKSPACE_BOUNDS.minHeight, Math.min(maxHeight, height))
     };
   };
-  
-  // Check if value is valid (not NaN, Infinity, or extremely large)
-  const isValidNumber = (num) => {
-    return typeof num === 'number' && isFinite(num) && Math.abs(num) < 10000;
-  };
 
   // ESC key listener for clearing focus
   useEffect(() => {
