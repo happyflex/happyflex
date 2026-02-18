@@ -675,6 +675,7 @@ const ProjectWorldModule = ({ project, onBack, initialPath }) => {
 // ProjectItem component - FIXED with shared drag utils
 const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdate, onDelete, onConnect }) => {
   const [isDragging, setIsDragging] = useState(false);
+  const [isMouseDown, setIsMouseDown] = useState(false); // Track mousedown for useEffect trigger
   const itemRef = useRef(null);
   const lastValidPosition = useRef({ x: item.position?.x || 0, y: item.position?.y || 0 });
   
@@ -723,6 +724,7 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
     };
     
     lastValidPosition.current = itemPosLocal;
+    setIsMouseDown(true); // Trigger useEffect
   };
 
   useEffect(() => {
