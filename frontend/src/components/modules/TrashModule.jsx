@@ -17,7 +17,8 @@ import {
   BarChart3,
   Timer,
   Calendar,
-  GripVertical
+  GripVertical,
+  Folder
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useTrash, TRASH_TYPES } from '../../context/TrashContext';
