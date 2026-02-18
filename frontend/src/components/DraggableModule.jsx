@@ -410,6 +410,37 @@ const DraggableModule = ({ module }) => {
 
   useEffect(() => {
     const handleMouseMove = (e) => {
+      // ANTI-JUMP: Check if we have drag start snapshot (mouse is down but drag not activated)
+      if (dragStartSnapshot.current && !dragStartSnapshot.current.activatedDrag && !isDragging) {
+        const dx = Math.abs(e.clientX - dragStartSnapshot.current.pointerStart.x);
+        const dy = Math.abs(e.clientY - dragStartSnapshot.current.pointerStart.y);
+        
+        // Threshold: Activate drag only after 2px movement
+        if (dx + dy < 2) {
+          return; // Don't activate drag yet - prevents jump
+        }
+        
+        // Threshold exceeded - activate drag NOW
+        dragStartSnapshot.current.activatedDrag = true;
+        setIsDragging(true);
+        setIsDraggingWindow(true);
+        bringToFront(module.id);
+        
+        // First position calculation (no jump - use stored grab offset)
+        const newX = e.clientX - dragStartSnapshot.current.grabOffset.x;
+        const newY = e.clientY - dragStartSnapshot.current.grabOffset.y;
+        
+        // Validate
+        if (!isValidNumber(newX) || !isValidNumber(newY)) {
+          return;
+        }
+        
+        // DON'T apply snap/magnetic on first move - just clamp to prevent jump
+        const clamped = clampPosition(newX, newY, module.size.width, module.size.height);
+        updateModulePosition(module.id, clamped);
+        return;
+      }
+      
       if (isDragging) {
         e.preventDefault();
         
