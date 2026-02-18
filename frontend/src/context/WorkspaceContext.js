@@ -24,6 +24,60 @@ const normalizeArrayData = (data, requiredField = 'id') => {
   return data.filter(item => item && typeof item === 'object' && item[requiredField]);
 };
 
+// ==================== SAFE ZONE CONSTANTS ====================
+// Single source of truth for workspace margins
+const WORKSPACE_SAFE_MARGIN = 30; // px - uniform margin from all edges
+const WORKSPACE_WINDOW_GAP = WORKSPACE_SAFE_MARGIN; // 30px gap between windows
+
+// Workspace layout constants
+const WORKSPACE_LAYOUT = {
+  rightSidebarWidth: 320,
+  bottomToolbarHeight: 80,
+  headerHeight: 64
+};
+
+// Helper: Calculate SAFE ZONE rect (available area for windows)
+const getSafeZone = () => {
+  const { rightSidebarWidth, bottomToolbarHeight, headerHeight } = WORKSPACE_LAYOUT;
+  
+  // Raw workspace bounds (Canvas area)
+  const boundsLeft = 0;
+  const boundsTop = 0; // Canvas starts after header, so 0 is relative to Canvas
+  const boundsRight = window.innerWidth - rightSidebarWidth;
+  const boundsBottom = window.innerHeight - headerHeight - bottomToolbarHeight;
+  
+  // Apply SAFE ZONE margin
+  const safeLeft = boundsLeft + WORKSPACE_SAFE_MARGIN;
+  const safeTop = boundsTop + WORKSPACE_SAFE_MARGIN;
+  const safeRight = boundsRight - WORKSPACE_SAFE_MARGIN;
+  const safeBottom = boundsBottom - WORKSPACE_SAFE_MARGIN;
+  const safeWidth = safeRight - safeLeft;
+  const safeHeight = safeBottom - safeTop;
+  
+  // Guard: if safe dimensions are invalid, fallback to original bounds
+  if (safeWidth <= 0 || safeHeight <= 0) {
+    return {
+      left: boundsLeft,
+      top: boundsTop,
+      right: boundsRight,
+      bottom: boundsBottom,
+      width: boundsRight - boundsLeft,
+      height: boundsBottom - boundsTop,
+      isValid: false
+    };
+  }
+  
+  return {
+    left: safeLeft,
+    top: safeTop,
+    right: safeRight,
+    bottom: safeBottom,
+    width: safeWidth,
+    height: safeHeight,
+    isValid: true
+  };
+};
+
 export const WorkspaceProvider = ({ children }) => {
   // Track if initial load is complete
   const isInitialized = useRef(false);
