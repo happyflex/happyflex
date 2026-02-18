@@ -356,9 +356,31 @@ export const WorkspaceProvider = ({ children }) => {
     const safeZone = getSafeZone();
     if (!safeZone.isValid) return {};
     
+    // Snap gap constant (30px between left/right snap windows)
+    const SNAP_GAP = 30;
+    
     // Use floor/ceil to avoid 1px drift when splitting
     const halfWidth = Math.floor(safeZone.width / 2);
     const halfHeight = Math.floor(safeZone.height / 2);
+    
+    // Calculate Left/Right snap with 30px gap
+    // Usable width = total width - gap
+    const usableWidth = safeZone.width - SNAP_GAP;
+    
+    // Defenzivní guard: pokud usableWidth <= 0, fallback na původní výpočet
+    let leftSnapWidth, rightSnapWidth, rightSnapX;
+    
+    if (usableWidth > 0) {
+      // Split usable width equally, accounting for the gap
+      leftSnapWidth = Math.floor(usableWidth / 2);
+      rightSnapWidth = usableWidth - leftSnapWidth; // Ensure no 1px drift
+      rightSnapX = safeZone.left + leftSnapWidth + SNAP_GAP;
+    } else {
+      // Fallback: use original half-width calculation (no gap)
+      leftSnapWidth = halfWidth;
+      rightSnapWidth = halfWidth;
+      rightSnapX = safeZone.left + Math.ceil(safeZone.width / 2);
+    }
     
     return {
       'top-left': {
@@ -379,11 +401,11 @@ export const WorkspaceProvider = ({ children }) => {
       },
       'left-half': {
         position: { x: safeZone.left, y: safeZone.top },
-        size: { width: halfWidth, height: safeZone.height }
+        size: { width: leftSnapWidth, height: safeZone.height }
       },
       'right-half': {
-        position: { x: safeZone.left + Math.ceil(safeZone.width / 2), y: safeZone.top },
-        size: { width: halfWidth, height: safeZone.height }
+        position: { x: rightSnapX, y: safeZone.top },
+        size: { width: rightSnapWidth, height: safeZone.height }
       },
       'top-half': {
         position: { x: safeZone.left, y: safeZone.top },
