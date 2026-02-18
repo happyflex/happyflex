@@ -308,17 +308,26 @@ const DraggableModule = ({ module }) => {
     e.preventDefault();
     e.stopPropagation();
     
-    setIsDragging(true);
-    setIsDraggingWindow(true);
-    bringToFront(module.id);
-    
-    // FIXED: Calculate grab offset from window's current position (viewport coords)
-    // Use clientX/clientY (viewport) and module position to get precise grab point
+    // ANTI-JUMP FIX: Store drag start snapshot, but DON'T activate drag yet
+    // Drag activates only after threshold (2px movement) to prevent jump
     const rect = moduleRef.current.getBoundingClientRect();
+    
+    dragStartSnapshot.current = {
+      pointerStart: { x: e.clientX, y: e.clientY },
+      windowRectStart: { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
+      grabOffset: { x: e.clientX - rect.left, y: e.clientY - rect.top },
+      activatedDrag: false
+    };
+    
+    // Store offset for later use (when drag activates)
     setDragOffset({
       x: e.clientX - rect.left,
       y: e.clientY - rect.top
     });
+    
+    // DON'T set isDragging=true here - wait for first mousemove with threshold
+    // DON'T call bringToFront here - it can cause z-index jump
+    // These will be called in mousemove after threshold is exceeded
   };
 
   const handleDragStart = (e) => {
