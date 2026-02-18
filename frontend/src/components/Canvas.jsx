@@ -266,8 +266,13 @@ const Canvas = () => {
                 
                 localStorage.setItem(projectWorldKey, JSON.stringify(projectWorld));
                 
-                // Open Projects module and navigate to project
-                addModule('projects');
+                // Open Projects module (only if not already open)
+                const existingProjectsModule = modules.find(m => m.type === 'projects');
+                if (!existingProjectsModule) {
+                  addModule('projects');
+                } else {
+                  bringToFront(existingProjectsModule.id);
+                }
                 
                 // Dispatch event to open correct project and subproject (minimal delay for module to mount)
                 setTimeout(() => {
@@ -281,7 +286,8 @@ const Canvas = () => {
             }
           }
         }
-        break;
+        // Return early - don't run the generic module opening code below
+        return true;
     }
     
     // Open or focus the module
