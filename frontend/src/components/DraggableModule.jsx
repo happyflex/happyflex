@@ -479,7 +479,7 @@ const DraggableModule = ({ module }) => {
       document.body.style.webkitUserSelect = '';
       document.body.style.cursor = '';
     };
-  }, [isDragging, isResizing, resizeHandle, dragOffset, module.id, module.size, module.position, modules, updateModulePosition, updateModuleSize, currentSnapZone, snapToLayout, setSnapPreview]);
+  }, [isDragging, isResizing, resizeHandle, dragOffset, module.id, module.size, module.position, modules, updateModulePosition, updateModuleSize, currentSnapZone, snapToLayout, setSnapPreview, setIsDraggingWindow, isMaximized]);
 
   if (!ModuleComponent) return null;
 
