@@ -10,7 +10,7 @@ import ProjectWorldModule from './ProjectWorldModule';
 import ModuleHeader from './ModuleHeader';
 import { toast } from '../../hooks/use-toast';
 
-const ProjectsModule = () => {
+const ProjectsModule = ({ initialViewState, onViewStateChange }) => {
   const { projects, setProjects } = useWorkspace();
   const { addToTrash, TRASH_TYPES } = useTrash();
   const [selectedProject, setSelectedProject] = useState(null);
@@ -23,45 +23,28 @@ const ProjectsModule = () => {
     team: ''
   });
 
-  // Save VIEW STATE for layout restore
+  // Apply initialViewState from layout restore (props-based)
   useEffect(() => {
-    localStorage.setItem('steward_projects_view_state', JSON.stringify({
-      openProjectId: selectedProject?.id || null,
-      nodePath: initialNodePath
-    }));
-  }, [selectedProject, initialNodePath]);
-
-  // Restore view state on mount AND on layout restore event
-  useEffect(() => {
-    const restoreViewState = () => {
-      try {
-        const savedViewState = localStorage.getItem('steward_projects_view_state');
-        if (savedViewState && projects && projects.length > 0) {
-          const parsed = JSON.parse(savedViewState);
-          if (parsed.openProjectId) {
-            const project = projects.find(p => p.id === parsed.openProjectId);
-            if (project) {
-              setInitialNodePath(parsed.nodePath || null);
-              setSelectedProject(project);
-            }
-          }
+    if (initialViewState && projects && projects.length > 0) {
+      if (initialViewState.openProjectId) {
+        const project = projects.find(p => p.id === initialViewState.openProjectId);
+        if (project) {
+          setInitialNodePath(initialViewState.nodePath || null);
+          setSelectedProject(project);
         }
-      } catch (e) {
-        console.warn('Could not restore projects view state:', e);
       }
-    };
-    
-    // Restore when projects are loaded
-    if (projects && projects.length > 0) {
-      restoreViewState();
     }
-    
-    // Listen for layout restore event
-    window.addEventListener('steward-layout-restored', restoreViewState);
-    return () => {
-      window.removeEventListener('steward-layout-restored', restoreViewState);
-    };
-  }, [projects]);
+  }, [initialViewState, projects]);
+
+  // Emit view state changes to parent (for layout save)
+  useEffect(() => {
+    if (projects && onViewStateChange) {
+      onViewStateChange({
+        openProjectId: selectedProject?.id || null,
+        nodePath: initialNodePath
+      });
+    }
+  }, [selectedProject, initialNodePath, projects, onViewStateChange]);
 
   // Listen for project element restore events to open the correct project
   useEffect(() => {
