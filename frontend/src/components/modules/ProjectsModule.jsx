@@ -23,6 +23,46 @@ const ProjectsModule = () => {
     team: ''
   });
 
+  // Save VIEW STATE for layout restore
+  useEffect(() => {
+    localStorage.setItem('steward_projects_view_state', JSON.stringify({
+      openProjectId: selectedProject?.id || null,
+      nodePath: initialNodePath
+    }));
+  }, [selectedProject, initialNodePath]);
+
+  // Restore view state on mount AND on layout restore event
+  useEffect(() => {
+    const restoreViewState = () => {
+      try {
+        const savedViewState = localStorage.getItem('steward_projects_view_state');
+        if (savedViewState && projects && projects.length > 0) {
+          const parsed = JSON.parse(savedViewState);
+          if (parsed.openProjectId) {
+            const project = projects.find(p => p.id === parsed.openProjectId);
+            if (project) {
+              setInitialNodePath(parsed.nodePath || null);
+              setSelectedProject(project);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Could not restore projects view state:', e);
+      }
+    };
+    
+    // Restore when projects are loaded
+    if (projects && projects.length > 0) {
+      restoreViewState();
+    }
+    
+    // Listen for layout restore event
+    window.addEventListener('steward-layout-restored', restoreViewState);
+    return () => {
+      window.removeEventListener('steward-layout-restored', restoreViewState);
+    };
+  }, [projects]);
+
   // Listen for project element restore events to open the correct project
   useEffect(() => {
     const handleElementRestored = (event) => {
