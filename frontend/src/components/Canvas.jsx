@@ -269,12 +269,12 @@ const Canvas = () => {
                 // Open Projects module and navigate to project
                 addModule('projects');
                 
-                // Dispatch event to open correct project and subproject (with delay for module to mount)
+                // Dispatch event to open correct project and subproject (minimal delay for module to mount)
                 setTimeout(() => {
                   window.dispatchEvent(new CustomEvent('steward-project-element-restored', {
                     detail: { projectId, nodePath: path }
                   }));
-                }, 300);
+                }, 50);
               }
             } catch (e) {
               console.error('Error restoring project element:', e);
