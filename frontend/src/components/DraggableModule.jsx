@@ -491,54 +491,96 @@ const DraggableModule = ({ module }) => {
         const clamped = clampPosition(newX, newY, module.size.width, module.size.height);
         
         updateModulePosition(module.id, clamped);
-      } else if (isResizing && resizeHandle) {
+      } else if (isResizing && resizeHandle && resizeStartRef.current) {
         e.preventDefault();
         
-        const rect = moduleRef.current?.getBoundingClientRect();
-        if (!rect) return;
+        // STABLE RESIZE: Use delta from start position instead of current rect
+        const { startMouseX, startMouseY, startRect } = resizeStartRef.current;
+        const dx = e.clientX - startMouseX;
+        const dy = e.clientY - startMouseY;
         
-        let newWidth = module.size.width;
-        let newHeight = module.size.height;
-        let newX = module.position.x;
-        let newY = module.position.y;
+        let newWidth = startRect.width;
+        let newHeight = startRect.height;
+        let newX = startRect.x;
+        let newY = startRect.y;
         
-        // Calculate new dimensions based on resize handle
+        // Calculate bottom/right edges (these stay fixed for n/w resize)
+        const rightEdge = startRect.x + startRect.width;
+        const bottomEdge = startRect.y + startRect.height;
+        
+        // Calculate new dimensions based on resize handle using deltas
         if (resizeHandle.includes('e')) {
-          newWidth = e.clientX - rect.left;
+          // East: width grows with positive dx
+          newWidth = startRect.width + dx;
         }
         if (resizeHandle.includes('s')) {
-          newHeight = e.clientY - rect.top;
+          // South: height grows with positive dy
+          newHeight = startRect.height + dy;
         }
         if (resizeHandle.includes('w')) {
-          const deltaX = e.clientX - rect.left;
-          newWidth = module.size.width - deltaX;
-          newX = module.position.x + deltaX;
+          // West: x moves with dx, width shrinks
+          newX = startRect.x + dx;
+          newWidth = rightEdge - newX; // Keep right edge fixed
         }
         if (resizeHandle.includes('n')) {
-          const deltaY = e.clientY - rect.top;
-          newHeight = module.size.height - deltaY;
-          newY = module.position.y + deltaY;
+          // North: y moves with dy, height shrinks
+          newY = startRect.y + dy;
+          newHeight = bottomEdge - newY; // Keep bottom edge fixed
         }
         
         // Validate all values before applying
         if (!isValidNumber(newWidth) || !isValidNumber(newHeight) || 
             !isValidNumber(newX) || !isValidNumber(newY)) {
-          // Use last valid rect as fallback
           return;
         }
         
-        // Clamp size to valid bounds
-        const clampedSize = clampSize(newWidth, newHeight);
+        // Apply min size constraints while keeping opposite edge fixed
+        const { minWidth, minHeight } = WORKSPACE_BOUNDS;
         
-        // Adjust position if size was clamped (for west/north handles)
-        if (resizeHandle.includes('w') && clampedSize.width !== newWidth) {
-          newX = module.position.x + (module.size.width - clampedSize.width);
-        }
-        if (resizeHandle.includes('n') && clampedSize.height !== newHeight) {
-          newY = module.position.y + (module.size.height - clampedSize.height);
+        // For north resize: if height < min, clamp newY to keep bottom fixed
+        if (resizeHandle.includes('n') && newHeight < minHeight) {
+          newY = bottomEdge - minHeight;
+          newHeight = minHeight;
         }
         
-        // Clamp position
+        // For west resize: if width < min, clamp newX to keep right fixed
+        if (resizeHandle.includes('w') && newWidth < minWidth) {
+          newX = rightEdge - minWidth;
+          newWidth = minWidth;
+        }
+        
+        // For south/east, just clamp the size
+        if (newWidth < minWidth) newWidth = minWidth;
+        if (newHeight < minHeight) newHeight = minHeight;
+        
+        // Clamp to workspace bounds
+        const { maxWidth, maxHeight } = getWorkspaceBounds();
+        
+        // Don't let window go above workspace (y >= 0)
+        if (newY < 0) {
+          const adjustment = -newY;
+          newY = 0;
+          // If north resize, adjust height to compensate
+          if (resizeHandle.includes('n')) {
+            newHeight = bottomEdge; // Height extends from 0 to original bottom
+          }
+        }
+        
+        // Don't let window go left of workspace (x >= minX based on clampPosition)
+        const minX = -newWidth + 100;
+        if (newX < minX) {
+          if (resizeHandle.includes('w')) {
+            newX = minX;
+            newWidth = rightEdge - newX;
+          }
+        }
+        
+        // Clamp max size
+        if (newWidth > maxWidth) newWidth = maxWidth;
+        if (newHeight > maxHeight) newHeight = maxHeight;
+        
+        // Final validation
+        const clampedSize = { width: newWidth, height: newHeight };
         const clampedPos = clampPosition(newX, newY, clampedSize.width, clampedSize.height);
         
         // Update last valid rect
