@@ -11,7 +11,7 @@ import ProjectTree from './ProjectTree';
 import ItemDetailPanel from './ItemDetailPanel';
 import RelationshipTypeDialog from './RelationshipTypeDialog';
 
-const ProjectWorldModule = ({ project, onBack }) => {
+const ProjectWorldModule = ({ project, onBack, initialPath }) => {
   const { addToTrash, TRASH_TYPES } = useTrash();
   const [structure, setStructure] = useState({ 
     root: { 
@@ -22,7 +22,7 @@ const ProjectWorldModule = ({ project, onBack }) => {
       connections: [] 
     } 
   });
-  const [currentPath, setCurrentPath] = useState(['root']);
+  const [currentPath, setCurrentPath] = useState(initialPath || ['root']);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isAddingConnection, setIsAddingConnection] = useState(false);
   const [connectionStart, setConnectionStart] = useState(null);
