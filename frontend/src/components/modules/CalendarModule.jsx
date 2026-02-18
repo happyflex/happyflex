@@ -67,18 +67,29 @@ const CalendarModule = () => {
     }));
   }, [view, selectedDate]);
 
-  // Restore view state on mount
+  // Restore view state on mount AND on layout restore event
   useEffect(() => {
-    try {
-      const savedViewState = localStorage.getItem('steward_calendar_view_state');
-      if (savedViewState) {
-        const parsed = JSON.parse(savedViewState);
-        if (parsed.view) setView(parsed.view);
-        if (parsed.selectedDate) setSelectedDate(new Date(parsed.selectedDate));
+    const restoreViewState = () => {
+      try {
+        const savedViewState = localStorage.getItem('steward_calendar_view_state');
+        if (savedViewState) {
+          const parsed = JSON.parse(savedViewState);
+          if (parsed.view) setView(parsed.view);
+          if (parsed.selectedDate) setSelectedDate(new Date(parsed.selectedDate));
+        }
+      } catch (e) {
+        console.warn('Could not restore calendar view state:', e);
       }
-    } catch (e) {
-      console.warn('Could not restore calendar view state:', e);
-    }
+    };
+    
+    // Restore on mount
+    restoreViewState();
+    
+    // Listen for layout restore event
+    window.addEventListener('steward-layout-restored', restoreViewState);
+    return () => {
+      window.removeEventListener('steward-layout-restored', restoreViewState);
+    };
   }, []);
 
   const [formData, setFormData] = useState({
