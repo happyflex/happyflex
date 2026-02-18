@@ -487,6 +487,7 @@ const DraggableModule = ({ module }) => {
     const handleMouseUp = () => {
       // Apply snap if preview is active
       if (isDragging && currentSnapZone) {
+        console.log(`[SNAP DEBUG] Module ${module.id} snapping to ${currentSnapZone}`);
         // Save state before snap-maximize
         if (currentSnapZone === 'maximized' && !isMaximized) {
           setPreviousState({
@@ -498,6 +499,8 @@ const DraggableModule = ({ module }) => {
         snapToLayout(module.id, currentSnapZone);
         setCurrentSnapZone(null);
         setSnapPreview(null);
+      } else if (isDragging) {
+        console.log(`[SNAP DEBUG] Module ${module.id} NOT snapping - zone was: ${currentSnapZone}`);
       }
       setIsDragging(false);
       setIsDraggingWindow(false);
