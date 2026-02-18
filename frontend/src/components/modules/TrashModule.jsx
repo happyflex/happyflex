@@ -107,6 +107,7 @@ const MODULE_ICONS = {
   chart: { icon: BarChart3, color: 'text-cyan-400', bgColor: 'bg-cyan-500/20' },
   timer: { icon: Timer, color: 'text-orange-400', bgColor: 'bg-orange-500/20' },
   calendar: { icon: Calendar, color: 'text-red-400', bgColor: 'bg-red-500/20' },
+  files: { icon: Folder, color: 'text-amber-400', bgColor: 'bg-amber-500/20' },
   trash: { icon: Trash2, color: 'text-red-400', bgColor: 'bg-red-500/20' }
 };
 
