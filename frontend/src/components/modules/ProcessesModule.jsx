@@ -82,45 +82,28 @@ const ProcessesModule = ({ initialViewState, onViewStateChange }) => {
     }
   }, [processes]);
 
-  // Save VIEW STATE for layout restore
+  // Apply initialViewState from layout restore (props-based)
   useEffect(() => {
-    if (processes !== null) {
-      localStorage.setItem('steward_processes_view_state', JSON.stringify({
+    if (initialViewState && processes) {
+      if (initialViewState.selectedProcessId) {
+        const process = processes.find(p => p.id === initialViewState.selectedProcessId);
+        if (process) setSelectedProcess(process);
+      }
+      if (initialViewState.showProcessCanvasId) {
+        setShowProcessCanvas(initialViewState.showProcessCanvasId);
+      }
+    }
+  }, [initialViewState, processes]);
+
+  // Emit view state changes to parent (for layout save)
+  useEffect(() => {
+    if (processes !== null && onViewStateChange) {
+      onViewStateChange({
         selectedProcessId: selectedProcess?.id || null,
         showProcessCanvasId: showProcessCanvas
-      }));
+      });
     }
-  }, [processes, selectedProcess, showProcessCanvas]);
-
-  // Restore view state on mount AND on layout restore event
-  useEffect(() => {
-    const restoreViewState = () => {
-      try {
-        const savedViewState = localStorage.getItem('steward_processes_view_state');
-        if (savedViewState && processes) {
-          const parsed = JSON.parse(savedViewState);
-          if (parsed.selectedProcessId) {
-            const process = processes.find(p => p.id === parsed.selectedProcessId);
-            if (process) setSelectedProcess(process);
-          }
-          if (parsed.showProcessCanvasId) {
-            setShowProcessCanvas(parsed.showProcessCanvasId);
-          }
-        }
-      } catch (e) {
-        console.warn('Could not restore processes view state:', e);
-      }
-    };
-    
-    if (processes) {
-      restoreViewState();
-    }
-    
-    window.addEventListener('steward-layout-restored', restoreViewState);
-    return () => {
-      window.removeEventListener('steward-layout-restored', restoreViewState);
-    };
-  }, [processes]);
+  }, [selectedProcess, showProcessCanvas, processes, onViewStateChange]);
 
   // Sync selectedProcess with processes changes
   useEffect(() => {
