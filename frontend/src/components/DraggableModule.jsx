@@ -345,6 +345,9 @@ const DraggableModule = ({ module }) => {
   };
 
   const handleMaximize = () => {
+    const safeZone = getSafeZone();
+    if (!safeZone.isValid) return; // Guard: no-op if invalid
+    
     if (isMaximized) {
       // Restore to previous state
       if (previousState) {
@@ -361,17 +364,14 @@ const DraggableModule = ({ module }) => {
         });
       }
       
-      const { maxWidth, maxHeight } = getWorkspaceBounds();
-      const padding = WORKSPACE_BOUNDS.padding;
-      
-      // Position is relative to Canvas (which starts after header)
+      // Maximize to SAFE ZONE (same as UP SNAP)
       updateModulePosition(module.id, { 
-        x: padding, 
-        y: padding
+        x: safeZone.left, 
+        y: safeZone.top
       });
       updateModuleSize(module.id, {
-        width: maxWidth - (padding * 2),
-        height: maxHeight - (padding * 2)
+        width: safeZone.width,
+        height: safeZone.height
       });
       setIsMaximized(true);
     }
