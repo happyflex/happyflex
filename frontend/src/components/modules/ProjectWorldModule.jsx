@@ -671,27 +671,20 @@ const ProjectWorldModule = ({ project, onBack, initialPath }) => {
   );
 };
 
-// ProjectItem component (zůstává stejný jako předtím)
+// ProjectItem component - FIXED with shared drag utils
 const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdate, onDelete, onConnect }) => {
   const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const itemRef = useRef(null);
   const lastValidPosition = useRef({ x: item.position?.x || 0, y: item.position?.y || 0 });
   
-  // ANTI-JUMP: Drag start snapshot
-  const dragStartSnapshot = useRef(null);
-  
-  // Validation helper
-  const isValidNumber = (num) => {
-    return typeof num === 'number' && isFinite(num) && Math.abs(num) < 10000;
-  };
+  // ANTI-JUMP: Drag state ref (uses grid coords)
+  const dragStateRef = useRef(null);
   
   // Clamp position to canvas bounds
   const clampPosition = (x, y) => {
-    // Get parent canvas bounds (approximate - element should stay within reasonable area)
-    const maxX = 2000; // Max canvas width
-    const maxY = 1500; // Max canvas height
-    const minVisible = 50; // Minimum visible portion
+    const maxX = 2000;
+    const maxY = 1500;
+    const minVisible = 50;
     
     return {
       x: Math.max(-item.size?.width + minVisible || 0, Math.min(maxX, x)),
@@ -706,47 +699,111 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
     
     e.preventDefault();
     
-    // ANTI-JUMP: Store snapshot but DON'T activate drag yet
-    const rect = itemRef.current?.getBoundingClientRect();
-    if (!rect) return;
+    // Find grid root (canvas element in ProjectWorldModule)
+    const gridRoot = itemRef.current?.closest('.absolute.inset-0');
+    if (!gridRoot) return;
     
-    // Store offset relative to element's top-left corner
-    const offsetX = e.clientX - rect.left;
-    const offsetY = e.clientY - rect.top;
+    // Get pointer position in grid coords using shared helper
+    const pointerLocal = getLocalPointer(e, gridRoot);
     
-    // Validate offset values
-    if (!isValidNumber(offsetX) || !isValidNumber(offsetY)) return;
+    // Item position from state = source of truth (in grid coords)
+    const itemPosLocal = { x: item.position?.x || 0, y: item.position?.y || 0 };
     
-    dragStartSnapshot.current = {
+    // Calculate grab offset in grid coords
+    const grabOffsetX = pointerLocal.x - itemPosLocal.x;
+    const grabOffsetY = pointerLocal.y - itemPosLocal.y;
+    
+    // Store drag state - DON'T activate drag yet
+    dragStateRef.current = {
       pointerStart: { x: e.clientX, y: e.clientY },
-      elementRectStart: { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
-      grabOffset: { x: offsetX, y: offsetY },
+      grabOffset: { x: grabOffsetX, y: grabOffsetY },
+      gridRoot: gridRoot,
       activatedDrag: false
     };
     
-    setDragOffset({ x: offsetX, y: offsetY });
-    
-    // Store current position as last valid
-    lastValidPosition.current = { 
-      x: item.position?.x || 0, 
-      y: item.position?.y || 0 
-    };
-    
-    // DON'T set isDragging=true here - wait for threshold
-    // DON'T call onSelect() here - it might cause rerender/jump
+    lastValidPosition.current = itemPosLocal;
   };
 
   useEffect(() => {
     const handleMouseMove = (e) => {
       // ANTI-JUMP: Check if drag should activate (threshold check)
-      if (dragStartSnapshot.current && !dragStartSnapshot.current.activatedDrag && !isDragging) {
-        const dx = Math.abs(e.clientX - dragStartSnapshot.current.pointerStart.x);
-        const dy = Math.abs(e.clientY - dragStartSnapshot.current.pointerStart.y);
+      if (dragStateRef.current && !dragStateRef.current.activatedDrag && !isDragging) {
+        const dx = Math.abs(e.clientX - dragStateRef.current.pointerStart.x);
+        const dy = Math.abs(e.clientY - dragStateRef.current.pointerStart.y);
         
         // Threshold: 2px movement required
         if (dx + dy < 2) {
-          return; // Don't activate yet
+          return;
         }
+        
+        // Activate drag now
+        dragStateRef.current.activatedDrag = true;
+        setIsDragging(true);
+        onSelect();
+        
+        // First position calculation in GRID COORDS
+        const gridRoot = dragStateRef.current.gridRoot;
+        const pointerLocal = getLocalPointer(e, gridRoot);
+        
+        const newX = pointerLocal.x - dragStateRef.current.grabOffset.x;
+        const newY = pointerLocal.y - dragStateRef.current.grabOffset.y;
+        
+        if (isValidNumber(newX) && isValidNumber(newY)) {
+          const clamped = clampPosition(newX, newY);
+          lastValidPosition.current = clamped;
+          onMove(item.id, clamped);
+        }
+        return;
+      }
+      
+      if (!isDragging || !dragStateRef.current) return;
+      
+      // Calculate position in GRID COORDS
+      const gridRoot = dragStateRef.current.gridRoot;
+      const pointerLocal = getLocalPointer(e, gridRoot);
+      
+      const newX = pointerLocal.x - dragStateRef.current.grabOffset.x;
+      const newY = pointerLocal.y - dragStateRef.current.grabOffset.y;
+      
+      if (!isValidNumber(newX) || !isValidNumber(newY)) {
+        return;
+      }
+      
+      const clamped = clampPosition(newX, newY);
+      lastValidPosition.current = clamped;
+      onMove(item.id, clamped);
+    };
+
+    const handleMouseUp = () => {
+      // ANTI-JUMP: Clear drag state
+      if (dragStateRef.current) {
+        // If drag never activated (just a click), trigger onSelect
+        if (!dragStateRef.current.activatedDrag) {
+          onSelect();
+        }
+        dragStateRef.current = null;
+      }
+      
+      setIsDragging(false);
+    };
+
+    if (isDragging || dragStateRef.current) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = 'none';
+      document.body.style.cursor = isDragging ? 'grabbing' : 'grab';
+    } else {
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+    };
+  }, [isDragging, item.id, item.position, item.size, onMove, onSelect]);
         
         // Activate drag now
         dragStartSnapshot.current.activatedDrag = true;
