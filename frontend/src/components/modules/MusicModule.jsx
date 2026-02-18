@@ -155,18 +155,29 @@ const MusicModule = () => {
     }
   }, [activeTab, miniMode, currentPlaylist]);
 
-  // Restore view state on mount
+  // Restore view state on mount AND on layout restore event
   useEffect(() => {
-    try {
-      const savedViewState = localStorage.getItem('steward_music_view_state');
-      if (savedViewState) {
-        const parsed = JSON.parse(savedViewState);
-        if (parsed.activeTab) setActiveTab(parsed.activeTab);
-        if (parsed.miniMode !== undefined) setMiniMode(parsed.miniMode);
+    const restoreViewState = () => {
+      try {
+        const savedViewState = localStorage.getItem('steward_music_view_state');
+        if (savedViewState) {
+          const parsed = JSON.parse(savedViewState);
+          if (parsed.activeTab) setActiveTab(parsed.activeTab);
+          if (parsed.miniMode !== undefined) setMiniMode(parsed.miniMode);
+        }
+      } catch (e) {
+        console.warn('Could not restore music view state:', e);
       }
-    } catch (e) {
-      console.warn('Could not restore music view state:', e);
-    }
+    };
+    
+    // Restore on mount
+    restoreViewState();
+    
+    // Listen for layout restore event
+    window.addEventListener('steward-layout-restored', restoreViewState);
+    return () => {
+      window.removeEventListener('steward-layout-restored', restoreViewState);
+    };
   }, []);
 
   // Get current track
