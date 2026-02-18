@@ -741,7 +741,11 @@ export const WorkspaceProvider = ({ children }) => {
     snapToLeft,
     snapToRight,
     moveCanvasModuleUp,
-    moveCanvasModuleDown
+    moveCanvasModuleDown,
+    // Layout restore functions
+    restoreModules,
+    restoreDeferredModules,
+    clearAllModules
   };
 
   return (
