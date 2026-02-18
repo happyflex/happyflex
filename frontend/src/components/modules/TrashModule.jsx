@@ -418,7 +418,7 @@ const TrashModule = () => {
   const filters = [
     { key: 'all', label: 'Vše', icon: Filter, count: contentCount },
     { key: TRASH_TYPES.NOTE, label: 'Poznámky', icon: Edit3, count: stats.notes },
-    { key: TRASH_TYPES.PROJECT, label: 'Projekty', icon: Layers, count: stats.projects },
+    { key: TRASH_TYPES.PROJECT, label: 'Projekty', icon: Layout, count: stats.projects },
     { key: TRASH_TYPES.PERSON, label: 'Lidi', icon: Users, count: stats.people },
     { key: TRASH_TYPES.TASK, label: 'Úkoly', icon: ListChecks, count: stats.tasks },
     { key: TRASH_TYPES.GOAL, label: 'Cíle', icon: Target, count: stats.goals },
