@@ -244,7 +244,7 @@ const GoalsModule = () => {
         <div className="flex items-center justify-between mb-3">
           <div>
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <Target className="h-5 w-5 text-cyan-400" />
+              <Target className="h-5 w-5 text-emerald-400" />
               Strategické cíle
             </h3>
             <p className="text-xs text-gray-400">{goals.length} cílů | Strategie před exekucí</p>
