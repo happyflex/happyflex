@@ -351,44 +351,51 @@ export const WorkspaceProvider = ({ children }) => {
     setModules(prev => [...prev, newModule]);
   }, [modules, findFreeSpace, getCascadePosition, getNewWindowZIndex]);
 
-  // Helper function for snap layouts
-  const getSnapLayouts = useCallback((availableWidth, availableHeight, padding) => {
+  // Helper function for snap layouts using SAFE ZONE
+  const getSnapLayouts = useCallback(() => {
+    const safeZone = getSafeZone();
+    if (!safeZone.isValid) return {};
+    
+    // Use floor/ceil to avoid 1px drift when splitting
+    const halfWidth = Math.floor(safeZone.width / 2);
+    const halfHeight = Math.floor(safeZone.height / 2);
+    
     return {
       'top-left': {
-        position: { x: padding, y: padding },
-        size: { width: availableWidth / 2 - padding, height: availableHeight / 2 - padding }
+        position: { x: safeZone.left, y: safeZone.top },
+        size: { width: halfWidth, height: halfHeight }
       },
       'top-right': {
-        position: { x: availableWidth / 2 + padding, y: padding },
-        size: { width: availableWidth / 2 - padding, height: availableHeight / 2 - padding }
+        position: { x: safeZone.left + Math.ceil(safeZone.width / 2), y: safeZone.top },
+        size: { width: halfWidth, height: halfHeight }
       },
       'bottom-left': {
-        position: { x: padding, y: availableHeight / 2 + padding },
-        size: { width: availableWidth / 2 - padding, height: availableHeight / 2 - padding }
+        position: { x: safeZone.left, y: safeZone.top + Math.ceil(safeZone.height / 2) },
+        size: { width: halfWidth, height: halfHeight }
       },
       'bottom-right': {
-        position: { x: availableWidth / 2 + padding, y: availableHeight / 2 + padding },
-        size: { width: availableWidth / 2 - padding, height: availableHeight / 2 - padding }
+        position: { x: safeZone.left + Math.ceil(safeZone.width / 2), y: safeZone.top + Math.ceil(safeZone.height / 2) },
+        size: { width: halfWidth, height: halfHeight }
       },
       'left-half': {
-        position: { x: padding, y: padding },
-        size: { width: availableWidth / 2 - padding, height: availableHeight }
+        position: { x: safeZone.left, y: safeZone.top },
+        size: { width: halfWidth, height: safeZone.height }
       },
       'right-half': {
-        position: { x: availableWidth / 2 + padding, y: padding },
-        size: { width: availableWidth / 2 - padding, height: availableHeight }
+        position: { x: safeZone.left + Math.ceil(safeZone.width / 2), y: safeZone.top },
+        size: { width: halfWidth, height: safeZone.height }
       },
       'top-half': {
-        position: { x: padding, y: padding },
-        size: { width: availableWidth, height: availableHeight / 2 - padding }
+        position: { x: safeZone.left, y: safeZone.top },
+        size: { width: safeZone.width, height: halfHeight }
       },
       'bottom-half': {
-        position: { x: padding, y: availableHeight / 2 + padding },
-        size: { width: availableWidth, height: availableHeight / 2 - padding }
+        position: { x: safeZone.left, y: safeZone.top + Math.ceil(safeZone.height / 2) },
+        size: { width: safeZone.width, height: halfHeight }
       },
       'maximized': {
-        position: { x: padding, y: padding },
-        size: { width: availableWidth, height: availableHeight }
+        position: { x: safeZone.left, y: safeZone.top },
+        size: { width: safeZone.width, height: safeZone.height }
       }
     };
   }, []);
