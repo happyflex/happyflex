@@ -362,8 +362,8 @@ const PeopleModule = () => {
       {people.length === 0 ? (
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center px-6">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-cyan-500/10 flex items-center justify-center">
-              <Users className="h-8 w-8 text-cyan-400/50" />
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-indigo-500/10 flex items-center justify-center">
+              <Users className="h-8 w-8 text-indigo-400/50" />
             </div>
             <h4 className="text-lg font-medium text-white mb-2">Žádné kontakty</h4>
             <p className="text-sm text-gray-400 mb-4">
