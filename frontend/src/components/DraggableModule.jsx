@@ -184,6 +184,7 @@ const DraggableModule = ({ module }) => {
   const [isMaximized, setIsMaximized] = useState(false);
   const [previousState, setPreviousState] = useState(null);
   const [currentSnapZone, setCurrentSnapZone] = useState(null);
+  const [isMouseDown, setIsMouseDown] = useState(false); // Track mousedown for useEffect trigger
   const moduleRef = useRef(null);
   
   // ANTI-JUMP: Drag state ref (prevents jump on mousedown)
