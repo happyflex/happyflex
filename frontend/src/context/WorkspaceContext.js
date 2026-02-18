@@ -491,16 +491,9 @@ export const WorkspaceProvider = ({ children }) => {
     setFocusedModuleId(null);
   }, []);
 
-  // Snap module to layout
+  // Snap module to layout (using SAFE ZONE)
   const snapToLayout = useCallback((id, layoutKey) => {
-    const padding = 16;
-    const rightSidebarWidth = 320;
-    const bottomToolbarHeight = 80;
-    const headerHeight = 64;
-    const availableWidth = window.innerWidth - rightSidebarWidth - (padding * 2);
-    const availableHeight = window.innerHeight - headerHeight - bottomToolbarHeight - (padding * 2);
-    
-    const snapLayouts = getSnapLayouts(availableWidth, availableHeight, padding);
+    const snapLayouts = getSnapLayouts();
     const layout = snapLayouts[layoutKey];
     
     if (layout) {
@@ -508,7 +501,7 @@ export const WorkspaceProvider = ({ children }) => {
         m.id === id ? { ...m, position: layout.position, size: layout.size } : m
       ));
     }
-  }, []);
+  }, [getSnapLayouts]);
 
   // Duplicate a module
   const duplicateModule = useCallback((id) => {
