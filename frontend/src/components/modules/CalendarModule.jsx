@@ -40,7 +40,7 @@ const formatDateKey = (date) => {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 };
 
-const CalendarModule = () => {
+const CalendarModule = ({ initialViewState, onViewStateChange }) => {
   const [view, setView] = useState('week');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState(() => {
@@ -59,38 +59,23 @@ const CalendarModule = () => {
     localStorage.setItem('steward_calendar_events', JSON.stringify(events));
   }, [events]);
 
-  // Save VIEW STATE for layout restore
+  // Apply initialViewState from layout restore (props-based)
   useEffect(() => {
-    localStorage.setItem('steward_calendar_view_state', JSON.stringify({
-      view,
-      selectedDate: selectedDate ? selectedDate.toISOString() : null
-    }));
-  }, [view, selectedDate]);
+    if (initialViewState) {
+      if (initialViewState.view) setView(initialViewState.view);
+      if (initialViewState.selectedDate) setSelectedDate(new Date(initialViewState.selectedDate));
+    }
+  }, [initialViewState]);
 
-  // Restore view state on mount AND on layout restore event
+  // Emit view state changes to parent (for layout save)
   useEffect(() => {
-    const restoreViewState = () => {
-      try {
-        const savedViewState = localStorage.getItem('steward_calendar_view_state');
-        if (savedViewState) {
-          const parsed = JSON.parse(savedViewState);
-          if (parsed.view) setView(parsed.view);
-          if (parsed.selectedDate) setSelectedDate(new Date(parsed.selectedDate));
-        }
-      } catch (e) {
-        console.warn('Could not restore calendar view state:', e);
-      }
-    };
-    
-    // Restore on mount
-    restoreViewState();
-    
-    // Listen for layout restore event
-    window.addEventListener('steward-layout-restored', restoreViewState);
-    return () => {
-      window.removeEventListener('steward-layout-restored', restoreViewState);
-    };
-  }, []);
+    if (onViewStateChange) {
+      onViewStateChange({
+        view,
+        selectedDate: selectedDate ? selectedDate.toISOString() : null
+      });
+    }
+  }, [view, selectedDate, onViewStateChange]);
 
   const [formData, setFormData] = useState({
     title: '',
