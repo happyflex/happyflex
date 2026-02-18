@@ -165,7 +165,7 @@ const ProjectWorldModule = ({ project, onBack }) => {
     }
   };
 
-  // Update items in current node
+  // Update items in current node and save immediately
   const updateCurrentNodeItems = (newItems) => {
     setStructure(prev => {
       const updated = JSON.parse(JSON.stringify(prev));
@@ -174,6 +174,10 @@ const ProjectWorldModule = ({ project, onBack }) => {
         node = node.children.find(child => child.id === currentPath[i]);
       }
       node.items = newItems;
+      
+      // Save immediately to localStorage
+      localStorage.setItem(`project_world_${project.id}`, JSON.stringify({ structure: updated }));
+      
       return updated;
     });
   };
