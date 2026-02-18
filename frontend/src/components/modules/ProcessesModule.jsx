@@ -82,6 +82,46 @@ const ProcessesModule = () => {
     }
   }, [processes]);
 
+  // Save VIEW STATE for layout restore
+  useEffect(() => {
+    if (processes !== null) {
+      localStorage.setItem('steward_processes_view_state', JSON.stringify({
+        selectedProcessId: selectedProcess?.id || null,
+        showProcessCanvasId: showProcessCanvas
+      }));
+    }
+  }, [processes, selectedProcess, showProcessCanvas]);
+
+  // Restore view state on mount AND on layout restore event
+  useEffect(() => {
+    const restoreViewState = () => {
+      try {
+        const savedViewState = localStorage.getItem('steward_processes_view_state');
+        if (savedViewState && processes) {
+          const parsed = JSON.parse(savedViewState);
+          if (parsed.selectedProcessId) {
+            const process = processes.find(p => p.id === parsed.selectedProcessId);
+            if (process) setSelectedProcess(process);
+          }
+          if (parsed.showProcessCanvasId) {
+            setShowProcessCanvas(parsed.showProcessCanvasId);
+          }
+        }
+      } catch (e) {
+        console.warn('Could not restore processes view state:', e);
+      }
+    };
+    
+    if (processes) {
+      restoreViewState();
+    }
+    
+    window.addEventListener('steward-layout-restored', restoreViewState);
+    return () => {
+      window.removeEventListener('steward-layout-restored', restoreViewState);
+    };
+  }, [processes]);
+
   // Sync selectedProcess with processes changes
   useEffect(() => {
     if (selectedProcess) {
