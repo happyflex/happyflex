@@ -562,13 +562,14 @@ const DraggableModule = ({ module }) => {
         setSnapPreview(null);
       }
       setIsDragging(false);
+      setIsMouseDown(false); // Reset mousedown state
       setIsDraggingWindow(false);
       setIsResizing(false);
       setResizeHandle(null);
       setSnapPreview(null);
     };
 
-    if (isDragging || isResizing || dragStateRef.current) {
+    if (isDragging || isResizing || isMouseDown) {
       document.body.style.userSelect = 'none';
       document.body.style.webkitUserSelect = 'none';
       document.body.style.cursor = isResizing ? (resizeHandle || 'nwse-resize') + '-resize' : (isDragging ? 'grabbing' : 'grab');
@@ -588,7 +589,7 @@ const DraggableModule = ({ module }) => {
       document.body.style.webkitUserSelect = '';
       document.body.style.cursor = '';
     };
-  }, [isDragging, isResizing, resizeHandle, module.id, module.size, module.position, updateModulePosition, updateModuleSize, currentSnapZone, snapToLayout, setSnapPreview, setIsDraggingWindow, isMaximized, bringToFront]);
+  }, [isDragging, isResizing, isMouseDown, resizeHandle, module.id, module.size, module.position, updateModulePosition, updateModuleSize, currentSnapZone, snapToLayout, setSnapPreview, setIsDraggingWindow, isMaximized, bringToFront]);
 
   if (!ModuleComponent) return null;
 
