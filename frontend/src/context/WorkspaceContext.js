@@ -251,7 +251,7 @@ export const WorkspaceProvider = ({ children }) => {
         width: availableWidth,
         height: availableHeight
       };
-      defaultPosition = { x: padding, y: 44 }; // Balanced top offset
+      defaultPosition = { x: 26, y: 44 }; // Balanced top and left offset
     } else if (isTrashModule) {
       defaultSize = { width: 380, height: 450 };
     } else {
