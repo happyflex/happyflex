@@ -35,7 +35,7 @@ const AVAILABILITY = {
   unknown: { label: 'Neznámá', color: 'bg-gray-500' }
 };
 
-const PeopleModule = () => {
+const PeopleModule = ({ initialViewState, onViewStateChange }) => {
   const { addPersonToTrash } = useTrash();
   const [people, setPeople] = useState(null); // null = not loaded yet
   const [selectedPerson, setSelectedPerson] = useState(null);
