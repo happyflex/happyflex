@@ -199,6 +199,7 @@ const TrashModule = () => {
         break;
       case TRASH_TYPES.PROJECT_ELEMENT:
         // Restore project element (note, task, milestone etc. inside a project)
+        // Just restore to localStorage, don't open module (that's for drag & drop)
         try {
           const { projectId, nodePath, connections } = item.metadata || {};
           if (!projectId) {
@@ -255,14 +256,6 @@ const TrashModule = () => {
             
             // Save back to localStorage
             localStorage.setItem(projectWorldKey, JSON.stringify(projectWorld));
-            
-            // Open Projects module and navigate to the project
-            addModule('projects');
-            
-            // Dispatch event to notify ProjectWorldModule to reload
-            window.dispatchEvent(new CustomEvent('steward-project-element-restored', {
-              detail: { projectId, nodePath: path }
-            }));
             
             toast({
               title: 'Element obnoven',
