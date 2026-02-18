@@ -270,83 +270,80 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
       localStorage.setItem(STORAGE_KEYS.SAVED_LAYOUTS, JSON.stringify(updatedLayouts));
       setLayouts(updatedLayouts);
       
-      // ===== STEP 1: Clear ALL current state =====
-      workspace.clearAllModules();
-      
-      // Wait for state to settle
-      await new Promise(resolve => setTimeout(resolve, 50));
-
-      // ===== STEP 2: Restore application data =====
-      if (layout.data) {
-        // Restore notes directly
-        if (layout.data.notes) {
-          workspace.setNotes(layout.data.notes);
-        }
-
-        // Restore tasks directly
-        if (layout.data.tasks) {
-          workspace.setTasks(layout.data.tasks);
-        }
-
-        // Restore timer
-        if (layout.data.timerSeconds !== undefined) {
-          workspace.setTimerSeconds(layout.data.timerSeconds);
-        }
-      }
-
-      // ===== STEP 3: Restore modules with COMPLETE state =====
+      // ===== STEP 1: Restore view state FIRST (before modules mount) =====
+      // This way when modules mount, they will read the correct view state
       if (layout.modules && layout.modules.length > 0) {
-        // Filter out invalid modules
-        const validModules = layout.modules.filter(m => m && m.type);
-        
-        // Use direct restore function - sets all properties at once
-        const restoredModules = workspace.restoreModules(validModules);
-        
-        // Wait for state to settle
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        // ===== STEP 4: Restore view state for each module type =====
-        for (const moduleData of validModules) {
+        for (const moduleData of layout.modules) {
           if (moduleData.viewState && Object.keys(moduleData.viewState).length > 0) {
             restoreModuleViewState(moduleData.type, moduleData.viewState);
           }
         }
       }
+      
+      // Also restore CANVAS items view state
+      const canvasItems = layout.canvasModules || layout.deferredModules || [];
+      for (const canvasItem of canvasItems) {
+        if (canvasItem?.viewState && Object.keys(canvasItem.viewState).length > 0) {
+          restoreModuleViewState(canvasItem.type, canvasItem.viewState);
+        }
+      }
+      
+      // ===== STEP 2: Clear ALL current state =====
+      workspace.clearAllModules();
+      
+      // Wait for state to settle
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      // ===== STEP 3: Restore application data =====
+      if (layout.data) {
+        if (layout.data.notes) {
+          workspace.setNotes(layout.data.notes);
+        }
+        if (layout.data.tasks) {
+          workspace.setTasks(layout.data.tasks);
+        }
+        if (layout.data.timerSeconds !== undefined) {
+          workspace.setTimerSeconds(layout.data.timerSeconds);
+        }
+      }
+
+      // ===== STEP 4: Restore modules with COMPLETE state =====
+      let restoredModuleIds = [];
+      if (layout.modules && layout.modules.length > 0) {
+        const validModules = layout.modules.filter(m => m && m.type);
+        
+        // Use direct restore function - returns array of created modules
+        const restoredModules = workspace.restoreModules(validModules);
+        restoredModuleIds = restoredModules.map(m => m.id);
+        
+        // Wait for React state to update
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
 
       // ===== STEP 5: Restore CANVAS items =====
-      const canvasItems = layout.canvasModules || layout.deferredModules || [];
-      
       if (canvasItems.length > 0) {
-        // Sort by order if available
         const sortedCanvasItems = [...canvasItems]
           .filter(item => item && item.type)
           .sort((a, b) => (a.order || 0) - (b.order || 0));
         
-        // Use direct restore function
         workspace.restoreDeferredModules(sortedCanvasItems);
-        
-        // Restore view state for canvas items
-        for (const canvasItem of sortedCanvasItems) {
-          if (canvasItem.viewState && Object.keys(canvasItem.viewState).length > 0) {
-            restoreModuleViewState(canvasItem.type, canvasItem.viewState);
-          }
-        }
       }
 
       // ===== STEP 6: Restore focus mode =====
-      await new Promise(resolve => setTimeout(resolve, 50));
-      
       if (layout.focusedModuleId) {
-        // Find the module with matching type (since IDs changed)
-        const focusedModuleData = layout.modules.find(m => m.id === layout.focusedModuleId);
-        if (focusedModuleData) {
-          // Find the restored module by index/type
-          const moduleIndex = layout.modules.findIndex(m => m.id === layout.focusedModuleId);
-          if (moduleIndex >= 0 && workspace.modules[moduleIndex]) {
-            workspace.setFocusMode(workspace.modules[moduleIndex].id);
-          }
+        // Find which index in original layout had focus
+        const focusedIndex = layout.modules.findIndex(m => m.id === layout.focusedModuleId);
+        
+        if (focusedIndex >= 0 && restoredModuleIds[focusedIndex]) {
+          // Wait for DOM to settle before setting focus
+          await new Promise(resolve => setTimeout(resolve, 100));
+          workspace.setFocusMode(restoredModuleIds[focusedIndex]);
         }
       }
+      
+      // ===== STEP 7: Dispatch event to trigger view state reload in modules =====
+      // This tells modules to re-read their view state from localStorage
+      window.dispatchEvent(new CustomEvent('steward-layout-restored'));
 
       onClose();
       
