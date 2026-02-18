@@ -227,6 +227,59 @@ const Canvas = () => {
           window.dispatchEvent(new CustomEvent('steward-processes-updated'));
         }
         break;
+        
+      case 'project_element':
+        // Project elements - restore to project localStorage and open project module
+        const { projectId, nodePath, connections } = data.metadata || {};
+        if (projectId) {
+          const projectWorldKey = `project_world_${projectId}`;
+          const storedProjectWorld = localStorage.getItem(projectWorldKey);
+          
+          if (storedProjectWorld) {
+            try {
+              const projectWorld = JSON.parse(storedProjectWorld);
+              const path = nodePath || ['root'];
+              let targetNode = projectWorld.structure?.root;
+              
+              // Navigate to correct node
+              for (let i = 1; i < path.length; i++) {
+                if (targetNode && targetNode.children) {
+                  const nextNode = targetNode.children.find(c => c.id === path[i]);
+                  if (nextNode) {
+                    targetNode = nextNode;
+                  } else {
+                    targetNode = projectWorld.structure?.root;
+                    break;
+                  }
+                }
+              }
+              
+              // Add item back
+              if (targetNode) {
+                targetNode.items = targetNode.items || [];
+                targetNode.items.push(originalData);
+                
+                if (connections && connections.length > 0) {
+                  targetNode.connections = targetNode.connections || [];
+                  targetNode.connections.push(...connections);
+                }
+                
+                localStorage.setItem(projectWorldKey, JSON.stringify(projectWorld));
+                
+                // Open Projects module and navigate to project
+                addModule('projects');
+                
+                // Dispatch event to open correct project and subproject
+                window.dispatchEvent(new CustomEvent('steward-project-element-restored', {
+                  detail: { projectId, nodePath: path }
+                }));
+              }
+            } catch (e) {
+              console.error('Error restoring project element:', e);
+            }
+          }
+        }
+        break;
     }
     
     // Open or focus the module
