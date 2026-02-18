@@ -127,7 +127,7 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
       size: m.size ? { ...m.size } : null,
       zIndex: m.zIndex || 0,
       order: index, // Preserve order in canvas
-      viewState: collectModuleViewState(m.type, m.id)
+      viewState: m.viewState || {} // Use viewState from module, not localStorage
     }));
 
     const newLayout = {
