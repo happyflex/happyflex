@@ -155,30 +155,25 @@ const MusicModule = ({ initialViewState, onViewStateChange }) => {
     }
   }, [activeTab, miniMode, currentPlaylist]);
 
-  // Restore view state on mount AND on layout restore event
+  // Apply initialViewState from layout restore (props-based)
   useEffect(() => {
-    const restoreViewState = () => {
-      try {
-        const savedViewState = localStorage.getItem('steward_music_view_state');
-        if (savedViewState) {
-          const parsed = JSON.parse(savedViewState);
-          if (parsed.activeTab) setActiveTab(parsed.activeTab);
-          if (parsed.miniMode !== undefined) setMiniMode(parsed.miniMode);
-        }
-      } catch (e) {
-        console.warn('Could not restore music view state:', e);
-      }
-    };
-    
-    // Restore on mount
-    restoreViewState();
-    
-    // Listen for layout restore event
-    window.addEventListener('steward-layout-restored', restoreViewState);
-    return () => {
-      window.removeEventListener('steward-layout-restored', restoreViewState);
-    };
-  }, []);
+    if (initialViewState && isInitialized.current) {
+      if (initialViewState.activeTab) setActiveTab(initialViewState.activeTab);
+      if (initialViewState.miniMode !== undefined) setMiniMode(initialViewState.miniMode);
+      if (initialViewState.selectedPlaylist) setCurrentPlaylist(initialViewState.selectedPlaylist);
+    }
+  }, [initialViewState]);
+
+  // Emit view state changes to parent (for layout save)
+  useEffect(() => {
+    if (isInitialized.current && onViewStateChange) {
+      onViewStateChange({
+        activeTab,
+        miniMode,
+        selectedPlaylist: currentPlaylist
+      });
+    }
+  }, [activeTab, miniMode, currentPlaylist, onViewStateChange]);
 
   // Get current track
   const getCurrentTrack = useCallback(() => {
