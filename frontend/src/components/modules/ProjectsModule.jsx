@@ -22,6 +22,25 @@ const ProjectsModule = () => {
     team: ''
   });
 
+  // Listen for project element restore events to open the correct project
+  useEffect(() => {
+    const handleElementRestored = (event) => {
+      const { projectId } = event.detail || {};
+      if (projectId) {
+        // Find and select the project
+        const project = projects.find(p => p.id === projectId);
+        if (project) {
+          setSelectedProject(project);
+        }
+      }
+    };
+
+    window.addEventListener('steward-project-element-restored', handleElementRestored);
+    return () => {
+      window.removeEventListener('steward-project-element-restored', handleElementRestored);
+    };
+  }, [projects]);
+
   // Delete project function
   const deleteProject = (projectId) => {
     const project = projects.find(p => p.id === projectId);
