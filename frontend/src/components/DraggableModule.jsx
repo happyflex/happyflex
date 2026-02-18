@@ -341,26 +341,20 @@ const DraggableModule = ({ module }) => {
     }
     setIsMaximized(true);
   };
-      updateModulePosition(module.id, { 
-        x: padding, 
-        y: padding  // Just padding from top of Canvas
-      });
-      updateModuleSize(module.id, {
-        width: window.innerWidth - rightSidebarWidth - (padding * 2),
-        // Height: full Canvas height minus bottom toolbar and paddings
-        height: window.innerHeight - headerHeight - bottomToolbarHeight - (padding * 2)
-      });
-      setIsMaximized(true);
-    }
-  };
 
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (isDragging) {
         e.preventDefault();
         
+        // Calculate new position based on stored offset
         let newX = e.clientX - dragOffset.x;
         let newY = e.clientY - dragOffset.y;
+        
+        // Validate calculated position
+        if (!isValidNumber(newX) || !isValidNumber(newY)) {
+          return; // Skip invalid updates
+        }
         
         // Detect snap zone during drag (for edge snapping)
         const zone = getSnapZone(e.clientX, e.clientY, window.innerWidth, window.innerHeight);
@@ -374,10 +368,10 @@ const DraggableModule = ({ module }) => {
           newY = magneticPos.y;
         }
         
-        updateModulePosition(module.id, {
-          x: Math.max(0, Math.min(newX, window.innerWidth - module.size.width)),
-          y: Math.max(0, Math.min(newY, window.innerHeight - module.size.height - 80))
-        });
+        // Clamp position to keep window accessible
+        const clamped = clampPosition(newX, newY, module.size.width, module.size.height);
+        
+        updateModulePosition(module.id, clamped);
       } else if (isResizing && resizeHandle) {
         e.preventDefault();
         
