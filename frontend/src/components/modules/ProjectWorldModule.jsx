@@ -705,9 +705,8 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
     if (e.target.closest('.item-content') && !e.target.closest('input, textarea')) return;
     
     e.preventDefault();
-    setIsDragging(true);
-    onSelect();
     
+    // ANTI-JUMP: Store snapshot but DON'T activate drag yet
     const rect = itemRef.current?.getBoundingClientRect();
     if (!rect) return;
     
@@ -716,15 +715,25 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
     const offsetY = e.clientY - rect.top;
     
     // Validate offset values
-    if (isValidNumber(offsetX) && isValidNumber(offsetY)) {
-      setDragOffset({ x: offsetX, y: offsetY });
-    }
+    if (!isValidNumber(offsetX) || !isValidNumber(offsetY)) return;
+    
+    dragStartSnapshot.current = {
+      pointerStart: { x: e.clientX, y: e.clientY },
+      elementRectStart: { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
+      grabOffset: { x: offsetX, y: offsetY },
+      activatedDrag: false
+    };
+    
+    setDragOffset({ x: offsetX, y: offsetY });
     
     // Store current position as last valid
     lastValidPosition.current = { 
       x: item.position?.x || 0, 
       y: item.position?.y || 0 
     };
+    
+    // DON'T set isDragging=true here - wait for threshold
+    // DON'T call onSelect() here - it might cause rerender/jump
   };
 
   useEffect(() => {
