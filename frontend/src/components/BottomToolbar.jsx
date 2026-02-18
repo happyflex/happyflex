@@ -71,6 +71,7 @@ const toolbarItems = [
   { id: 'processes', icon: GitBranch, label: 'Procesy', type: 'processes' },
   { id: 'trend', icon: Layout, label: 'Projekty', type: 'projects' },
   { id: 'file', icon: ListChecks, label: 'Úkoly', type: 'tasks' },
+  { id: 'files', icon: Folder, label: 'Soubory', type: 'files' },
   { id: 'calendar', icon: Calendar, label: 'Kalendář', type: 'calendar' },
   { id: 'music', icon: Music, label: 'Hudba', type: 'music' },
   { id: 'people', icon: Users, label: 'Lidi', type: 'people' },
