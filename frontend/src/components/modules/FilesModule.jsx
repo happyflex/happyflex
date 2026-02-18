@@ -182,6 +182,49 @@ const FilesModule = () => {
     }
   }, [fileSystem]);
 
+  // Save VIEW STATE for layout restore
+  useEffect(() => {
+    if (fileSystem) {
+      localStorage.setItem('steward_files_view_state', JSON.stringify({
+        activeSource,
+        selectedFolderId: selectedFolder?.id || null,
+        expandedFolders: Array.from(expandedFolders)
+      }));
+    }
+  }, [fileSystem, activeSource, selectedFolder, expandedFolders]);
+
+  // Restore view state on mount AND on layout restore event
+  useEffect(() => {
+    const restoreViewState = () => {
+      try {
+        const savedViewState = localStorage.getItem('steward_files_view_state');
+        if (savedViewState && fileSystem) {
+          const parsed = JSON.parse(savedViewState);
+          if (parsed.activeSource) setActiveSource(parsed.activeSource);
+          if (parsed.expandedFolders) setExpandedFolders(new Set(parsed.expandedFolders));
+          if (parsed.selectedFolderId) {
+            const folder = findItemById(fileSystem[parsed.activeSource || 'local']?.children || [], parsed.selectedFolderId);
+            if (folder) setSelectedFolder(folder);
+            else if (parsed.selectedFolderId.startsWith('root-')) {
+              setSelectedFolder(fileSystem[parsed.activeSource || 'local']);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Could not restore files view state:', e);
+      }
+    };
+    
+    if (fileSystem) {
+      restoreViewState();
+    }
+    
+    window.addEventListener('steward-layout-restored', restoreViewState);
+    return () => {
+      window.removeEventListener('steward-layout-restored', restoreViewState);
+    };
+  }, [fileSystem]);
+
   // Initialize selected folder
   useEffect(() => {
     if (fileSystem && !selectedFolder) {
