@@ -375,32 +375,64 @@ const DraggableModule = ({ module }) => {
       } else if (isResizing && resizeHandle) {
         e.preventDefault();
         
-        const rect = moduleRef.current.getBoundingClientRect();
+        const rect = moduleRef.current?.getBoundingClientRect();
+        if (!rect) return;
+        
         let newWidth = module.size.width;
         let newHeight = module.size.height;
         let newX = module.position.x;
         let newY = module.position.y;
-
+        
+        // Calculate new dimensions based on resize handle
         if (resizeHandle.includes('e')) {
-          newWidth = Math.max(300, e.clientX - rect.left);
+          newWidth = e.clientX - rect.left;
         }
         if (resizeHandle.includes('s')) {
-          newHeight = Math.max(200, e.clientY - rect.top);
+          newHeight = e.clientY - rect.top;
         }
         if (resizeHandle.includes('w')) {
           const deltaX = e.clientX - rect.left;
-          newWidth = Math.max(300, module.size.width - deltaX);
+          newWidth = module.size.width - deltaX;
           newX = module.position.x + deltaX;
         }
         if (resizeHandle.includes('n')) {
           const deltaY = e.clientY - rect.top;
-          newHeight = Math.max(200, module.size.height - deltaY);
+          newHeight = module.size.height - deltaY;
           newY = module.position.y + deltaY;
         }
-
-        updateModuleSize(module.id, { width: newWidth, height: newHeight });
-        if (newX !== module.position.x || newY !== module.position.y) {
-          updateModulePosition(module.id, { x: newX, y: newY });
+        
+        // Validate all values before applying
+        if (!isValidNumber(newWidth) || !isValidNumber(newHeight) || 
+            !isValidNumber(newX) || !isValidNumber(newY)) {
+          // Use last valid rect as fallback
+          return;
+        }
+        
+        // Clamp size to valid bounds
+        const clampedSize = clampSize(newWidth, newHeight);
+        
+        // Adjust position if size was clamped (for west/north handles)
+        if (resizeHandle.includes('w') && clampedSize.width !== newWidth) {
+          newX = module.position.x + (module.size.width - clampedSize.width);
+        }
+        if (resizeHandle.includes('n') && clampedSize.height !== newHeight) {
+          newY = module.position.y + (module.size.height - clampedSize.height);
+        }
+        
+        // Clamp position
+        const clampedPos = clampPosition(newX, newY, clampedSize.width, clampedSize.height);
+        
+        // Update last valid rect
+        lastValidRect.current = {
+          x: clampedPos.x,
+          y: clampedPos.y,
+          width: clampedSize.width,
+          height: clampedSize.height
+        };
+        
+        updateModuleSize(module.id, clampedSize);
+        if (clampedPos.x !== module.position.x || clampedPos.y !== module.position.y) {
+          updateModulePosition(module.id, clampedPos);
         }
       }
     };
@@ -408,6 +440,14 @@ const DraggableModule = ({ module }) => {
     const handleMouseUp = () => {
       // Apply snap if preview is active
       if (isDragging && currentSnapZone) {
+        // Save state before snap-maximize
+        if (currentSnapZone === 'maximized' && !isMaximized) {
+          setPreviousState({
+            position: { ...module.position },
+            size: { ...module.size }
+          });
+          setIsMaximized(true);
+        }
         snapToLayout(module.id, currentSnapZone);
         setCurrentSnapZone(null);
         setSnapPreview(null);
