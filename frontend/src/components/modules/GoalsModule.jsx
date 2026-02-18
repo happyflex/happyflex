@@ -90,23 +90,36 @@ const GoalsModule = () => {
     }
   }, [goals, selectedGoal, showPlanCanvas]);
 
-  // Restore view state on mount
+  // Restore view state on mount AND on layout restore event
   useEffect(() => {
-    try {
-      const savedViewState = localStorage.getItem('steward_goals_view_state');
-      if (savedViewState && goals) {
-        const parsed = JSON.parse(savedViewState);
-        if (parsed.openGoalId) {
-          const goal = goals.find(g => g.id === parsed.openGoalId);
-          if (goal) setSelectedGoal(goal);
+    const restoreViewState = () => {
+      try {
+        const savedViewState = localStorage.getItem('steward_goals_view_state');
+        if (savedViewState && goals) {
+          const parsed = JSON.parse(savedViewState);
+          if (parsed.openGoalId) {
+            const goal = goals.find(g => g.id === parsed.openGoalId);
+            if (goal) setSelectedGoal(goal);
+          }
+          if (parsed.planCanvasState) {
+            setShowPlanCanvas(parsed.planCanvasState);
+          }
         }
-        if (parsed.planCanvasState) {
-          setShowPlanCanvas(parsed.planCanvasState);
-        }
+      } catch (e) {
+        console.warn('Could not restore goals view state:', e);
       }
-    } catch (e) {
-      console.warn('Could not restore goals view state:', e);
+    };
+    
+    // Restore when goals are loaded
+    if (goals) {
+      restoreViewState();
     }
+    
+    // Listen for layout restore event
+    window.addEventListener('steward-layout-restored', restoreViewState);
+    return () => {
+      window.removeEventListener('steward-layout-restored', restoreViewState);
+    };
   }, [goals]);
 
   // Sync selectedGoal with goals changes
