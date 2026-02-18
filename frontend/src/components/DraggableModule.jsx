@@ -181,14 +181,14 @@ const DraggableModule = ({ module }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [resizeHandle, setResizeHandle] = useState(null);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isMaximized, setIsMaximized] = useState(false);
   const [previousState, setPreviousState] = useState(null);
   const [currentSnapZone, setCurrentSnapZone] = useState(null);
   const moduleRef = useRef(null);
   
-  // ANTI-JUMP: Drag start snapshot (prevents jump on mousedown)
-  const dragStartSnapshot = useRef(null);
+  // ANTI-JUMP: Drag state ref (prevents jump on mousedown)
+  // Stores: pointerStart, grabOffset (in workspace coords), activatedDrag flag
+  const dragStateRef = useRef(null);
   
   // Use ref for modules to avoid effect re-runs when other modules change
   const modulesRef = useRef(modules);
