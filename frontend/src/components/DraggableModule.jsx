@@ -191,6 +191,9 @@ const DraggableModule = ({ module }) => {
   // Stores: pointerStart, grabOffset (in workspace coords), activatedDrag flag
   const dragStateRef = useRef(null);
   
+  // STABLE RESIZE: Store start position for delta-based resize calculation
+  const resizeStartRef = useRef(null);
+  
   // Use ref for modules to avoid effect re-runs when other modules change
   const modulesRef = useRef(modules);
   modulesRef.current = modules;
