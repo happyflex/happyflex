@@ -271,6 +271,16 @@ const ProjectWorldModule = ({ project, onBack }) => {
     updateCurrentNodeItems(items.filter(item => item.id !== id));
     updateCurrentNodeConnections(connections.filter(conn => conn.from !== id && conn.to !== id));
     setSelectedItem(null);
+    
+    // Force immediate save to localStorage
+    setTimeout(() => {
+      const data = { structure };
+      // Get latest structure from state
+      setStructure(currentStructure => {
+        localStorage.setItem(`project_world_${project.id}`, JSON.stringify({ structure: currentStructure }));
+        return currentStructure;
+      });
+    }, 100);
   };
 
   const startConnection = (itemId) => {
