@@ -36,6 +36,53 @@ const SNAP_THRESHOLD = 50;
 // Magnetism threshold - how close modules need to be to snap together
 const MAGNET_THRESHOLD = 15;
 
+// SAFE ZONE constants (must match WorkspaceContext.js)
+const WORKSPACE_SAFE_MARGIN = 30;
+const WORKSPACE_LAYOUT = {
+  rightSidebarWidth: 320,
+  bottomToolbarHeight: 80,
+  headerHeight: 64
+};
+
+// Helper: Calculate SAFE ZONE rect
+const getSafeZone = () => {
+  const { rightSidebarWidth, bottomToolbarHeight, headerHeight } = WORKSPACE_LAYOUT;
+  
+  const boundsLeft = 0;
+  const boundsTop = 0;
+  const boundsRight = window.innerWidth - rightSidebarWidth;
+  const boundsBottom = window.innerHeight - headerHeight - bottomToolbarHeight;
+  
+  const safeLeft = boundsLeft + WORKSPACE_SAFE_MARGIN;
+  const safeTop = boundsTop + WORKSPACE_SAFE_MARGIN;
+  const safeRight = boundsRight - WORKSPACE_SAFE_MARGIN;
+  const safeBottom = boundsBottom - WORKSPACE_SAFE_MARGIN;
+  const safeWidth = safeRight - safeLeft;
+  const safeHeight = safeBottom - safeTop;
+  
+  if (safeWidth <= 0 || safeHeight <= 0) {
+    return {
+      left: boundsLeft,
+      top: boundsTop,
+      right: boundsRight,
+      bottom: boundsBottom,
+      width: boundsRight - boundsLeft,
+      height: boundsBottom - boundsTop,
+      isValid: false
+    };
+  }
+  
+  return {
+    left: safeLeft,
+    top: safeTop,
+    right: safeRight,
+    bottom: safeBottom,
+    width: safeWidth,
+    height: safeHeight,
+    isValid: true
+  };
+};
+
 // Calculate snap zones based on current window size
 const getSnapZone = (x, y, windowWidth, windowHeight) => {
   const rightSidebarWidth = 320;
