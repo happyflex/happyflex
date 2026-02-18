@@ -213,7 +213,7 @@ const ProcessesModule = () => {
         <div className="flex items-center justify-between mb-3">
           <div>
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <GitBranch className="h-5 w-5 text-cyan-400" />
+              <GitBranch className="h-5 w-5 text-purple-400" />
               Procesy
             </h3>
             <p className="text-xs text-gray-400">{processes.length} procesů | Most mezi plánem a prací</p>
