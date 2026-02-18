@@ -209,6 +209,7 @@ export const TrashProvider = ({ children }) => {
       windows: trashItems.filter(i => i.type === TRASH_TYPES.WINDOW).length,
       notes: trashItems.filter(i => i.type === TRASH_TYPES.NOTE).length,
       projects: trashItems.filter(i => i.type === TRASH_TYPES.PROJECT).length,
+      projectElements: trashItems.filter(i => i.type === TRASH_TYPES.PROJECT_ELEMENT).length,
       people: trashItems.filter(i => i.type === TRASH_TYPES.PERSON).length,
       tasks: trashItems.filter(i => i.type === TRASH_TYPES.TASK).length,
       goals: trashItems.filter(i => i.type === TRASH_TYPES.GOAL).length,
