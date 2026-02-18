@@ -57,7 +57,7 @@ const TasksModule = () => {
             className="bg-cyan-500 hover:bg-cyan-400 text-white"
           >
             <Plus className="h-4 w-4 mr-1" />
-            Nový
+            Nový úkol
           </Button>
         }
       />

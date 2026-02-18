@@ -328,7 +328,7 @@ const PeopleModule = () => {
             className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border border-cyan-500/40"
           >
             <Plus className="h-4 w-4 mr-1" />
-            Přidat
+            Nový kontakt
           </Button>
         </div>
 
