@@ -287,6 +287,14 @@ const DraggableModule = ({ module }) => {
     setIsResizing(true);
     setResizeHandle(handle);
     bringToFront(module.id);
+    
+    // Store current valid rect before resize
+    lastValidRect.current = {
+      x: module.position.x,
+      y: module.position.y,
+      width: module.size.width,
+      height: module.size.height
+    };
   };
 
   const handleMaximize = () => {
@@ -298,24 +306,41 @@ const DraggableModule = ({ module }) => {
       }
       setIsMaximized(false);
     } else {
-      // Save current state and maximize to fit workspace
+      // Save current state before maximizing (only if not already saved)
+      if (!previousState || !isMaximized) {
+        setPreviousState({
+          position: { ...module.position },
+          size: { ...module.size }
+        });
+      }
+      
+      const { maxWidth, maxHeight } = getWorkspaceBounds();
+      const padding = WORKSPACE_BOUNDS.padding;
+      
+      // Position is relative to Canvas (which starts after header)
+      updateModulePosition(module.id, { 
+        x: padding, 
+        y: padding
+      });
+      updateModuleSize(module.id, {
+        width: maxWidth - (padding * 2),
+        height: maxHeight - (padding * 2)
+      });
+      setIsMaximized(true);
+    }
+  };
+  
+  // Handle snap-maximize (called when snapping to top edge)
+  const handleSnapMaximize = () => {
+    // Save state before snap-maximize if not already maximized
+    if (!isMaximized && !previousState) {
       setPreviousState({
         position: { ...module.position },
         size: { ...module.size }
       });
-      
-      // Workspace dimensions (modules are positioned relative to Canvas, not window):
-      // - Canvas starts after Header (64px in window coordinates)
-      // - Right sidebar: 320px (w-80)
-      // - Bottom toolbar: 80px (h-20)
-      // - Padding around: 16px each side for breathing room
-      
-      const padding = 16;
-      const rightSidebarWidth = 320;
-      const bottomToolbarHeight = 80;
-      const headerHeight = 64;
-      
-      // Position is relative to Canvas (which starts after header)
+    }
+    setIsMaximized(true);
+  };
       updateModulePosition(module.id, { 
         x: padding, 
         y: padding  // Just padding from top of Canvas
