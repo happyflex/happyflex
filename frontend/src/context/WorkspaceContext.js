@@ -185,13 +185,12 @@ export const WorkspaceProvider = ({ children }) => {
 
   // Get cascade position based on top-most window
   const getCascadePosition = useCallback((existingModules) => {
-    const padding = 16;
-    const leftOffset = 26; // Extra left padding for balanced look
+    const sideMargin = 26; // Symmetric margin
     const AUTO_LAYOUT_TOP_OFFSET = Math.max(16, 44); // 44px from top of canvas
     const cascadeOffset = 30;
     
     if (existingModules.length === 0) {
-      return { x: leftOffset + 100, y: AUTO_LAYOUT_TOP_OFFSET + 40 };
+      return { x: sideMargin + 100, y: AUTO_LAYOUT_TOP_OFFSET + 40 };
     }
     
     // Find the top-most window (highest z-index)
