@@ -3,6 +3,7 @@ import { X, Minus, Maximize2, Pin, Trash2 } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { useTrash } from '../context/TrashContext';
 import { Button } from './ui/button';
+import { getLocalPointer, isValidNumber } from '../utils/dragUtils';
 import NotesModule from './modules/NotesModule';
 import TasksModule from './modules/TasksModule';
 import PeopleModule from './modules/PeopleModule';
