@@ -303,7 +303,9 @@ const DraggableModule = ({ module }) => {
     
     // Prevent text selection during internal drag
     e.preventDefault();
+    e.stopPropagation(); // Add this to prevent event bubbling
     
+    console.log(`[MOUSEDOWN] Starting drag on ${module.id}`);
     setIsDragging(true);
     setIsDraggingWindow(true);
     bringToFront(module.id);
