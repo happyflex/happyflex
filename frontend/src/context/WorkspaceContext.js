@@ -127,9 +127,10 @@ export const WorkspaceProvider = ({ children }) => {
   // Find free space for a new window
   const findFreeSpace = useCallback((windowSize, existingModules) => {
     const padding = 16;
-    const headerHeight = 64;
+    const topOffset = 8; // Small gap from top of canvas
     const rightSidebarWidth = 320;
     const bottomToolbarHeight = 80;
+    const headerHeight = 64;
     
     const workspaceWidth = window.innerWidth - rightSidebarWidth - padding;
     const workspaceHeight = window.innerHeight - headerHeight - bottomToolbarHeight - padding;
@@ -140,7 +141,8 @@ export const WorkspaceProvider = ({ children }) => {
     const windowHeight = windowSize.height;
     
     // Try different positions starting from top-left, moving right then down
-    for (let y = headerHeight + padding; y + windowHeight <= workspaceHeight + headerHeight; y += gridStep) {
+    // Start with small topOffset instead of headerHeight + padding (windows are positioned relative to Canvas)
+    for (let y = topOffset; y + windowHeight <= workspaceHeight; y += gridStep) {
       for (let x = padding; x + windowWidth <= workspaceWidth; x += gridStep) {
         const testRect = { x, y, width: windowWidth, height: windowHeight };
         
