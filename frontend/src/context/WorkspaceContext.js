@@ -230,14 +230,15 @@ export const WorkspaceProvider = ({ children }) => {
     );
   };
 
-  // Get cascade position based on top-most window
+  // Get cascade position based on top-most window (using SAFE ZONE)
   const getCascadePosition = useCallback((existingModules) => {
-    const sideMargin = 26; // Symmetric margin
-    const AUTO_LAYOUT_TOP_OFFSET = Math.max(16, 44); // 44px from top of canvas
-    const cascadeOffset = 30;
+    const safeZone = getSafeZone();
+    if (!safeZone.isValid) return { x: WORKSPACE_SAFE_MARGIN, y: WORKSPACE_SAFE_MARGIN };
+    
+    const cascadeOffset = WORKSPACE_WINDOW_GAP;
     
     if (existingModules.length === 0) {
-      return { x: sideMargin + 100, y: AUTO_LAYOUT_TOP_OFFSET + 40 };
+      return { x: safeZone.left, y: safeZone.top };
     }
     
     // Find the top-most window (highest z-index)
