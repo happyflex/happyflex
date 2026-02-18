@@ -126,8 +126,7 @@ export const WorkspaceProvider = ({ children }) => {
 
   // Find free space for a new window
   const findFreeSpace = useCallback((windowSize, existingModules) => {
-    const padding = 16;
-    const leftOffset = 26; // Extra left padding for balanced look
+    const sideMargin = 26; // Symmetric left and right margin
     const headerHeight = 64;
     const rightSidebarWidth = 320;
     const bottomToolbarHeight = 80;
@@ -136,8 +135,9 @@ export const WorkspaceProvider = ({ children }) => {
     // Windows are positioned relative to Canvas (which starts after header)
     const AUTO_LAYOUT_TOP_OFFSET = Math.max(16, 44); // 44px from top of canvas
     
-    const workspaceWidth = window.innerWidth - rightSidebarWidth - padding;
-    const workspaceHeight = window.innerHeight - headerHeight - bottomToolbarHeight - padding;
+    // Use same margin on both sides for symmetry
+    const workspaceWidth = window.innerWidth - rightSidebarWidth - sideMargin;
+    const workspaceHeight = window.innerHeight - headerHeight - bottomToolbarHeight - 16;
     
     // Grid-based search for free space
     const gridStep = 50; // Check every 50px
@@ -146,7 +146,7 @@ export const WorkspaceProvider = ({ children }) => {
     
     // Try different positions starting from top-left, moving right then down
     for (let y = AUTO_LAYOUT_TOP_OFFSET; y + windowHeight <= workspaceHeight; y += gridStep) {
-      for (let x = leftOffset; x + windowWidth <= workspaceWidth; x += gridStep) {
+      for (let x = sideMargin; x + windowWidth <= workspaceWidth; x += gridStep) {
         const testRect = { x, y, width: windowWidth, height: windowHeight };
         
         // Check if this position overlaps with any existing module
