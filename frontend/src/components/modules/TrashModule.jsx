@@ -197,6 +197,87 @@ const TrashModule = () => {
           description: `${item.name} byl obnoven`
         });
         break;
+      case TRASH_TYPES.PROJECT_ELEMENT:
+        // Restore project element (note, task, milestone etc. inside a project)
+        try {
+          const { projectId, nodePath, connections } = item.metadata || {};
+          if (!projectId) {
+            toast({
+              title: 'Chyba',
+              description: 'Chybí informace o projektu',
+              variant: 'destructive'
+            });
+            break;
+          }
+
+          // Load project world data from localStorage
+          const projectWorldKey = `project_world_${projectId}`;
+          const storedProjectWorld = localStorage.getItem(projectWorldKey);
+          
+          if (!storedProjectWorld) {
+            toast({
+              title: 'Chyba',
+              description: 'Projekt nebyl nalezen',
+              variant: 'destructive'
+            });
+            break;
+          }
+
+          const projectWorld = JSON.parse(storedProjectWorld);
+          
+          // Navigate to the correct node in the structure using nodePath
+          const path = nodePath || ['root'];
+          let targetNode = projectWorld.structure?.root;
+          
+          for (let i = 1; i < path.length; i++) {
+            if (targetNode && targetNode.children) {
+              const nextNode = targetNode.children.find(c => c.id === path[i]);
+              if (nextNode) {
+                targetNode = nextNode;
+              } else {
+                // If path doesn't exist anymore, use root
+                targetNode = projectWorld.structure?.root;
+                break;
+              }
+            }
+          }
+
+          // Add the item back to the node
+          if (targetNode) {
+            targetNode.items = targetNode.items || [];
+            targetNode.items.push(item.originalData);
+            
+            // Restore connections if any
+            if (connections && connections.length > 0) {
+              targetNode.connections = targetNode.connections || [];
+              targetNode.connections.push(...connections);
+            }
+            
+            // Save back to localStorage
+            localStorage.setItem(projectWorldKey, JSON.stringify(projectWorld));
+            
+            // Open Projects module and navigate to the project
+            addModule('projects');
+            
+            // Dispatch event to notify ProjectWorldModule to reload
+            window.dispatchEvent(new CustomEvent('steward-project-element-restored', {
+              detail: { projectId, nodePath: path }
+            }));
+            
+            toast({
+              title: 'Element obnoven',
+              description: `${item.name} byl obnoven v projektu ${item.metadata?.projectName || 'Projekt'}`
+            });
+          }
+        } catch (e) {
+          console.error('Error restoring project element:', e);
+          toast({
+            title: 'Chyba',
+            description: 'Nepodařilo se obnovit element',
+            variant: 'destructive'
+          });
+        }
+        break;
       case TRASH_TYPES.PERSON:
         // Restore person - use localStorage directly since PeopleModule uses its own state
         try {
