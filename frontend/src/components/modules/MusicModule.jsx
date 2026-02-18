@@ -26,7 +26,7 @@ const MEDIA_TYPES = {
   link: { icon: Link2, label: 'Link', color: 'text-yellow-400' }
 };
 
-const MusicModule = () => {
+const MusicModule = ({ initialViewState, onViewStateChange }) => {
   // Track if initial load is complete
   const isInitialized = useRef(false);
   
