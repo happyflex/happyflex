@@ -64,17 +64,17 @@ const WORKZONES = [
 ];
 
 const toolbarItems = [
-  { id: 'chart', icon: BarChart3, label: 'Graf', type: 'chart' },
-  { id: 'timer', icon: Timer, label: 'Časovač', type: 'timer' },
   { id: 'edit', icon: Edit3, label: 'Poznámky', type: 'notes' },
+  { id: 'files', icon: Folder, label: 'Soubory', type: 'files' },
+  { id: 'trend', icon: Layout, label: 'Projekty', type: 'projects' },
   { id: 'goals', icon: Target, label: 'Cíle', type: 'goals' },
   { id: 'processes', icon: GitBranch, label: 'Procesy', type: 'processes' },
-  { id: 'trend', icon: Layout, label: 'Projekty', type: 'projects' },
-  { id: 'file', icon: ListChecks, label: 'Úkoly', type: 'tasks' },
-  { id: 'files', icon: Folder, label: 'Soubory', type: 'files' },
-  { id: 'calendar', icon: Calendar, label: 'Kalendář', type: 'calendar' },
-  { id: 'music', icon: Music, label: 'Hudba', type: 'music' },
   { id: 'people', icon: Users, label: 'Lidi', type: 'people' },
+  { id: 'file', icon: ListChecks, label: 'Úkoly', type: 'tasks' },
+  { id: 'timer', icon: Timer, label: 'Časovač', type: 'timer' },
+  { id: 'calendar', icon: Calendar, label: 'Kalendář', type: 'calendar' },
+  { id: 'chart', icon: BarChart3, label: 'Graf', type: 'chart' },
+  { id: 'music', icon: Music, label: 'Hudba', type: 'music' },
   { id: 'video', icon: Video, label: 'Video', type: 'video' },
   { id: 'ai', icon: Sparkles, label: 'AI Asistent', type: 'ai', highlight: true }
 ];
