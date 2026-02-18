@@ -1,3 +1,4 @@
+// STEWARD system check – no functional change
 import React from "react";
 import "./App.css";
 import { WorkspaceProvider } from "./context/WorkspaceContext";
