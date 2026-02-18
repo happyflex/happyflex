@@ -143,7 +143,7 @@ const createDefaultFileSystem = () => ({
 // Storage key
 const STORAGE_KEY = 'steward_files';
 
-const FilesModule = () => {
+const FilesModule = ({ initialViewState, onViewStateChange }) => {
   const { addToTrash, TRASH_TYPES } = useTrash();
   const { addModule } = useWorkspace();
   
