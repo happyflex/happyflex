@@ -178,29 +178,23 @@ export const WorkspaceProvider = ({ children }) => {
     }
   }, [timerSeconds]);
 
-  // Find free space for a new window
+  // Find free space for a new window using SAFE ZONE
   const findFreeSpace = useCallback((windowSize, existingModules) => {
-    const sideMargin = 26; // Symmetric left and right margin
-    const headerHeight = 64;
-    const rightSidebarWidth = 320;
-    const bottomToolbarHeight = 80;
+    const safeZone = getSafeZone();
+    if (!safeZone.isValid) return null;
     
-    // Balanced top offset - not too high, not too low
-    // Windows are positioned relative to Canvas (which starts after header)
-    const AUTO_LAYOUT_TOP_OFFSET = Math.max(16, 44); // 44px from top of canvas
-    
-    // Use same margin on both sides for symmetry
-    const workspaceWidth = window.innerWidth - rightSidebarWidth - sideMargin;
-    const workspaceHeight = window.innerHeight - headerHeight - bottomToolbarHeight - 16;
-    
-    // Grid-based search for free space
+    // Grid-based search for free space within SAFE ZONE
     const gridStep = 50; // Check every 50px
     const windowWidth = windowSize.width;
     const windowHeight = windowSize.height;
     
-    // Try different positions starting from top-left, moving right then down
-    for (let y = AUTO_LAYOUT_TOP_OFFSET; y + windowHeight <= workspaceHeight; y += gridStep) {
-      for (let x = sideMargin; x + windowWidth <= workspaceWidth; x += gridStep) {
+    // Maximum bounds for window placement (must fit entirely within SAFE ZONE)
+    const maxX = safeZone.right - windowWidth;
+    const maxY = safeZone.bottom - windowHeight;
+    
+    // Try different positions starting from top-left of SAFE ZONE
+    for (let y = safeZone.top; y <= maxY; y += gridStep) {
+      for (let x = safeZone.left; x <= maxX; x += gridStep) {
         const testRect = { x, y, width: windowWidth, height: windowHeight };
         
         // Check if this position overlaps with any existing module
@@ -211,7 +205,7 @@ export const WorkspaceProvider = ({ children }) => {
             y: module.position.y,
             width: module.size.width,
             height: module.size.height
-          })) {
+          }, WORKSPACE_WINDOW_GAP)) {
             overlaps = true;
             break;
           }
