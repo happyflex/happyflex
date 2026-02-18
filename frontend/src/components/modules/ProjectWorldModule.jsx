@@ -728,34 +728,53 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
     const handleMouseMove = (e) => {
       if (!isDragging) return;
       
-      // Calculate new position
-      let newX = e.clientX - dragOffset.x;
-      let newY = e.clientY - dragOffset.y;
-      
       // Get the canvas element to calculate relative position
       const canvas = itemRef.current?.closest('.relative.overflow-auto');
+      
       if (canvas) {
+        // FIXED: Calculate position relative to canvas with scroll
+        // Use viewport coords (clientX/clientY) and canvas rect
         const canvasRect = canvas.getBoundingClientRect();
         const scrollLeft = canvas.scrollLeft || 0;
         const scrollTop = canvas.scrollTop || 0;
         
-        newX = e.clientX - canvasRect.left + scrollLeft - dragOffset.x;
-        newY = e.clientY - canvasRect.top + scrollTop - dragOffset.y;
+        // Convert viewport coords to canvas-relative coords
+        // Pointer position in canvas: clientX - canvasRect.left + scroll
+        // Element position: pointer position - grab offset
+        const newX = (e.clientX - canvasRect.left) + scrollLeft - dragOffset.x;
+        const newY = (e.clientY - canvasRect.top) + scrollTop - dragOffset.y;
+        
+        // Validate calculated position
+        if (!isValidNumber(newX) || !isValidNumber(newY)) {
+          // Use last valid position as fallback
+          return;
+        }
+        
+        // Clamp to valid bounds
+        const clamped = clampPosition(newX, newY);
+        
+        // Update last valid position
+        lastValidPosition.current = clamped;
+        
+        onMove(item.id, clamped);
+      } else {
+        // Fallback: direct viewport positioning (no canvas)
+        const newX = e.clientX - dragOffset.x;
+        const newY = e.clientY - dragOffset.y;
+        
+        // Validate calculated position
+        if (!isValidNumber(newX) || !isValidNumber(newY)) {
+          return;
+        }
+        
+        // Clamp to valid bounds
+        const clamped = clampPosition(newX, newY);
+        
+        // Update last valid position
+        lastValidPosition.current = clamped;
+        
+        onMove(item.id, clamped);
       }
-      
-      // Validate calculated position
-      if (!isValidNumber(newX) || !isValidNumber(newY)) {
-        // Use last valid position as fallback
-        return;
-      }
-      
-      // Clamp to valid bounds
-      const clamped = clampPosition(newX, newY);
-      
-      // Update last valid position
-      lastValidPosition.current = clamped;
-      
-      onMove(item.id, clamped);
     };
 
     const handleMouseUp = () => {
