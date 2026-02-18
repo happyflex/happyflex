@@ -1,132 +1,152 @@
 <analysis>**original_problem_statement:**
-The user wants to modify the S.T.E.W.A.R.D. Workspace Dashboard. The initial requests are:
+The user wants to improve the S.T.E.W.A.R.D. Workspace Dashboard by fixing several UI bugs and implementing a comprehensive layout management system.
 
-1.  **Snap Mode Gutter:** When windows are snapped to the left and right sides, they currently touch. The goal is to introduce a 30px gap (gutter) between them, while maintaining the existing 30px SAFE ZONE margin from the edges of the workspace. This should only affect the left/right snap, not the top snap.
-2.  **Drag Behavior Fix (Jump on Drag Start):** When a user starts dragging a window (by its titlebar) or an element within the Projects module, the item jumps or snaps away from the cursor's initial grab point. The goal is to eliminate this jump, ensuring the dragged item remains perfectly glued to the cursor at the point where the drag was initiated.
+**Initial Bug Fixes (Completed):**
+1.  **Snap Mode Gutter:** Introduce a 30px gap between windows snapped to the left and right sides.
+2.  **Drag Behavior Fix:** Eliminate the jump that occurs when starting to drag a window or an element within the Projects module.
+3.  **Top Resize Fix:** Stabilize the resize behavior when dragging the top edge of a window to prevent it from jumping or calculating incorrect dimensions, especially with fast mouse movements.
+
+**Main Feature Request (In Progress):**
+*   **Robust Layout Saving & Loading:** Implement a system to save and load the entire workspace state. When a layout is loaded, it must restore not just the windows, but a complete snapshot of work, including:
+    *   Window positions, sizes, and stacking order ().
+    *   Window states like , , and .
+    *   All items present in the CANVAS area (the right-side deferred module list).
+    *   The internal view state of each module instance. For example:
+        *   **Music Module:** The active tab (Player/Library), whether mini-mode is on, and the selected playlist.
+        *   **Goals Module:** The specific goal being viewed and the active sub-section (e.g., Planning).
+        *   **Files Module:** The currently open folder.
+        *   **People Module:** The specific contact detail being viewed.
+    *   A  timestamp for each saved layout, which updates every time the layout is loaded.
 
 **User's preferred language**: Czech. The next agent MUST respond in Czech.
 
 **what currently exists?**
-The project is a full-stack application named S.T.E.W.A.R.D., a futuristic workspace dashboard with a modular canvas system. It uses React 19 for the frontend, FastAPI for the backend, and MongoDB for the database. Core functionality includes adding, moving, and snapping modules like Notes, Tasks, and Projects. The agent has successfully installed dependencies and confirmed all services are running.
+The project is a React-based workspace dashboard (S.T.E.W.A.R.D.) with a FastAPI backend. The initial UI bug fixes (drag jump, top resize) have been successfully implemented and tested. A layout saving/loading system has been built, which correctly restores window positions, sizes, pin/focus states, and CANVAS items.
+
+However, the final part of the implementation—restoring the internal view state of modules—has introduced a critical bug. The application now crashes on startup with a Maximum update depth exceeded error, indicating an infinite re-render loop.
 
 **Last working item**:
-*   **Last item agent was working:** Implementing a fix for the jump issue that occurs at the start of a drag operation for both windows and project elements. The agent identified that setting an  state immediately on  was causing an premature re-render, leading to the jump. The fix involves delaying the activation of the dragging state until the mouse has moved a small threshold (2px).
-*   **Status:** IN PROGRESS
-*   **Agent Testing Done:** N
-*   **Which testing method agent to use?** screenshot tool.
-    *   **Testing Blocker:** The agent has been unable to create a successful automated test because it cannot programmatically add modules to the workspace. This is a critical blocker for validating any UI change.
+*   **Last item agent was working:** The agent was trying to fix a Maximum update depth exceeded crash. This was caused by implementing a new props-based system (, ) for synchronizing the module's internal view state with the central . The implementation calls the  callback from within a  hook in each module without a proper conditional guard, triggering an infinite loop of re-renders.
+*   **Status:** BLOCKED
+*   **Agent Testing Done:** N (The application is not runnable).
+*   **Which testing method agent to use?** First, the agent must fix the crash. After the fix, use the  to manually test the complete layout saving/loading workflow as described by the user.
 *   **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
-*   **Issue 1:** The automated UI testing is consistently failing. (Priority: P0)
-*   **Issue 2:** The jump on drag start bug is not verified as fixed. (Priority: P1)
-*   **Issue 3:** The 30px snap gap feature is not verified as implemented. (Priority: P2)
+*   **Issue 1:** The application crashes on startup with a Maximum update depth exceeded error. (Priority: P0 - Blocker)
+*   **Issue 2:** The View State of modules is not restored when loading a layout. (Priority: P1)
 
 **Issues Detail:**
-*   **Issue 1: Failing UI Automation**
-    *   **Attempted fixes:** The agent tried multiple  scripts with different selectors (, ) to click buttons in the bottom toolbar to add modules to the canvas. All attempts failed to add a module, often getting stuck on a Layout Manager dialog or simply not triggering the action.
+*   **Issue 1: Application Crash (Maximum update depth exceeded)**
+    *   **Attempted fixes:** The agent refactored the view state logic from a  event-driven approach to a props-based system. This was the correct architectural change but was implemented incorrectly, causing the crash. The agent identified the cause is an unguarded callback in a  hook.
     *   **Next debug checklist:**
-        1.  Thoroughly inspect  to find the definitive, stable selectors for the individual module buttons (e.g., Notes, Projects).
-        2.  Construct a simple screenshot test that *only* tries to add one module and verifies it appears on the canvas. Do not combine this with other tests until this basic action is reliable.
-        3.  If clicks fail, consider alternative methods like directly calling the  function from the browser context if possible via the testing script.
-    *   **Why fix this issue and what will be achieved with the fix?** This is the highest priority issue. Without a reliable way to add modules, it's impossible to test the drag-and-drop or window snapping functionalities, blocking all other progress.
+        1.  Locate the  hook responsible for calling  in each of the following module files: , , , , , , and .
+        2.  Wrap the  call in a condition to prevent it from running on every render. The call should only execute if the new view state is different from the previously emitted view state.
+        3.  A standard pattern for this is to use a  to store the last emitted state and perform a deep comparison before calling the function. Example: 
+    *   **Why fix this issue and what will be achieved with the fix?** This is a critical blocker. The application is completely unusable until this crash is resolved.
     *   **Status:** IN PROGRESS
-    *   **Is recurring issue?** Y
+    *   **Is recurring issue?** N
     *   **Should Test frontend/backend/both after fix?** Frontend
     *   **Blocked on other issue:** None. This is the primary blocker.
 
-*   **Issue 2: Jump on drag start fix verification**
-    *   **Attempted fixes:** Code has been added to  and  to introduce a  on  and a movement threshold in  before activating the drag state.
+*   **Issue 2: Module View State Not Restoring on Layout Load**
+    *   **Attempted fixes:** The correct architecture (passing  as a prop and  as a callback) is in place but is non-functional due to the crash (Issue 1).
     *   **Next debug checklist:**
-        1.  Once Issue 1 is resolved, create a test that adds a module.
-        2.  Simulate a  on the module's titlebar. Take a screenshot.
-        3.  Simulate a tiny  (1px). The module should not have moved.
-        4.  Simulate a larger  (e.g., 50px). The module should now have moved, and the cursor should remain visually at the same point on the titlebar where the drag started.
-    *   **Why fix this issue and what will be achieved with the fix?** This will fix a jarring UX bug and provide a smooth, Stark-precise feel to window manipulation, as requested by the user.
-    *   **Status:** TESTING PENDING
-    *   **Is recurring issue?** N
+        1.  First, resolve Issue 1 to make the application runnable.
+        2.  Once the app is stable, perform a full validation test:
+            a. Open the Music module, select a playlist, and enable mini-mode.
+            b. Open the People module and view a contact's details.
+            c. Save the current workspace as a new layout.
+            d. Reset the workspace (e.g., close modules or change their states).
+            e. Load the saved layout.
+            f. Verify that the Music module is restored to mini-mode with the correct playlist and the People module is showing the correct contact detail.
+    *   **Why fix this issue and what will be achieved with the fix?** This will complete the user's core feature request for a fully persistent workspace.
+    *   **Status:** BLOCKED
+    *   **Is recurring issue?** Y
     *   **Should Test frontend/backend/both after fix?** Frontend
-    *   **Blocked on other issue:** Issue 1: Failing UI Automation
-
-*   **Issue 3: 30px snap gap feature verification**
-    *   **Attempted fixes:** The agent modified  to subtract a  from the available width before calculating the half-widths for left and right snapped windows.
-    *   **Next debug checklist:**
-        1.  Once Issue 1 is resolved, create a test that adds two modules.
-        2.  Drag one module to the far left edge of the workspace to trigger the snap.
-        3.  Drag the second module to the far right edge to trigger its snap.
-        4.  Take a screenshot and validate the 30px gap between the two modules and the 30px margins at the screen edges.
-    *   **Why fix this issue and what will be achieved with the fix?** This will implement a specific UI layout requirement from the user for a more organized and visually pleasing workspace.
-    *   **Status:** TESTING PENDING
-    *   **Is recurring issue?** N
-    *   **Should Test frontend/backend/both after fix?** Frontend
-    *   **Blocked on other issue:** Issue 1: Failing UI Automation
+    *   **Blocked on other issue:** Issue 1: Application Crash (Maximum update depth exceeded)
 
 **In progress Task List**:
-*   **Task 1: Implement and Validate Drag & Snap Fixes**
-    *   **Where to resume:** The code for both fixes is written. The immediate next step is to solve the UI automation blocker (Issue 1) so that testing can proceed.
-    *   **What will be achieved with this?** The two primary user requests will be fulfilled and validated.
+*   **Task 1: Stabilize and Complete the Layout View State Restoration Feature**
+    *   **Where to resume:** Begin by editing the module components (e.g., ) to add the conditional guard around the  call to fix the infinite loop.
+    *   **What will be achieved with this?** A stable, fully-functional layout management system that restores the complete workspace, including the internal state of each module.
     *   **Status:** BLOCKED
     *   **Should Test frontend/backend/both after fix?** Frontend
-    *   **Blocked on something:** Blocked on resolving the inability to programmatically add modules for testing.
+    *   **Blocked on something:** The application is crashing.
 
 **Upcoming and Future Tasks**
-There are no other pending tasks. The focus is entirely on fixing and validating the two requested UI behaviors.
+*   There are no other pending tasks. The entire focus is on fixing the current crash and completing the layout saving feature.
 
 **Completed work in this session**
-*   **Code Implementation for Snap Gap:** Modified  to correctly calculate window dimensions for left/right snapping with a 30px gap.
-*   **Code Implementation for Drag Jump:** Modified  and  to prevent the jump on drag start by using a movement threshold and snapshotting the initial state.
+- **Drag Jump Fix:** Implemented a shared coordinate conversion helper () and refactored  and  to eliminate the drag offset.
+- **Top Resize Fix:** Reworked the resize logic in  using a stable delta-based calculation, fixing erratic behavior during top-edge resizing.
+- **Layout System Foundation:**
+    - Expanded the data saved for each layout in  to include , , and CANVAS items.
+    - Re-architected module view state handling from an unreliable  event system to a robust props-based system (, ).
 
 **Earlier issues found/mentioned but not fixed**
-*   **Inability to interact with UI via automation:** This was discovered during this session and is the primary unresolved problem. The agent's attempts to use  with various selectors to click buttons and add modules have all failed.
+*   None. All previous issues were either resolved or led to the current blocking bug.
 
 **Known issue recurrence from previous fork**
-N/A
+*   The previous fork was blocked by failing automated UI tests (). The current agent worked around this by using manual testing and code-review agents. This underlying fragility in automated testing might reappear if complex tests are required in the future.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-*   **Frontend:** React 19, Tailwind CSS, React Hooks (, , ).
-*   **DOM APIs:** Using  extensively for position and dimension calculations in drag logic.
-*   **UI Logic:** Custom hooks () and components () to create a dynamic, draggable window manager interface from scratch.
+*   **React State Management:** Centralized state in  with heavy use of , , .
+*   **Component Communication:** A props-based pattern ( prop down,  callback up) is used to synchronize state between the central context and child modules.
+*   **Infinite Re-render Loop:** The primary bug is a classic React issue where a  triggers a state update in a parent, which causes a re-render of the child, which re-triggers the , leading to a crash.
 
 **key DB schema**
-Not explored during this session.
+N/A. Persistence is handled via the browser's .
 
 **All files of reference**
-*   **Modified:**
-    *   : To implement the 30px snap gap.
-    *   : To fix the drag jump for general modules.
-    *   : To fix the drag jump for items within the projects module.
-*   **Referenced:**
-    *   : To understand how to add modules.
-    *   : For general application structure.
+*   **Files to Fix (Source of Crash):**
+    *   
+    *   
+    *   
+    *   
+    *   
+    *   
+    *   
+*   **Core Logic Files:**
+    *    (Defines and manages the state).
+    *    (Passes the state props to modules).
+    *    (Orchestrates save/load).
 
 **Critical Info for New Agent**
-*   **The absolute top priority is to fix the UI automation.** You cannot verify your work until you can reliably add modules to the workspace in your test scripts. Focus on creating a simple, successful script for this before re-attempting to test the drag or snap fixes.
-*   The user communicates exclusively in **Czech**. All your responses must be in Czech.
-*   The code for the two user requests (snap gap and drag jump) is already written. Your task is to get them tested and verified. Do not rewrite them unless the tests reveal a flaw in the logic.
+*   **TOP PRIORITY: FIX THE CRASH.** The application is unusable. The crash is a Maximum update depth exceeded error caused by an infinite re-render loop.
+*   **THE CAUSE:**  hooks in the module components are calling the  callback on every render.
+*   **THE FIX:** You must edit each module component and add a condition to its  hook. The  callback should only be called if the module's internal view state has actually changed since the last time the callback was invoked. Use a  to cache the last-sent state and compare against it.
+*   Once the crash is fixed, you must perform the full user-defined test scenario to verify that the internal view state of modules is correctly saved and restored.
+
+**documents and test reports created in this job**
+*   
+*   
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User (Message 92):** Provided detailed instructions on how to fix the jump on drag start, emphasizing the need for a movement threshold and avoiding state changes on . This is the current active task.
-2.  **User (Message 57):** Provided initial, less detailed instructions on fixing the drag offset. This was superseded by the more specific drag jump instructions.
-3.  **User (Message 14):** Provided detailed instructions on how to implement the 30px gap for snapped windows. This task's code is complete but untested.
+1.  **User (message 302):** Provided a final, detailed problem statement explaining that module View State is not being restored correctly upon loading a layout. Listed specific examples for several modules (Goals, Files, Music, etc.). This is the primary unresolved task.
+2.  **User (message 325):** pokračujeme bejbyy! (Let's continue, baby!) - Encouragement to keep working.
+3.  **User (message 267):** Confirmed that layout loading works for window state, CANVAS, and focus mode, but reiterated that module View State (details, tabs, mini-mode) is still not being restored.
+4.  **User (message 240):** Confirmed that window state and CANVAS are loading correctly, but focus mode and view state are not.
+5.  **User (message 209):** Reported that the layout saving feature was not working as intended.
+6.  **User (message 150):** Provided a detailed problem statement for the comprehensive layout saving feature, including restoring window state, module view state, and CANVAS items.
+7.  **User (message 123):** Provided a detailed problem statement for fixing the buggy top resize behavior on windows. (This is completed).
+8.  **User (message 84):** Teď ten drag vůbec nejde. (Now the drag doesn't work at all.) - Reported that a previous fix had broken dragging entirely. (This was subsequently fixed).
+9.  **User (message 4):** Provided a very detailed, technical problem statement for fixing the jump on drag issue by unifying the coordinate system. (This is completed).
 
 **Project Health Check:**
-*   **Broken:** UI test automation is non-functional. The agent cannot programmatically interact with the main canvas.
+*   **Broken:** The entire frontend application is non-functional and crashes on startup.
 
 **3rd Party Integrations**
-None involved in the current tasks.
+*   None.
 
 **Testing status**
-*   **Testing agent used after significant changes:** NO
-*   **Troubleshoot agent used after agent stuck in loop:** NO (This should have been used).
-*   **Test files created:** None (only temporary scripts that failed).
-*   **Known regressions:** None, as no after state could be successfully tested.
-
-**Credentials to test flow:**
-N/A
+*   **Testing agent used after significant changes:** YES (but before the final breaking change).
+*   **Troubleshoot agent used after agent stuck in loop:** NO
+*   **Test files created:** None.
+*   **Known regressions:** The entire application is a regression from a previously working state due to the crash.
 
 **What agent forgot to execute**
-*   The agent failed to use the  after repeatedly failing to write a working UI test script.
-*   The agent did not successfully test or validate any of the code changes it made. The core work of verifying the fixes remains completely undone.</analysis>
+*   The agent failed to add a defensive condition when implementing the  callback, introducing a classic infinite re-render loop that it did not catch before finishing its work. This left the application in a completely broken state.</analysis>

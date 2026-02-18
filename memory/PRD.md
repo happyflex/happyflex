@@ -236,4 +236,4 @@ project_world_{projectId}: {
 - Testing agent iteration_7: CODE REVIEW PASS (Drag koordináty - oprava skoku, 30px snap gap)
 
 ## Preview URL
-https://steward-workspace.preview.emergentagent.com
+https://layout-restore-debug.preview.emergentagent.com
