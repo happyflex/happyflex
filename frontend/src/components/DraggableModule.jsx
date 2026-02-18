@@ -410,10 +410,10 @@ const DraggableModule = ({ module }) => {
 
   useEffect(() => {
     const handleMouseMove = (e) => {
-      // ANTI-JUMP: Check if we have drag start snapshot (mouse is down but drag not activated)
-      if (dragStartSnapshot.current && !dragStartSnapshot.current.activatedDrag && !isDragging) {
-        const dx = Math.abs(e.clientX - dragStartSnapshot.current.pointerStart.x);
-        const dy = Math.abs(e.clientY - dragStartSnapshot.current.pointerStart.y);
+      // ANTI-JUMP: Check if we have drag state ref (mouse is down but drag not activated)
+      if (dragStateRef.current && !dragStateRef.current.activatedDrag && !isDragging) {
+        const dx = Math.abs(e.clientX - dragStateRef.current.pointerStart.x);
+        const dy = Math.abs(e.clientY - dragStateRef.current.pointerStart.y);
         
         // Threshold: Activate drag only after 2px movement
         if (dx + dy < 2) {
@@ -421,32 +421,38 @@ const DraggableModule = ({ module }) => {
         }
         
         // Threshold exceeded - activate drag NOW
-        dragStartSnapshot.current.activatedDrag = true;
+        dragStateRef.current.activatedDrag = true;
         setIsDragging(true);
         setIsDraggingWindow(true);
         bringToFront(module.id);
         
-        // First position calculation (no jump - use stored grab offset)
-        const newX = e.clientX - dragStartSnapshot.current.grabOffset.x;
-        const newY = e.clientY - dragStartSnapshot.current.grabOffset.y;
+        // First position calculation in WORKSPACE COORDS (no jump)
+        const workspaceRoot = dragStateRef.current.workspaceRoot;
+        const pointerLocal = getLocalPointer(e, workspaceRoot);
+        
+        const newX = pointerLocal.x - dragStateRef.current.grabOffset.x;
+        const newY = pointerLocal.y - dragStateRef.current.grabOffset.y;
         
         // Validate
         if (!isValidNumber(newX) || !isValidNumber(newY)) {
           return;
         }
         
-        // DON'T apply snap/magnetic on first move - just clamp to prevent jump
+        // DON'T apply snap/magnetic on first move - just clamp
         const clamped = clampPosition(newX, newY, module.size.width, module.size.height);
         updateModulePosition(module.id, clamped);
         return;
       }
       
-      if (isDragging) {
+      if (isDragging && dragStateRef.current) {
         e.preventDefault();
         
-        // Calculate new position based on stored offset
-        let newX = e.clientX - dragOffset.x;
-        let newY = e.clientY - dragOffset.y;
+        // Calculate new position in WORKSPACE COORDS using stored grab offset
+        const workspaceRoot = dragStateRef.current.workspaceRoot;
+        const pointerLocal = getLocalPointer(e, workspaceRoot);
+        
+        let newX = pointerLocal.x - dragStateRef.current.grabOffset.x;
+        let newY = pointerLocal.y - dragStateRef.current.grabOffset.y;
         
         // Validate calculated position
         if (!isValidNumber(newX) || !isValidNumber(newY)) {
