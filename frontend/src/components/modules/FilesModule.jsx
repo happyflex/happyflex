@@ -182,48 +182,32 @@ const FilesModule = ({ initialViewState, onViewStateChange }) => {
     }
   }, [fileSystem]);
 
-  // Save VIEW STATE for layout restore
+  // Apply initialViewState from layout restore (props-based)
   useEffect(() => {
-    if (fileSystem) {
-      localStorage.setItem('steward_files_view_state', JSON.stringify({
+    if (initialViewState && fileSystem) {
+      if (initialViewState.activeSource) setActiveSource(initialViewState.activeSource);
+      if (initialViewState.expandedFolders) setExpandedFolders(new Set(initialViewState.expandedFolders));
+      if (initialViewState.selectedFolderId) {
+        const source = initialViewState.activeSource || 'local';
+        const folder = findItemById(fileSystem[source]?.children || [], initialViewState.selectedFolderId);
+        if (folder) setSelectedFolder(folder);
+        else if (initialViewState.selectedFolderId.startsWith('root-')) {
+          setSelectedFolder(fileSystem[source]);
+        }
+      }
+    }
+  }, [initialViewState, fileSystem]);
+
+  // Emit view state changes to parent (for layout save)
+  useEffect(() => {
+    if (fileSystem && onViewStateChange) {
+      onViewStateChange({
         activeSource,
         selectedFolderId: selectedFolder?.id || null,
         expandedFolders: Array.from(expandedFolders)
-      }));
+      });
     }
-  }, [fileSystem, activeSource, selectedFolder, expandedFolders]);
-
-  // Restore view state on mount AND on layout restore event
-  useEffect(() => {
-    const restoreViewState = () => {
-      try {
-        const savedViewState = localStorage.getItem('steward_files_view_state');
-        if (savedViewState && fileSystem) {
-          const parsed = JSON.parse(savedViewState);
-          if (parsed.activeSource) setActiveSource(parsed.activeSource);
-          if (parsed.expandedFolders) setExpandedFolders(new Set(parsed.expandedFolders));
-          if (parsed.selectedFolderId) {
-            const folder = findItemById(fileSystem[parsed.activeSource || 'local']?.children || [], parsed.selectedFolderId);
-            if (folder) setSelectedFolder(folder);
-            else if (parsed.selectedFolderId.startsWith('root-')) {
-              setSelectedFolder(fileSystem[parsed.activeSource || 'local']);
-            }
-          }
-        }
-      } catch (e) {
-        console.warn('Could not restore files view state:', e);
-      }
-    };
-    
-    if (fileSystem) {
-      restoreViewState();
-    }
-    
-    window.addEventListener('steward-layout-restored', restoreViewState);
-    return () => {
-      window.removeEventListener('steward-layout-restored', restoreViewState);
-    };
-  }, [fileSystem]);
+  }, [activeSource, selectedFolder, expandedFolders, fileSystem, onViewStateChange]);
 
   // Initialize selected folder
   useEffect(() => {
