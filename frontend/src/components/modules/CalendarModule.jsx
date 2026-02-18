@@ -382,6 +382,17 @@ const CalendarModule = () => {
         title="Kalendář"
         subtitle={`${events.length} událostí`}
         iconColor="text-red-400"
+        actions={
+          <Button
+            size="sm"
+            onClick={() => openNewEventForm(new Date(), 9)}
+            className="bg-cyan-500 hover:bg-cyan-400 text-white"
+            data-testid="new-event-button"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Nová událost
+          </Button>
+        }
       />
       
       {/* Toolbar */}
