@@ -79,6 +79,36 @@ const GoalsModule = () => {
     }
   }, [goals]);
 
+  // Save VIEW STATE for layout restore
+  useEffect(() => {
+    if (goals !== null) {
+      localStorage.setItem('steward_goals_view_state', JSON.stringify({
+        openGoalId: selectedGoal?.id || null,
+        activeSection: showPlanCanvas ? 'planning' : 'overview',
+        planCanvasState: showPlanCanvas
+      }));
+    }
+  }, [goals, selectedGoal, showPlanCanvas]);
+
+  // Restore view state on mount
+  useEffect(() => {
+    try {
+      const savedViewState = localStorage.getItem('steward_goals_view_state');
+      if (savedViewState && goals) {
+        const parsed = JSON.parse(savedViewState);
+        if (parsed.openGoalId) {
+          const goal = goals.find(g => g.id === parsed.openGoalId);
+          if (goal) setSelectedGoal(goal);
+        }
+        if (parsed.planCanvasState) {
+          setShowPlanCanvas(parsed.planCanvasState);
+        }
+      }
+    } catch (e) {
+      console.warn('Could not restore goals view state:', e);
+    }
+  }, [goals]);
+
   // Sync selectedGoal with goals changes
   useEffect(() => {
     if (selectedGoal) {
