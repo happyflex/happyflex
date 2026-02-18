@@ -329,13 +329,26 @@ const ProjectWorldModule = ({ project, onBack, initialPath }) => {
   // Get breadcrumb path
   const getBreadcrumbs = () => {
     const crumbs = [];
-    let node = structure.root;
+    let node = structure?.root;
+    
+    // Safety check - if structure or root doesn't exist, return empty
+    if (!node) {
+      return [{ id: 'root', name: 'Hlavní projekt' }];
+    }
+    
     crumbs.push({ id: 'root', name: node.name });
     
     for (let i = 1; i < currentPath.length; i++) {
-      node = node.children?.find(child => child.id === currentPath[i]);
-      if (node) {
+      // Safety check for children array
+      if (!node.children) break;
+      
+      const nextNode = node.children.find(child => child.id === currentPath[i]);
+      if (nextNode) {
+        node = nextNode;
         crumbs.push({ id: node.id, name: node.name });
+      } else {
+        // Path doesn't exist anymore, stop here
+        break;
       }
     }
     return crumbs;
