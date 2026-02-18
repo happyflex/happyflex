@@ -541,9 +541,9 @@ const DraggableModule = ({ module }) => {
     };
 
     const handleMouseUp = () => {
-      // ANTI-JUMP: Clear drag start snapshot
-      if (dragStartSnapshot.current) {
-        dragStartSnapshot.current = null;
+      // ANTI-JUMP: Clear drag state ref
+      if (dragStateRef.current) {
+        dragStateRef.current = null;
       }
       
       // Apply snap if preview is active
@@ -567,7 +567,7 @@ const DraggableModule = ({ module }) => {
       setSnapPreview(null);
     };
 
-    if (isDragging || isResizing || dragStartSnapshot.current) {
+    if (isDragging || isResizing || dragStateRef.current) {
       document.body.style.userSelect = 'none';
       document.body.style.webkitUserSelect = 'none';
       document.body.style.cursor = isResizing ? (resizeHandle || 'nwse-resize') + '-resize' : (isDragging ? 'grabbing' : 'grab');
@@ -587,7 +587,7 @@ const DraggableModule = ({ module }) => {
       document.body.style.webkitUserSelect = '';
       document.body.style.cursor = '';
     };
-  }, [isDragging, isResizing, resizeHandle, dragOffset, module.id, module.size, module.position, updateModulePosition, updateModuleSize, currentSnapZone, snapToLayout, setSnapPreview, setIsDraggingWindow, isMaximized]);
+  }, [isDragging, isResizing, resizeHandle, module.id, module.size, module.position, updateModulePosition, updateModuleSize, currentSnapZone, snapToLayout, setSnapPreview, setIsDraggingWindow, isMaximized, bringToFront]);
 
   if (!ModuleComponent) return null;
 
