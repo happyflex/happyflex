@@ -27,7 +27,7 @@ const GOAL_STATUS = {
   archived: { label: 'Archivováno', color: 'bg-gray-500/20 text-gray-500 border-gray-500/40', icon: Circle }
 };
 
-const GoalsModule = () => {
+const GoalsModule = ({ initialViewState, onViewStateChange }) => {
   const { addToTrash, TRASH_TYPES } = useTrash();
   const [goals, setGoals] = useState(null); // null = not loaded yet
   const [selectedGoal, setSelectedGoal] = useState(null);
