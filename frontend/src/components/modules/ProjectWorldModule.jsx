@@ -12,6 +12,7 @@ import ItemDetailPanel from './ItemDetailPanel';
 import RelationshipTypeDialog from './RelationshipTypeDialog';
 
 const ProjectWorldModule = ({ project, onBack }) => {
+  const { addToTrash, TRASH_TYPES } = useTrash();
   const [structure, setStructure] = useState({ 
     root: { 
       id: 'root', 
