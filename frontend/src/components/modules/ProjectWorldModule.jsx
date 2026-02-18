@@ -182,7 +182,7 @@ const ProjectWorldModule = ({ project, onBack }) => {
     });
   };
 
-  // Update connections in current node
+  // Update connections in current node and save immediately
   const updateCurrentNodeConnections = (newConnections) => {
     setStructure(prev => {
       const updated = JSON.parse(JSON.stringify(prev));
@@ -191,6 +191,10 @@ const ProjectWorldModule = ({ project, onBack }) => {
         node = node.children.find(child => child.id === currentPath[i]);
       }
       node.connections = newConnections;
+      
+      // Save immediately to localStorage
+      localStorage.setItem(`project_world_${project.id}`, JSON.stringify({ structure: updated }));
+      
       return updated;
     });
   };
