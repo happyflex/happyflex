@@ -224,7 +224,7 @@ const ProjectWorldModule = ({ project, onBack }) => {
       
       // Add to Trash with full restore data
       addToTrash({
-        type: TRASH_TYPES.PROJECT, // Using PROJECT type for project elements
+        type: TRASH_TYPES.PROJECT_ELEMENT, // Project element type for items inside projects
         name: itemToDelete.data?.title || typeLabels[itemToDelete.type] || 'Element',
         data: itemToDelete,
         sourceModule: 'Projekty',
