@@ -120,6 +120,46 @@ const PeopleModule = () => {
     }
   }, [people]);
 
+  // Save VIEW STATE for layout restore
+  useEffect(() => {
+    if (people !== null) {
+      localStorage.setItem('steward_people_view_state', JSON.stringify({
+        selectedPersonId: selectedPerson?.id || null,
+        filterType,
+        searchQuery
+      }));
+    }
+  }, [people, selectedPerson, filterType, searchQuery]);
+
+  // Restore view state on mount AND on layout restore event
+  useEffect(() => {
+    const restoreViewState = () => {
+      try {
+        const savedViewState = localStorage.getItem('steward_people_view_state');
+        if (savedViewState && people) {
+          const parsed = JSON.parse(savedViewState);
+          if (parsed.selectedPersonId) {
+            const person = people.find(p => p.id === parsed.selectedPersonId);
+            if (person) setSelectedPerson(person);
+          }
+          if (parsed.filterType) setFilterType(parsed.filterType);
+          if (parsed.searchQuery) setSearchQuery(parsed.searchQuery);
+        }
+      } catch (e) {
+        console.warn('Could not restore people view state:', e);
+      }
+    };
+    
+    if (people) {
+      restoreViewState();
+    }
+    
+    window.addEventListener('steward-layout-restored', restoreViewState);
+    return () => {
+      window.removeEventListener('steward-layout-restored', restoreViewState);
+    };
+  }, [people]);
+
   // Sync selectedPerson with people changes
   useEffect(() => {
     if (selectedPerson && people) {
