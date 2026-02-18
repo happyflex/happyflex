@@ -738,6 +738,44 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
 
   useEffect(() => {
     const handleMouseMove = (e) => {
+      // ANTI-JUMP: Check if drag should activate (threshold check)
+      if (dragStartSnapshot.current && !dragStartSnapshot.current.activatedDrag && !isDragging) {
+        const dx = Math.abs(e.clientX - dragStartSnapshot.current.pointerStart.x);
+        const dy = Math.abs(e.clientY - dragStartSnapshot.current.pointerStart.y);
+        
+        // Threshold: 2px movement required
+        if (dx + dy < 2) {
+          return; // Don't activate yet
+        }
+        
+        // Activate drag now
+        dragStartSnapshot.current.activatedDrag = true;
+        setIsDragging(true);
+        onSelect();
+        
+        // Calculate first position (no jump)
+        const canvas = itemRef.current?.closest('.relative.overflow-auto');
+        
+        if (canvas) {
+          const canvasRect = canvas.getBoundingClientRect();
+          const scrollLeft = canvas.scrollLeft || 0;
+          const scrollTop = canvas.scrollTop || 0;
+          
+          const pointerX = (e.clientX - canvasRect.left) + scrollLeft;
+          const pointerY = (e.clientY - canvasRect.top) + scrollTop;
+          
+          const newX = pointerX - dragStartSnapshot.current.grabOffset.x;
+          const newY = pointerY - dragStartSnapshot.current.grabOffset.y;
+          
+          if (isValidNumber(newX) && isValidNumber(newY)) {
+            const clamped = clampPosition(newX, newY);
+            lastValidPosition.current = clamped;
+            onMove(item.id, clamped);
+          }
+        }
+        return;
+      }
+      
       if (!isDragging) return;
       
       // Get the canvas element to calculate relative position
@@ -790,14 +828,23 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
     };
 
     const handleMouseUp = () => {
+      // ANTI-JUMP: Clear snapshot
+      if (dragStartSnapshot.current) {
+        // If drag never activated (just a click), trigger onSelect
+        if (!dragStartSnapshot.current.activatedDrag) {
+          onSelect();
+        }
+        dragStartSnapshot.current = null;
+      }
+      
       setIsDragging(false);
     };
 
-    if (isDragging) {
+    if (isDragging || dragStartSnapshot.current) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
       document.body.style.userSelect = 'none';
-      document.body.style.cursor = 'grabbing';
+      document.body.style.cursor = isDragging ? 'grabbing' : 'grab';
     } else {
       document.body.style.userSelect = '';
       document.body.style.cursor = '';
@@ -809,7 +856,7 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
       document.body.style.userSelect = '';
       document.body.style.cursor = '';
     };
-  }, [isDragging, dragOffset, item.id, item.position, item.size, onMove]);
+  }, [isDragging, dragOffset, item.id, item.position, item.size, onMove, onSelect]);
 
   const getItemColor = () => {
     switch (item.type) {
