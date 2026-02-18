@@ -591,6 +591,8 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
   const itemRef = useRef(null);
 
   const handleMouseDown = (e) => {
+    // Ignore clicks on buttons (delete, connect) and content area
+    if (e.target.closest('button')) return;
     if (e.target.closest('.item-content') && !e.target.closest('input, textarea')) return;
     
     e.preventDefault();
