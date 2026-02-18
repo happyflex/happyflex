@@ -276,29 +276,26 @@ export const WorkspaceProvider = ({ children }) => {
     const isProjectsModule = type === 'projects';
     const isTrashModule = type === 'trash';
     
-    const padding = 16;
-    const headerHeight = 64;
-    const rightSidebarWidth = 320;
-    const bottomToolbarHeight = 80;
-    const availableWidth = window.innerWidth - rightSidebarWidth - (padding * 2);
-    const availableHeight = window.innerHeight - headerHeight - bottomToolbarHeight - (padding * 2);
+    const safeZone = getSafeZone();
+    if (!safeZone.isValid) return; // Guard: no-op if bounds invalid
 
     let defaultSize, defaultPosition;
 
     // Determine window size based on type
     if (snapLayout) {
-      const snapLayouts = getSnapLayouts(availableWidth, availableHeight, padding);
+      const snapLayouts = getSnapLayouts();
       const layout = snapLayouts[snapLayout];
       if (layout) {
         defaultPosition = layout.position;
         defaultSize = layout.size;
       }
     } else if (isProjectsModule) {
+      // Projects module fills the entire SAFE ZONE
       defaultSize = {
-        width: availableWidth,
-        height: availableHeight
+        width: safeZone.width,
+        height: safeZone.height
       };
-      defaultPosition = { x: 26, y: 44 }; // Balanced top and left offset
+      defaultPosition = { x: safeZone.left, y: safeZone.top };
     } else if (isTrashModule) {
       defaultSize = { width: 380, height: 450 };
     } else {
@@ -320,15 +317,15 @@ export const WorkspaceProvider = ({ children }) => {
         // No free space - use cascade from top-most window
         defaultPosition = getCascadePosition(modules);
         
-        // Make sure cascade doesn't go off-screen
-        const maxX = window.innerWidth - rightSidebarWidth - defaultSize.width - padding;
-        const maxY = window.innerHeight - bottomToolbarHeight - defaultSize.height - padding;
+        // Make sure cascade doesn't go off-screen (stay within SAFE ZONE)
+        const maxX = safeZone.right - defaultSize.width;
+        const maxY = safeZone.bottom - defaultSize.height;
         
         if (defaultPosition.x > maxX) {
-          defaultPosition.x = padding + 50;
+          defaultPosition.x = safeZone.left;
         }
         if (defaultPosition.y > maxY) {
-          defaultPosition.y = headerHeight + padding + 50;
+          defaultPosition.y = safeZone.top;
         }
       }
     }
