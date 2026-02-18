@@ -678,6 +678,9 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
   const itemRef = useRef(null);
   const lastValidPosition = useRef({ x: item.position?.x || 0, y: item.position?.y || 0 });
   
+  // ANTI-JUMP: Drag start snapshot
+  const dragStartSnapshot = useRef(null);
+  
   // Validation helper
   const isValidNumber = (num) => {
     return typeof num === 'number' && isFinite(num) && Math.abs(num) < 10000;
