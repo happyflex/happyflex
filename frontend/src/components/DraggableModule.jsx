@@ -14,6 +14,7 @@ import TimerModule from './modules/TimerModule';
 import CalendarModule from './modules/CalendarModule';
 import MusicModule from './modules/MusicModule';
 import TrashModule from './modules/TrashModule';
+import FilesModule from './modules/FilesModule';
 
 const moduleComponents = {
   notes: NotesModule,
@@ -26,7 +27,8 @@ const moduleComponents = {
   timer: TimerModule,
   calendar: CalendarModule,
   music: MusicModule,
-  trash: TrashModule
+  trash: TrashModule,
+  files: FilesModule
 };
 
 // Snap zone detection threshold in pixels
