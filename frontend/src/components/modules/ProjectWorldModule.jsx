@@ -754,6 +754,7 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
             className="h-6 w-6 text-red-400 hover:text-red-300"
             onClick={(e) => {
               e.stopPropagation();
+              e.preventDefault();
               onDelete(item.id);
             }}
           >
