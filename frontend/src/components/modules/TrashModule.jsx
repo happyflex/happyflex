@@ -46,6 +46,12 @@ const TYPE_CONFIG = {
     color: 'text-blue-400',
     bgColor: 'bg-blue-500/20'
   },
+  [TRASH_TYPES.PROJECT_ELEMENT]: { 
+    icon: Box, 
+    label: 'Elementy projektů', 
+    color: 'text-sky-400',
+    bgColor: 'bg-sky-500/20'
+  },
   [TRASH_TYPES.PERSON]: { 
     icon: Users, 
     label: 'Lidi', 
