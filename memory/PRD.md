@@ -233,6 +233,7 @@ project_world_{projectId}: {
 - Testing agent iteration_2: 100% (Modul Lidi)
 - Testing agent iteration_3: 100% (Pokročilá správa oken - Pin, Focus, Snap, Magnetismus)
 - Testing agent iteration_4: Pending (Kalendář - manuálně otestován)
+- Testing agent iteration_7: CODE REVIEW PASS (Drag koordináty - oprava skoku, 30px snap gap)
 
 ## Preview URL
 https://steward-workspace.preview.emergentagent.com
