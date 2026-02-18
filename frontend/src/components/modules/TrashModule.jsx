@@ -18,7 +18,8 @@ import {
   Timer,
   Calendar,
   GripVertical,
-  Folder
+  Folder,
+  Box
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useTrash, TRASH_TYPES } from '../../context/TrashContext';
