@@ -535,6 +535,11 @@ const DraggableModule = ({ module }) => {
     };
 
     const handleMouseUp = () => {
+      // ANTI-JUMP: Clear drag start snapshot
+      if (dragStartSnapshot.current) {
+        dragStartSnapshot.current = null;
+      }
+      
       // Apply snap if preview is active
       if (isDragging && currentSnapZone) {
         // Save state before snap-maximize
