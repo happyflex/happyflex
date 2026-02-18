@@ -138,6 +138,25 @@ const DraggableModule = ({ module }) => {
   const [previousState, setPreviousState] = useState(null);
   const [currentSnapZone, setCurrentSnapZone] = useState(null);
   const moduleRef = useRef(null);
+  
+  // Store last valid rect for resize fallback
+  const lastValidRect = useRef({ 
+    x: module.position.x, 
+    y: module.position.y, 
+    width: module.size.width, 
+    height: module.size.height 
+  });
+  
+  // Workspace bounds constants
+  const WORKSPACE_BOUNDS = {
+    minWidth: 280,
+    minHeight: 180,
+    padding: 16,
+    rightSidebarWidth: 320,
+    bottomToolbarHeight: 80,
+    headerHeight: 64,
+    titlebarHeight: 40 // Minimum visible titlebar
+  };
 
   const ModuleComponent = moduleComponents[module.type];
   const [isShiftPressed, setIsShiftPressed] = useState(false);
@@ -145,6 +164,44 @@ const DraggableModule = ({ module }) => {
   const pinMode = module.pinMode || 'none';
   const isFocused = focusedModuleId === module.id;
   const isDimmed = focusedModuleId && focusedModuleId !== module.id;
+  
+  // Get current workspace dimensions
+  const getWorkspaceBounds = () => {
+    const maxWidth = window.innerWidth - WORKSPACE_BOUNDS.rightSidebarWidth;
+    const maxHeight = window.innerHeight - WORKSPACE_BOUNDS.bottomToolbarHeight - WORKSPACE_BOUNDS.headerHeight;
+    return { maxWidth, maxHeight };
+  };
+  
+  // Clamp position to keep titlebar visible
+  const clampPosition = (x, y, width, height) => {
+    const { maxWidth, maxHeight } = getWorkspaceBounds();
+    
+    // Ensure at least titlebar is visible (can drag window back)
+    const minX = -width + 100; // At least 100px visible on left
+    const maxX = maxWidth - 100; // At least 100px visible on right
+    const minY = 0; // Can't go above workspace
+    const maxY = maxHeight - WORKSPACE_BOUNDS.titlebarHeight; // Titlebar always visible
+    
+    return {
+      x: Math.max(minX, Math.min(maxX, x)),
+      y: Math.max(minY, Math.min(maxY, y))
+    };
+  };
+  
+  // Validate and clamp size
+  const clampSize = (width, height) => {
+    const { maxWidth, maxHeight } = getWorkspaceBounds();
+    
+    return {
+      width: Math.max(WORKSPACE_BOUNDS.minWidth, Math.min(maxWidth, width)),
+      height: Math.max(WORKSPACE_BOUNDS.minHeight, Math.min(maxHeight, height))
+    };
+  };
+  
+  // Check if value is valid (not NaN, Infinity, or extremely large)
+  const isValidNumber = (num) => {
+    return typeof num === 'number' && isFinite(num) && Math.abs(num) < 10000;
+  };
 
   // ESC key listener for clearing focus
   useEffect(() => {
