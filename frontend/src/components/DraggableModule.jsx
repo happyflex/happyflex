@@ -421,6 +421,7 @@ const DraggableModule = ({ module }) => {
             {module.type === 'timer' && 'Časovač'}
             {module.type === 'calendar' && 'Kalendář'}
             {module.type === 'music' && 'Hudba'}
+            {module.type === 'files' && 'Soubory'}
             {module.type === 'trash' && (
               <span className="flex items-center gap-1.5">
                 <Trash2 className="h-4 w-4 text-red-400" />
