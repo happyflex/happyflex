@@ -451,137 +451,136 @@ const CalendarModule = () => {
         {view === 'month' && renderMonthView()}
       </div>
 
-      {/* Event Form Modal */}
-      {showEventForm && (
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-[#0f1d35] border border-cyan-500/30 rounded-xl p-4 w-80 shadow-2xl">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-white">
-                {editingEvent ? 'Upravit událost' : 'Nová událost'}
-              </h3>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setShowEventForm(false)}
-                className="h-7 w-7 text-gray-400 hover:text-red-400"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+      {/* Event Form Modal - using global Dialog overlay */}
+      <Dialog open={showEventForm} onOpenChange={(open) => {
+        if (!open) {
+          setShowEventForm(false);
+          setEditingEvent(null);
+        }
+      }}>
+        <DialogContent className="bg-[#0f1d35] border-cyan-500/30 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-white flex items-center gap-2">
+              <CalendarIcon className="h-5 w-5 text-red-400" />
+              {editingEvent ? 'Upravit událost' : 'Nová událost'}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs text-gray-400 mb-1 block">Název</label>
+              <Input
+                value={formData.title}
+                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                placeholder="Název události"
+                className="bg-cyan-500/5 border-cyan-500/20 text-white text-sm"
+                data-testid="event-title-input"
+                autoFocus
+              />
             </div>
 
-            <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-xs text-gray-400 mb-1 block">Název</label>
+                <label className="text-xs text-gray-400 mb-1 block">Datum</label>
                 <Input
-                  value={formData.title}
-                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="Název události"
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
                   className="bg-cyan-500/5 border-cyan-500/20 text-white text-sm"
-                  data-testid="event-title-input"
-                  autoFocus
+                  data-testid="event-date-input"
                 />
               </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="text-xs text-gray-400 mb-1 block">Datum</label>
-                  <Input
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                    className="bg-cyan-500/5 border-cyan-500/20 text-white text-sm"
-                    data-testid="event-date-input"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-gray-400 mb-1 block">Typ</label>
-                  <select
-                    value={formData.type}
-                    onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
-                    className="w-full bg-cyan-500/5 border border-cyan-500/20 rounded-md text-white text-sm p-2"
-                    data-testid="event-type-select"
-                  >
-                    {Object.entries(EVENT_TYPES).map(([key, { label }]) => (
-                      <option key={key} value={key} className="bg-[#0f1d35]">{label}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="text-xs text-gray-400 mb-1 block">Od</label>
-                  <Input
-                    type="time"
-                    value={formData.startTime}
-                    onChange={(e) => setFormData(prev => ({ ...prev, startTime: e.target.value }))}
-                    className="bg-cyan-500/5 border-cyan-500/20 text-white text-sm"
-                    data-testid="event-start-time"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-gray-400 mb-1 block">Do</label>
-                  <Input
-                    type="time"
-                    value={formData.endTime}
-                    onChange={(e) => setFormData(prev => ({ ...prev, endTime: e.target.value }))}
-                    className="bg-cyan-500/5 border-cyan-500/20 text-white text-sm"
-                    data-testid="event-end-time"
-                  />
-                </div>
-              </div>
-
               <div>
-                <label className="text-xs text-gray-400 mb-1 block">Projekt (volitelné)</label>
+                <label className="text-xs text-gray-400 mb-1 block">Typ</label>
+                <select
+                  value={formData.type}
+                  onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value }))}
+                  className="w-full bg-cyan-500/5 border border-cyan-500/20 rounded-md text-white text-sm p-2"
+                  data-testid="event-type-select"
+                >
+                  {Object.entries(EVENT_TYPES).map(([key, { label }]) => (
+                    <option key={key} value={key} className="bg-[#0f1d35]">{label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-xs text-gray-400 mb-1 block">Od</label>
                 <Input
-                  value={formData.project}
-                  onChange={(e) => setFormData(prev => ({ ...prev, project: e.target.value }))}
-                  placeholder="Název projektu"
+                  type="time"
+                  value={formData.startTime}
+                  onChange={(e) => setFormData(prev => ({ ...prev, startTime: e.target.value }))}
                   className="bg-cyan-500/5 border-cyan-500/20 text-white text-sm"
-                  data-testid="event-project-input"
+                  data-testid="event-start-time"
                 />
               </div>
-
-              {/* Type color preview */}
-              <div className="flex items-center gap-2 pt-1">
-                <div className={`w-3 h-3 rounded-full ${EVENT_TYPES[formData.type]?.color}`}></div>
-                <span className={`text-xs ${EVENT_TYPES[formData.type]?.textColor}`}>
-                  {EVENT_TYPES[formData.type]?.label}
-                </span>
+              <div>
+                <label className="text-xs text-gray-400 mb-1 block">Do</label>
+                <Input
+                  type="time"
+                  value={formData.endTime}
+                  onChange={(e) => setFormData(prev => ({ ...prev, endTime: e.target.value }))}
+                  className="bg-cyan-500/5 border-cyan-500/20 text-white text-sm"
+                  data-testid="event-end-time"
+                />
               </div>
+            </div>
 
-              <div className="flex gap-2 pt-2">
-                {editingEvent && (
-                  <Button
-                    variant="ghost"
-                    onClick={handleDeleteEvent}
-                    data-testid="event-delete-btn"
-                    className="text-red-400 hover:bg-red-500/10 hover:text-red-300"
-                  >
-                    Smazat
-                  </Button>
-                )}
-                <div className="flex-1"></div>
+            <div>
+              <label className="text-xs text-gray-400 mb-1 block">Projekt (volitelné)</label>
+              <Input
+                value={formData.project}
+                onChange={(e) => setFormData(prev => ({ ...prev, project: e.target.value }))}
+                placeholder="Název projektu"
+                className="bg-cyan-500/5 border-cyan-500/20 text-white text-sm"
+                data-testid="event-project-input"
+              />
+            </div>
+
+            {/* Type color preview */}
+            <div className="flex items-center gap-2 pt-1">
+              <div className={`w-3 h-3 rounded-full ${EVENT_TYPES[formData.type]?.color || 'bg-gray-500'}`}></div>
+              <span className={`text-xs ${EVENT_TYPES[formData.type]?.textColor || 'text-gray-400'}`}>
+                {EVENT_TYPES[formData.type]?.label || 'Událost'}
+              </span>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              {editingEvent && (
                 <Button
                   variant="ghost"
-                  onClick={() => setShowEventForm(false)}
-                  data-testid="event-cancel-btn"
-                  className="text-gray-400 hover:bg-cyan-500/10"
+                  onClick={handleDeleteEvent}
+                  data-testid="event-delete-btn"
+                  className="text-red-400 hover:bg-red-500/10 hover:text-red-300"
                 >
-                  Zrušit
+                  Smazat
                 </Button>
-                <Button
-                  onClick={handleSaveEvent}
-                  data-testid="event-save-btn"
-                  className="bg-cyan-500 hover:bg-cyan-600 text-white"
-                >
-                  {editingEvent ? 'Uložit' : 'Vytvořit'}
-                </Button>
-              </div>
+              )}
+              <div className="flex-1"></div>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setShowEventForm(false);
+                  setEditingEvent(null);
+                }}
+                data-testid="event-cancel-btn"
+                className="text-gray-400 hover:bg-cyan-500/10"
+              >
+                Zrušit
+              </Button>
+              <Button
+                onClick={handleSaveEvent}
+                data-testid="event-save-btn"
+                className="bg-cyan-500 hover:bg-cyan-600 text-white"
+              >
+                {editingEvent ? 'Uložit' : 'Vytvořit'}
+              </Button>
             </div>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
