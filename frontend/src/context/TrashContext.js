@@ -16,6 +16,7 @@ export const TRASH_TYPES = {
   WINDOW: 'window',
   NOTE: 'note',
   PROJECT: 'project',
+  PROJECT_ELEMENT: 'project_element', // Elements inside projects (notes, tasks, milestones etc.)
   PERSON: 'person',
   TASK: 'task',
   GOAL: 'goal',
