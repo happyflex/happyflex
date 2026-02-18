@@ -676,6 +676,25 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const itemRef = useRef(null);
+  const lastValidPosition = useRef({ x: item.position?.x || 0, y: item.position?.y || 0 });
+  
+  // Validation helper
+  const isValidNumber = (num) => {
+    return typeof num === 'number' && isFinite(num) && Math.abs(num) < 10000;
+  };
+  
+  // Clamp position to canvas bounds
+  const clampPosition = (x, y) => {
+    // Get parent canvas bounds (approximate - element should stay within reasonable area)
+    const maxX = 2000; // Max canvas width
+    const maxY = 1500; // Max canvas height
+    const minVisible = 50; // Minimum visible portion
+    
+    return {
+      x: Math.max(-item.size?.width + minVisible || 0, Math.min(maxX, x)),
+      y: Math.max(0, Math.min(maxY, y))
+    };
+  };
 
   const handleMouseDown = (e) => {
     // Ignore clicks on buttons (delete, connect) and content area
@@ -686,24 +705,57 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
     setIsDragging(true);
     onSelect();
     
-    const rect = itemRef.current.getBoundingClientRect();
-    setDragOffset({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    });
+    const rect = itemRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    
+    // Store offset relative to element's top-left corner
+    const offsetX = e.clientX - rect.left;
+    const offsetY = e.clientY - rect.top;
+    
+    // Validate offset values
+    if (isValidNumber(offsetX) && isValidNumber(offsetY)) {
+      setDragOffset({ x: offsetX, y: offsetY });
+    }
+    
+    // Store current position as last valid
+    lastValidPosition.current = { 
+      x: item.position?.x || 0, 
+      y: item.position?.y || 0 
+    };
   };
 
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (!isDragging) return;
       
-      const newX = e.clientX - dragOffset.x;
-      const newY = e.clientY - dragOffset.y;
+      // Calculate new position
+      let newX = e.clientX - dragOffset.x;
+      let newY = e.clientY - dragOffset.y;
       
-      onMove(item.id, {
-        x: Math.max(0, newX),
-        y: Math.max(0, newY)
-      });
+      // Get the canvas element to calculate relative position
+      const canvas = itemRef.current?.closest('.relative.overflow-auto');
+      if (canvas) {
+        const canvasRect = canvas.getBoundingClientRect();
+        const scrollLeft = canvas.scrollLeft || 0;
+        const scrollTop = canvas.scrollTop || 0;
+        
+        newX = e.clientX - canvasRect.left + scrollLeft - dragOffset.x;
+        newY = e.clientY - canvasRect.top + scrollTop - dragOffset.y;
+      }
+      
+      // Validate calculated position
+      if (!isValidNumber(newX) || !isValidNumber(newY)) {
+        // Use last valid position as fallback
+        return;
+      }
+      
+      // Clamp to valid bounds
+      const clamped = clampPosition(newX, newY);
+      
+      // Update last valid position
+      lastValidPosition.current = clamped;
+      
+      onMove(item.id, clamped);
     };
 
     const handleMouseUp = () => {
@@ -714,16 +766,19 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
       document.body.style.userSelect = 'none';
+      document.body.style.cursor = 'grabbing';
     } else {
       document.body.style.userSelect = '';
+      document.body.style.cursor = '';
     }
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
       document.body.style.userSelect = '';
+      document.body.style.cursor = '';
     };
-  }, [isDragging, dragOffset, item.id, onMove]);
+  }, [isDragging, dragOffset, item.id, item.position, item.size, onMove]);
 
   const getItemColor = () => {
     switch (item.type) {
