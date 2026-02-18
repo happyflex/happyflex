@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Plus, X, Clock, Target, Calendar as CalendarIcon, AlertCircle, Focus, Bell } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -53,6 +53,9 @@ const CalendarModule = ({ initialViewState, onViewStateChange }) => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedHour, setSelectedHour] = useState(9);
   const [draggedEvent, setDraggedEvent] = useState(null);
+  
+  // Track last emitted view state to prevent infinite loops
+  const lastEmittedViewState = useRef(null);
 
   // Save events to localStorage whenever they change
   useEffect(() => {
@@ -70,10 +73,15 @@ const CalendarModule = ({ initialViewState, onViewStateChange }) => {
   // Emit view state changes to parent (for layout save)
   useEffect(() => {
     if (onViewStateChange) {
-      onViewStateChange({
+      const newViewState = {
         view,
         selectedDate: selectedDate ? selectedDate.toISOString() : null
-      });
+      };
+      // Only emit if state actually changed
+      if (JSON.stringify(newViewState) !== JSON.stringify(lastEmittedViewState.current)) {
+        lastEmittedViewState.current = newViewState;
+        onViewStateChange(newViewState);
+      }
     }
   }, [view, selectedDate, onViewStateChange]);
 

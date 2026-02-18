@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   Folder, FolderOpen, File, FileText, FileImage, FileVideo, FileAudio,
   Plus, Trash2, Edit2, ChevronRight, ChevronDown, HardDrive, Cloud, 
@@ -147,6 +147,9 @@ const FilesModule = ({ initialViewState, onViewStateChange }) => {
   const { addToTrash, TRASH_TYPES } = useTrash();
   const { addModule } = useWorkspace();
   
+  // Track last emitted view state to prevent infinite loops
+  const lastEmittedViewState = useRef(null);
+  
   // State
   const [fileSystem, setFileSystem] = useState(null);
   const [activeSource, setActiveSource] = useState('local');
@@ -201,11 +204,16 @@ const FilesModule = ({ initialViewState, onViewStateChange }) => {
   // Emit view state changes to parent (for layout save)
   useEffect(() => {
     if (fileSystem && onViewStateChange) {
-      onViewStateChange({
+      const newViewState = {
         activeSource,
         selectedFolderId: selectedFolder?.id || null,
         expandedFolders: Array.from(expandedFolders)
-      });
+      };
+      // Only emit if state actually changed
+      if (JSON.stringify(newViewState) !== JSON.stringify(lastEmittedViewState.current)) {
+        lastEmittedViewState.current = newViewState;
+        onViewStateChange(newViewState);
+      }
     }
   }, [activeSource, selectedFolder, expandedFolders, fileSystem, onViewStateChange]);
 

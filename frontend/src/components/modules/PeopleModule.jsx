@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Users, Plus, Search, ChevronRight, ChevronDown,
   Briefcase, Star, Clock, CheckSquare, Calendar,
@@ -45,6 +45,9 @@ const PeopleModule = ({ initialViewState, onViewStateChange }) => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingPerson, setEditingPerson] = useState(null);
   const [draggedPerson, setDraggedPerson] = useState(null);
+  
+  // Track last emitted view state to prevent infinite loops
+  const lastEmittedViewState = useRef(null);
 
   // Load from localStorage
   useEffect(() => {
@@ -134,10 +137,15 @@ const PeopleModule = ({ initialViewState, onViewStateChange }) => {
   // Emit view state changes to parent (for layout save)
   useEffect(() => {
     if (people !== null && onViewStateChange) {
-      onViewStateChange({
+      const newViewState = {
         selectedPersonId: selectedPerson?.id || null,
         filterType
-      });
+      };
+      // Only emit if state actually changed
+      if (JSON.stringify(newViewState) !== JSON.stringify(lastEmittedViewState.current)) {
+        lastEmittedViewState.current = newViewState;
+        onViewStateChange(newViewState);
+      }
     }
   }, [selectedPerson, filterType, people, onViewStateChange]);
 

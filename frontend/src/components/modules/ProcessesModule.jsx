@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   GitBranch, Plus, Users, FileText, Target,
   ChevronRight, Edit2, Trash2, X, Layers
@@ -25,6 +25,9 @@ const ProcessesModule = ({ initialViewState, onViewStateChange }) => {
   const [selectedProcess, setSelectedProcess] = useState(null);
   const [showAddProcessDialog, setShowAddProcessDialog] = useState(false);
   const [showProcessCanvas, setShowProcessCanvas] = useState(null); // processId
+  
+  // Track last emitted view state to prevent infinite loops
+  const lastEmittedViewState = useRef(null);
 
   // Load processes from localStorage
   useEffect(() => {
@@ -98,10 +101,15 @@ const ProcessesModule = ({ initialViewState, onViewStateChange }) => {
   // Emit view state changes to parent (for layout save)
   useEffect(() => {
     if (processes !== null && onViewStateChange) {
-      onViewStateChange({
+      const newViewState = {
         selectedProcessId: selectedProcess?.id || null,
         showProcessCanvasId: showProcessCanvas
-      });
+      };
+      // Only emit if state actually changed
+      if (JSON.stringify(newViewState) !== JSON.stringify(lastEmittedViewState.current)) {
+        lastEmittedViewState.current = newViewState;
+        onViewStateChange(newViewState);
+      }
     }
   }, [selectedProcess, showProcessCanvas, processes, onViewStateChange]);
 

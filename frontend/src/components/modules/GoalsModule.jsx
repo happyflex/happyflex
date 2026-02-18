@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Target, Plus, Calendar, CheckCircle2, Circle, 
   TrendingUp, FileText, ChevronRight, Edit2, Trash2,
@@ -34,6 +34,9 @@ const GoalsModule = ({ initialViewState, onViewStateChange }) => {
   const [showAddGoalDialog, setShowAddGoalDialog] = useState(false);
   const [showPlanCanvas, setShowPlanCanvas] = useState(null); // { goalId, planId }
   const [filterStatus, setFilterStatus] = useState('all');
+  
+  // Track last emitted view state to prevent infinite loops
+  const lastEmittedViewState = useRef(null);
 
   // Load from localStorage
   useEffect(() => {
@@ -95,11 +98,16 @@ const GoalsModule = ({ initialViewState, onViewStateChange }) => {
   // Emit view state changes to parent (for layout save)
   useEffect(() => {
     if (goals !== null && onViewStateChange) {
-      onViewStateChange({
+      const newViewState = {
         openGoalId: selectedGoal?.id || null,
         activeSection: showPlanCanvas ? 'planning' : 'overview',
         planCanvasState: showPlanCanvas
-      });
+      };
+      // Only emit if state actually changed
+      if (JSON.stringify(newViewState) !== JSON.stringify(lastEmittedViewState.current)) {
+        lastEmittedViewState.current = newViewState;
+        onViewStateChange(newViewState);
+      }
     }
   }, [selectedGoal, showPlanCanvas, goals, onViewStateChange]);
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { TrendingUp, Users, Calendar, ExternalLink, Layout, Plus, X, Trash2 } from 'lucide-react';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import { useTrash } from '../../context/TrashContext';
@@ -22,6 +22,9 @@ const ProjectsModule = ({ initialViewState, onViewStateChange }) => {
     deadline: '',
     team: ''
   });
+  
+  // Track last emitted view state to prevent infinite loops
+  const lastEmittedViewState = useRef(null);
 
   // Apply initialViewState from layout restore (props-based)
   useEffect(() => {
@@ -39,10 +42,15 @@ const ProjectsModule = ({ initialViewState, onViewStateChange }) => {
   // Emit view state changes to parent (for layout save)
   useEffect(() => {
     if (projects && onViewStateChange) {
-      onViewStateChange({
+      const newViewState = {
         openProjectId: selectedProject?.id || null,
         nodePath: initialNodePath
-      });
+      };
+      // Only emit if state actually changed
+      if (JSON.stringify(newViewState) !== JSON.stringify(lastEmittedViewState.current)) {
+        lastEmittedViewState.current = newViewState;
+        onViewStateChange(newViewState);
+      }
     }
   }, [selectedProject, initialNodePath, projects, onViewStateChange]);
 

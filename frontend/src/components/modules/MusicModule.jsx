@@ -112,6 +112,9 @@ const MusicModule = ({ initialViewState, onViewStateChange }) => {
   const fileInputRef = useRef(null);
   const downloadPollRef = useRef(null);
 
+  // Track last emitted view state to prevent infinite loops
+  const lastEmittedViewState = useRef(null);
+
   // Mark as initialized after first render
   useEffect(() => {
     isInitialized.current = true;
@@ -167,11 +170,16 @@ const MusicModule = ({ initialViewState, onViewStateChange }) => {
   // Emit view state changes to parent (for layout save)
   useEffect(() => {
     if (isInitialized.current && onViewStateChange) {
-      onViewStateChange({
+      const newViewState = {
         activeTab,
         miniMode,
         selectedPlaylist: currentPlaylist
-      });
+      };
+      // Only emit if state actually changed
+      if (JSON.stringify(newViewState) !== JSON.stringify(lastEmittedViewState.current)) {
+        lastEmittedViewState.current = newViewState;
+        onViewStateChange(newViewState);
+      }
     }
   }, [activeTab, miniMode, currentPlaylist, onViewStateChange]);
 
