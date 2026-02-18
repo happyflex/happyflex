@@ -414,7 +414,7 @@ const DraggableModule = ({ module }) => {
         
         // Apply magnetic snapping to other modules (only if not in edge snap zone)
         if (!zone) {
-          const magneticPos = getMagneticPosition(module, modules, newX, newY);
+          const magneticPos = getMagneticPosition(module, modulesRef.current, newX, newY);
           newX = magneticPos.x;
           newY = magneticPos.y;
         }
