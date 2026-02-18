@@ -220,14 +220,13 @@ export const WorkspaceProvider = ({ children }) => {
     return null; // No free space found
   }, []);
 
-  // Check if two rectangles overlap
-  const rectsOverlap = (rect1, rect2) => {
-    const margin = 10; // Small margin to prevent touching windows
+  // Check if two rectangles overlap (with configurable gap)
+  const rectsOverlap = (rect1, rect2, gap = WORKSPACE_WINDOW_GAP) => {
     return !(
-      rect1.x + rect1.width + margin < rect2.x ||
-      rect2.x + rect2.width + margin < rect1.x ||
-      rect1.y + rect1.height + margin < rect2.y ||
-      rect2.y + rect2.height + margin < rect1.y
+      rect1.x + rect1.width + gap < rect2.x ||
+      rect2.x + rect2.width + gap < rect1.x ||
+      rect1.y + rect1.height + gap < rect2.y ||
+      rect2.y + rect2.height + gap < rect1.y
     );
   };
 
