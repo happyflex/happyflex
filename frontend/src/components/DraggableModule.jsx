@@ -355,6 +355,18 @@ const DraggableModule = ({ module }) => {
     setResizeHandle(handle);
     bringToFront(module.id);
     
+    // Store resize start state for stable calculation
+    resizeStartRef.current = {
+      startMouseX: e.clientX,
+      startMouseY: e.clientY,
+      startRect: {
+        x: module.position.x,
+        y: module.position.y,
+        width: module.size.width,
+        height: module.size.height
+      }
+    };
+    
     // Store current valid rect before resize
     lastValidRect.current = {
       x: module.position.x,
