@@ -754,7 +754,8 @@ export const WorkspaceProvider = ({ children }) => {
     // Layout restore functions
     restoreModules,
     restoreDeferredModules,
-    clearAllModules
+    clearAllModules,
+    updateModuleViewState
   };
 
   return (
