@@ -59,6 +59,28 @@ const CalendarModule = () => {
     localStorage.setItem('steward_calendar_events', JSON.stringify(events));
   }, [events]);
 
+  // Save VIEW STATE for layout restore
+  useEffect(() => {
+    localStorage.setItem('steward_calendar_view_state', JSON.stringify({
+      view,
+      selectedDate: selectedDate ? selectedDate.toISOString() : null
+    }));
+  }, [view, selectedDate]);
+
+  // Restore view state on mount
+  useEffect(() => {
+    try {
+      const savedViewState = localStorage.getItem('steward_calendar_view_state');
+      if (savedViewState) {
+        const parsed = JSON.parse(savedViewState);
+        if (parsed.view) setView(parsed.view);
+        if (parsed.selectedDate) setSelectedDate(new Date(parsed.selectedDate));
+      }
+    } catch (e) {
+      console.warn('Could not restore calendar view state:', e);
+    }
+  }, []);
+
   const [formData, setFormData] = useState({
     title: '',
     date: '',
