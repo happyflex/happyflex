@@ -115,8 +115,8 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
       isMaximized: m.isMaximized || false,
       snappedState: m.snappedState || null, // 'left-half', 'right-half', etc.
       
-      // Module-specific view state (lightweight snapshot)
-      viewState: collectModuleViewState(m.type, m.id)
+      // Module-specific view state (from context, not localStorage)
+      viewState: getModuleViewState(m.id)
     }));
 
     // Build CANVAS (deferred modules) state
