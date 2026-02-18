@@ -788,9 +788,10 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
       }
       
       setIsDragging(false);
+      setIsMouseDown(false); // Reset mousedown state
     };
 
-    if (isDragging || dragStateRef.current) {
+    if (isDragging || isMouseDown) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
       document.body.style.userSelect = 'none';
@@ -806,7 +807,7 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
       document.body.style.userSelect = '';
       document.body.style.cursor = '';
     };
-  }, [isDragging, item.id, item.position, item.size, onMove, onSelect]);
+  }, [isDragging, isMouseDown, item.id, item.position, item.size, onMove, onSelect]);
 
   const getItemColor = () => {
     switch (item.type) {
