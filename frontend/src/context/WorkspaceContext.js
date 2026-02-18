@@ -247,7 +247,7 @@ export const WorkspaceProvider = ({ children }) => {
         width: availableWidth,
         height: availableHeight
       };
-      defaultPosition = { x: padding, y: headerHeight + padding };
+      defaultPosition = { x: padding, y: 8 }; // Small top offset
     } else if (isTrashModule) {
       defaultSize = { width: 380, height: 450 };
     } else {
