@@ -144,6 +144,31 @@ const MusicModule = () => {
     }
   }, [currentPlaylist, currentTrackIndex, volume, isRepeat, isShuffle]);
 
+  // Save VIEW STATE for layout restore (activeTab, miniMode, etc.)
+  useEffect(() => {
+    if (isInitialized.current) {
+      localStorage.setItem('steward_music_view_state', JSON.stringify({
+        activeTab,
+        miniMode,
+        selectedPlaylist: currentPlaylist
+      }));
+    }
+  }, [activeTab, miniMode, currentPlaylist]);
+
+  // Restore view state on mount
+  useEffect(() => {
+    try {
+      const savedViewState = localStorage.getItem('steward_music_view_state');
+      if (savedViewState) {
+        const parsed = JSON.parse(savedViewState);
+        if (parsed.activeTab) setActiveTab(parsed.activeTab);
+        if (parsed.miniMode !== undefined) setMiniMode(parsed.miniMode);
+      }
+    } catch (e) {
+      console.warn('Could not restore music view state:', e);
+    }
+  }, []);
+
   // Get current track
   const getCurrentTrack = useCallback(() => {
     // If playing from library directly
