@@ -561,10 +561,10 @@ const DraggableModule = ({ module }) => {
       setSnapPreview(null);
     };
 
-    if (isDragging || isResizing) {
+    if (isDragging || isResizing || dragStartSnapshot.current) {
       document.body.style.userSelect = 'none';
       document.body.style.webkitUserSelect = 'none';
-      document.body.style.cursor = isResizing ? (resizeHandle || 'nwse-resize') + '-resize' : 'grabbing';
+      document.body.style.cursor = isResizing ? (resizeHandle || 'nwse-resize') + '-resize' : (isDragging ? 'grabbing' : 'grab');
       
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
