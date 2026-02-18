@@ -774,7 +774,10 @@ const DraggableModule = ({ module }) => {
         </div>
       </div>
       <div className="module-content p-4 h-[calc(100%-3rem)] overflow-y-auto overflow-x-hidden">
-        <ModuleComponent />
+        <ModuleComponent 
+          initialViewState={module.viewState} 
+          onViewStateChange={(viewState) => updateModuleViewState(module.id, viewState)}
+        />
       </div>
     </div>
   );
