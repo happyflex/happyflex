@@ -327,8 +327,8 @@ const DraggableModule = ({ module }) => {
       activatedDrag: false
     };
     
-    // DON'T set isDragging=true here - wait for first mousemove with threshold
-    // DON'T call bringToFront here - it can cause z-index jump
+    // Set mousedown state to trigger useEffect (refs don't trigger re-render)
+    setIsMouseDown(true);
   };
 
   const handleDragStart = (e) => {
