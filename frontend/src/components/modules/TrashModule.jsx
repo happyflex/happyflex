@@ -40,7 +40,7 @@ const TYPE_CONFIG = {
     bgColor: 'bg-yellow-500/20'
   },
   [TRASH_TYPES.PROJECT]: { 
-    icon: Layers, 
+    icon: Layout, 
     label: 'Projekty', 
     color: 'text-blue-400',
     bgColor: 'bg-blue-500/20'
