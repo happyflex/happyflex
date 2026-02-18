@@ -175,7 +175,8 @@ const DraggableModule = ({ module }) => {
     focusedModuleId,
     snapToLayout,
     setSnapPreview,
-    setIsDraggingWindow
+    setIsDraggingWindow,
+    updateModuleViewState
   } = useWorkspace();
   const { addWindowToTrash } = useTrash();
   const [isDragging, setIsDragging] = useState(false);
