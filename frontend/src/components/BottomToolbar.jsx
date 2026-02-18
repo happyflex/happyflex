@@ -246,7 +246,7 @@ const BottomToolbar = () => {
   }, [addModule, modules, deferredModules, bringToFront, restoreModule]);
 
   const handleToolClick = (item) => {
-    if (['notes', 'tasks', 'people', 'projects', 'goals', 'processes', 'chart', 'timer', 'calendar', 'music'].includes(item.type)) {
+    if (['notes', 'tasks', 'people', 'projects', 'goals', 'processes', 'chart', 'timer', 'calendar', 'music', 'files'].includes(item.type)) {
       addModule(item.type);
       toast({
         title: 'Modul přidán',
