@@ -497,9 +497,58 @@ export const WorkspaceProvider = ({ children }) => {
     const layout = snapLayouts[layoutKey];
     
     if (layout) {
-      setModules(prev => prev.map(m => 
-        m.id === id ? { ...m, position: layout.position, size: layout.size } : m
-      ));
+      setModules(prev => {
+        // Find the module being snapped
+        const snappedModule = prev.find(m => m.id === id);
+        if (!snappedModule) return prev;
+        
+        // Calculate the new snap area
+        const snapArea = {
+          x: layout.position.x,
+          y: layout.position.y,
+          width: layout.size.width,
+          height: layout.size.height
+        };
+        
+        // Update modules: snap the target and push overlapping modules out
+        return prev.map(m => {
+          if (m.id === id) {
+            // Apply snap to target module
+            return { ...m, position: layout.position, size: layout.size };
+          }
+          
+          // Check if this module overlaps with the new snap area
+          const overlaps = !(
+            m.position.x + m.size.width < snapArea.x ||
+            snapArea.x + snapArea.width < m.position.x ||
+            m.position.y + m.size.height < snapArea.y ||
+            snapArea.y + snapArea.height < m.position.y
+          );
+          
+          if (overlaps) {
+            // Push the overlapping module to the opposite side or cascade
+            const safeZone = getSafeZone();
+            if (safeZone.isValid) {
+              // Determine which side to push to based on layout
+              let newX = m.position.x;
+              if (layoutKey === 'left-half' || layoutKey === 'top-left' || layoutKey === 'bottom-left') {
+                // Push to right side
+                newX = snapArea.x + snapArea.width + WORKSPACE_WINDOW_GAP;
+              } else if (layoutKey === 'right-half' || layoutKey === 'top-right' || layoutKey === 'bottom-right') {
+                // Push to left side  
+                newX = snapArea.x - m.size.width - WORKSPACE_WINDOW_GAP;
+              }
+              
+              // Clamp to safe zone
+              newX = Math.max(safeZone.left, Math.min(safeZone.right - m.size.width, newX));
+              
+              return { ...m, position: { ...m.position, x: newX } };
+            }
+          }
+          
+          return m;
+        });
+      });
     }
   }, [getSnapLayouts]);
 
