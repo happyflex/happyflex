@@ -183,11 +183,11 @@ export const WorkspaceProvider = ({ children }) => {
   // Get cascade position based on top-most window
   const getCascadePosition = useCallback((existingModules) => {
     const padding = 16;
-    const headerHeight = 64;
+    const topOffset = 8; // Small gap from top
     const cascadeOffset = 30;
     
     if (existingModules.length === 0) {
-      return { x: padding + 100, y: headerHeight + padding + 50 };
+      return { x: padding + 100, y: topOffset + 50 };
     }
     
     // Find the top-most window (highest z-index)
