@@ -1,150 +1,132 @@
 <analysis>**original_problem_statement:**
-The user's initial request was to fix several issues related to the Koš (Trash) functionality in the S.T.E.W.A.R.D. Workspace Dashboard application.
+The user wants to modify the S.T.E.W.A.R.D. Workspace Dashboard. The initial requests are:
 
-PRODUCT REQUIREMENTS:
-1.  **Fix Drag-and-Drop Restore:** When an item (window or content) is dragged from the Trash to the Workspace, it must be removed from the Trash.
-2.  **Fix Truncated Titles:** Item titles in the Trash list should display fully and not be truncated.
-3.  **Fix Content Restore:** When deleted content (like a note or task) is restored from the Trash, it must immediately reappear in its parent module without requiring a page refresh.
-4.  **Fix Hover Effect Clipping:** In the Lidi (People) module, the contact cards get visually clipped when they scale up on hover. This needs to be fixed so the entire card is visible.
-5.  **Unify Delete Actions:** Add a consistent trash can icon for direct deletion on item cards in the Cíle (Goals), Procesy (Processes), Lidi (People), and Projekty (Projects) modules, and replace the existing 'X' icon in the Úkoly (Tasks) module. The behavior should match the existing delete icon in the Poznámky (Notes) module.
-6.  **Fix Projects Module Crash:** The Projekty (Projects) module crashes with a Cannot read properties of null error after a project is restored from the Trash.
-7.  **Fix Project Restore UI Update:** After a project is restored from the Trash, it is correctly removed from the Trash, but it does not reappear in the Projects module UI. This needs to be fixed.
+1.  **Snap Mode Gutter:** When windows are snapped to the left and right sides, they currently touch. The goal is to introduce a 30px gap (gutter) between them, while maintaining the existing 30px SAFE ZONE margin from the edges of the workspace. This should only affect the left/right snap, not the top snap.
+2.  **Drag Behavior Fix (Jump on Drag Start):** When a user starts dragging a window (by its titlebar) or an element within the Projects module, the item jumps or snaps away from the cursor's initial grab point. The goal is to eliminate this jump, ensuring the dragged item remains perfectly glued to the cursor at the point where the drag was initiated.
 
 **User's preferred language**: Czech. The next agent MUST respond in Czech.
 
 **what currently exists?**
-A full-stack application, S.T.E.W.A.R.D. Workspace, with a React frontend. The application features a modular dashboard where users can manage notes, tasks, projects, people, etc. State is managed via a combination of React Context (, ),  for persistence, and custom DOM events for cross-component updates. The backend was not involved in this session.
+The project is a full-stack application named S.T.E.W.A.R.D., a futuristic workspace dashboard with a modular canvas system. It uses React 19 for the frontend, FastAPI for the backend, and MongoDB for the database. Core functionality includes adding, moving, and snapping modules like Notes, Tasks, and Projects. The agent has successfully installed dependencies and confirmed all services are running.
 
 **Last working item**:
--   **Last item agent was working**: The agent was fixing a bug where restoring a project from the Trash via drag-and-drop removes it from the Trash UI but fails to add it back to the Projects module's UI. The agent attempted a fix by modifying  to remove a potentially stale state check before calling the context's  function.
--   **Status**: IN PROGRESS
--   **Agent Testing Done**: Y (The last test confirmed the fix was not successful).
--   **Which testing method agent to use?**: Frontend testing agent
--   **User Testing Done**: Y (The user reported the issue).
+*   **Last item agent was working:** Implementing a fix for the jump issue that occurs at the start of a drag operation for both windows and project elements. The agent identified that setting an  state immediately on  was causing an premature re-render, leading to the jump. The fix involves delaying the activation of the dragging state until the mouse has moved a small threshold (2px).
+*   **Status:** IN PROGRESS
+*   **Agent Testing Done:** N
+*   **Which testing method agent to use?** screenshot tool.
+    *   **Testing Blocker:** The agent has been unable to create a successful automated test because it cannot programmatically add modules to the workspace. This is a critical blocker for validating any UI change.
+*   **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
--   Issue 1: Project does not reappear in the module UI after being restored from Trash (P0)
--   Issue 2: Module close button ('x') is not functional (P1)
+*   **Issue 1:** The automated UI testing is consistently failing. (Priority: P0)
+*   **Issue 2:** The jump on drag start bug is not verified as fixed. (Priority: P1)
+*   **Issue 3:** The 30px snap gap feature is not verified as implemented. (Priority: P2)
 
-**Issues Detail**:
--   **Issue 1: Project does not reappear in the module UI after being restored from Trash**
-    -   **Attempted fixes**: The agent modified  to remove a client-side check () before calling the  update function from . The hypothesis was that a stale closure was preventing the update. However, the final test showed the project was still not appearing in the module after being restored.
-    -   **Next debug checklist**:
-        1.  ****: Verify the  logic again. Compare it with the working  logic to spot any differences.
-        2.  ****: In the  and  functions, add logging to inspect the  and  objects for the 'project' type to ensure they are correct and complete.
-        3.  ****: Check if the component is correctly re-rendering when the  array in  is updated. A  or similar optimization might be causing stale UI.
-    -   **Why fix this issue and what will be achieved with the fix?**: This is a critical bug that breaks the project restore functionality, a core feature of the application.
-    -   **Status**: IN PROGRESS
-    -   **Is recurring issue?**: Y
-    -   **Should Test frontend/backend/both after fix?**: Frontend
-    -   **Blocked on other issue**: None
+**Issues Detail:**
+*   **Issue 1: Failing UI Automation**
+    *   **Attempted fixes:** The agent tried multiple  scripts with different selectors (, ) to click buttons in the bottom toolbar to add modules to the canvas. All attempts failed to add a module, often getting stuck on a Layout Manager dialog or simply not triggering the action.
+    *   **Next debug checklist:**
+        1.  Thoroughly inspect  to find the definitive, stable selectors for the individual module buttons (e.g., Notes, Projects).
+        2.  Construct a simple screenshot test that *only* tries to add one module and verifies it appears on the canvas. Do not combine this with other tests until this basic action is reliable.
+        3.  If clicks fail, consider alternative methods like directly calling the  function from the browser context if possible via the testing script.
+    *   **Why fix this issue and what will be achieved with the fix?** This is the highest priority issue. Without a reliable way to add modules, it's impossible to test the drag-and-drop or window snapping functionalities, blocking all other progress.
+    *   **Status:** IN PROGRESS
+    *   **Is recurring issue?** Y
+    *   **Should Test frontend/backend/both after fix?** Frontend
+    *   **Blocked on other issue:** None. This is the primary blocker.
 
--   **Issue 2: Module close button ('x') is not functional**
-    -   **Attempted fixes**: At the beginning of the session, the agent tried to test closing the Notes module and found that clicking the 'x' icon did nothing. The agent tried different selectors and coordinate-based clicks, which all failed. The task was then abandoned when the user provided a new set of priorities.
-    -   **Next debug checklist**:
-        1.  Identify the component that renders the module frame/header.
-        2.  Inspect the  handler attached to the close button ( icon).
-        3.  Verify that the handler function is correctly being called and that it dispatches the action to remove the module from the active canvas state (likely managed in ).
-    -   **Why fix this issue and what will be achieved with the fix?**: This is a fundamental UI bug. Users cannot close modules, rendering the workspace unusable.
-    -   **Status**: NOT STARTED
-    -   **Is recurring issue?**: N
-    -   **Should Test frontend/backend/both after fix?**: Frontend
-    -   **Blocked on other issue**: None
+*   **Issue 2: Jump on drag start fix verification**
+    *   **Attempted fixes:** Code has been added to  and  to introduce a  on  and a movement threshold in  before activating the drag state.
+    *   **Next debug checklist:**
+        1.  Once Issue 1 is resolved, create a test that adds a module.
+        2.  Simulate a  on the module's titlebar. Take a screenshot.
+        3.  Simulate a tiny  (1px). The module should not have moved.
+        4.  Simulate a larger  (e.g., 50px). The module should now have moved, and the cursor should remain visually at the same point on the titlebar where the drag started.
+    *   **Why fix this issue and what will be achieved with the fix?** This will fix a jarring UX bug and provide a smooth, Stark-precise feel to window manipulation, as requested by the user.
+    *   **Status:** TESTING PENDING
+    *   **Is recurring issue?** N
+    *   **Should Test frontend/backend/both after fix?** Frontend
+    *   **Blocked on other issue:** Issue 1: Failing UI Automation
+
+*   **Issue 3: 30px snap gap feature verification**
+    *   **Attempted fixes:** The agent modified  to subtract a  from the available width before calculating the half-widths for left and right snapped windows.
+    *   **Next debug checklist:**
+        1.  Once Issue 1 is resolved, create a test that adds two modules.
+        2.  Drag one module to the far left edge of the workspace to trigger the snap.
+        3.  Drag the second module to the far right edge to trigger its snap.
+        4.  Take a screenshot and validate the 30px gap between the two modules and the 30px margins at the screen edges.
+    *   **Why fix this issue and what will be achieved with the fix?** This will implement a specific UI layout requirement from the user for a more organized and visually pleasing workspace.
+    *   **Status:** TESTING PENDING
+    *   **Is recurring issue?** N
+    *   **Should Test frontend/backend/both after fix?** Frontend
+    *   **Blocked on other issue:** Issue 1: Failing UI Automation
 
 **In progress Task List**:
-There are no in-progress tasks, only bug fixes.
+*   **Task 1: Implement and Validate Drag & Snap Fixes**
+    *   **Where to resume:** The code for both fixes is written. The immediate next step is to solve the UI automation blocker (Issue 1) so that testing can proceed.
+    *   **What will be achieved with this?** The two primary user requests will be fulfilled and validated.
+    *   **Status:** BLOCKED
+    *   **Should Test frontend/backend/both after fix?** Frontend
+    *   **Blocked on something:** Blocked on resolving the inability to programmatically add modules for testing.
 
 **Upcoming and Future Tasks**
-There are no upcoming or future tasks.
+There are no other pending tasks. The focus is entirely on fixing and validating the two requested UI behaviors.
 
 **Completed work in this session**
--   **Trash/Restore Logic**:
-    -   Items are now correctly removed from the Trash UI after being restored ().
-    -   Restored content (Notes, Tasks) now appears immediately in modules without a page refresh ().
--   **UI/UX Enhancements**:
-    -   Item titles in the Trash module are no longer truncated ().
-    -   The visual clipping issue on contact card hover in the People module has been resolved by adding more padding ().
-    -   Added a consistent trash can icon for quick deletion to item cards in the Goals, Processes, People, Projects, and Tasks modules for a unified UX.
--   **Crash Fix**:
-    -   Fixed a runtime crash in the Projects module caused by  items in the project list after a restore operation by adding defensive filtering (, ).
+*   **Code Implementation for Snap Gap:** Modified  to correctly calculate window dimensions for left/right snapping with a 30px gap.
+*   **Code Implementation for Drag Jump:** Modified  and  to prevent the jump on drag start by using a movement threshold and snapshotting the initial state.
 
 **Earlier issues found/mentioned but not fixed**
--   **Issue 1: Module close button not working**
-    -   **Debug checklist**:
-        1.  The agent was unable to close the Poznámky (Notes) module via the UI at the start of the session.
-        2.  The task was abandoned in favor of other user requests.
-        3.  The  handler on the close icon in the module wrapper component needs to be investigated.
-    -   **Why to solve this issue and what will be achieved with this?**: It is a critical UI bug preventing users from managing their workspace.
-    -   **Should Test frontend/backend/both after fix**: Frontend
-    -   **Is recurring issue?**: N
+*   **Inability to interact with UI via automation:** This was discovered during this session and is the primary unresolved problem. The agent's attempts to use  with various selectors to click buttons and add modules have all failed.
 
 **Known issue recurrence from previous fork**
--   None.
+N/A
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Frontend**: React, Tailwind CSS, Radix UI.
--   **State Management**: A hybrid system using React Context for shared state,  for data persistence, and custom DOM events for triggering updates in decoupled components.
--   **Drag and Drop**: Native HTML Drag and Drop API for restoring items from the Trash.
+*   **Frontend:** React 19, Tailwind CSS, React Hooks (, , ).
+*   **DOM APIs:** Using  extensively for position and dimension calculations in drag logic.
+*   **UI Logic:** Custom hooks () and components () to create a dynamic, draggable window manager interface from scratch.
 
 **key DB schema**
--   N/A (Data is persisted in browser ).
-
-**changes in tech stack**
--   None.
+Not explored during this session.
 
 **All files of reference**
--   : Manages drag-and-drop logic and content restoration.
--   : Manages state for notes, tasks, projects, etc.
--   : Manages the state of the trash can.
--   : UI for the Projects module; was fixed to prevent crashes and is related to the current pending issue.
--   : UI for the People module; CSS was fixed.
--   , , : UIs for various modules; modified to add delete icons.
--   , , : Card components modified to include delete icons.
-
-**Areas that need refactoring**:
--   The state management system is fragile. The mix of React Context, direct  manipulation, and custom DOM events for updates has led to several bugs related to UI not updating correctly. Centralizing all state mutations through context provider functions would make the application more robust and easier to debug.
-
-**key api endpoints**
--   N/A.
+*   **Modified:**
+    *   : To implement the 30px snap gap.
+    *   : To fix the drag jump for general modules.
+    *   : To fix the drag jump for items within the projects module.
+*   **Referenced:**
+    *   : To understand how to add modules.
+    *   : For general application structure.
 
 **Critical Info for New Agent**
--   You must respond to the user in **Czech**.
--   The current state management is complex. Debugging UI update issues often requires checking , , and whether the relevant component is listening for the correct custom DOM event.
--   The main pending issue is that restored projects don't appear in the . The logic for restoring other content types (like notes) is working correctly and can be used as a reference.
--   An earlier, unresolved bug prevents users from closing modules using the 'x' button. This is a high-priority issue to address after the current one.
-
-**documents and test reports created in this job**
--   None.
+*   **The absolute top priority is to fix the UI automation.** You cannot verify your work until you can reliably add modules to the workspace in your test scripts. Focus on creating a simple, successful script for this before re-attempting to test the drag or snap fixes.
+*   The user communicates exclusively in **Czech**. All your responses must be in Czech.
+*   The code for the two user requests (snap gap and drag jump) is already written. Your task is to get them tested and verified. Do not rewrite them unless the tests reveal a flaw in the logic.
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User:** When I restore a project from the trash, it disappears from the trash but doesn't reappear in the Projects module. (PENDING)
-2.  **User:** Deleting and restoring a project causes a crash in the Projects module. (FIXED)
-3.  **User:** Add delete icons to all module item cards for consistency. (DONE)
-4.  **User:** The hover effect on People cards is still slightly clipped on the sides. Please fix it. (FIXED)
-5.  **User:** Fix the visual clipping of contact cards on hover in the People module. (DONE)
-6.  **User:** Restoring content from the trash requires a page refresh to see the change. (FIXED)
-7.  **User:** A list of three bugs with the Trash functionality (item not removed, title truncated, content restore fails). (DONE)
-8.  **User:** Test opening and closing the Notes module. (STARTED, revealed a bug, then abandoned).
-9.  **User:** Can you see my steward-6.0 GitHub branch? (ANSWERED)
-10. **(Initial):** Asks about the steward-6.0 GitHub branch. (ANSWERED)
+1.  **User (Message 92):** Provided detailed instructions on how to fix the jump on drag start, emphasizing the need for a movement threshold and avoiding state changes on . This is the current active task.
+2.  **User (Message 57):** Provided initial, less detailed instructions on fixing the drag offset. This was superseded by the more specific drag jump instructions.
+3.  **User (Message 14):** Provided detailed instructions on how to implement the 30px gap for snapped windows. This task's code is complete but untested.
 
 **Project Health Check:**
--   **Broken**: The restore project functionality is broken. The UI for closing modules is also broken.
+*   **Broken:** UI test automation is non-functional. The agent cannot programmatically interact with the main canvas.
 
 **3rd Party Integrations**
--   None.
+None involved in the current tasks.
 
 **Testing status**
--   **Testing agent used after significant changes**: YES
--   **Troubleshoot agent used after agent stuck in loop**: NO
--   **Test files created**: None.
--   **Known regressions**: The project restore functionality is not working as intended.
+*   **Testing agent used after significant changes:** NO
+*   **Troubleshoot agent used after agent stuck in loop:** NO (This should have been used).
+*   **Test files created:** None (only temporary scripts that failed).
+*   **Known regressions:** None, as no after state could be successfully tested.
 
 **Credentials to test flow:**
--   N/A
+N/A
 
 **What agent forgot to execute**
--   The agent did not fix the bug with the module close button ('x' icon) not working. This issue was identified early in the session but was deprioritized based on subsequent user requests and never revisited.</analysis>
+*   The agent failed to use the  after repeatedly failing to write a working UI test script.
+*   The agent did not successfully test or validate any of the code changes it made. The core work of verifying the fixes remains completely undone.</analysis>
