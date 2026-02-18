@@ -133,7 +133,7 @@ export const WorkspaceProvider = ({ children }) => {
     
     // Balanced top offset - not too high, not too low
     // Windows are positioned relative to Canvas (which starts after header)
-    const AUTO_LAYOUT_TOP_OFFSET = Math.max(16, 24); // 24px from top of canvas
+    const AUTO_LAYOUT_TOP_OFFSET = Math.max(16, 44); // 44px from top of canvas
     
     const workspaceWidth = window.innerWidth - rightSidebarWidth - padding;
     const workspaceHeight = window.innerHeight - headerHeight - bottomToolbarHeight - padding;
@@ -185,7 +185,7 @@ export const WorkspaceProvider = ({ children }) => {
   // Get cascade position based on top-most window
   const getCascadePosition = useCallback((existingModules) => {
     const padding = 16;
-    const AUTO_LAYOUT_TOP_OFFSET = Math.max(16, 24); // 24px from top of canvas
+    const AUTO_LAYOUT_TOP_OFFSET = Math.max(16, 44); // 44px from top of canvas
     const cascadeOffset = 30;
     
     if (existingModules.length === 0) {
@@ -249,7 +249,7 @@ export const WorkspaceProvider = ({ children }) => {
         width: availableWidth,
         height: availableHeight
       };
-      defaultPosition = { x: padding, y: 24 }; // Balanced top offset
+      defaultPosition = { x: padding, y: 44 }; // Balanced top offset
     } else if (isTrashModule) {
       defaultSize = { width: 380, height: 450 };
     } else {
