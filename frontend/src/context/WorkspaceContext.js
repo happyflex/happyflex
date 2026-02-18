@@ -626,10 +626,17 @@ export const WorkspaceProvider = ({ children }) => {
     }
   }, [deferredModules, reorderCanvasModule]);
 
+  // Update module view state (for layout persistence)
+  const updateModuleViewState = useCallback((id, viewState) => {
+    setModules(prev => prev.map(m => 
+      m.id === id ? { ...m, viewState: { ...m.viewState, ...viewState } } : m
+    ));
+  }, []);
+
   // ===== LAYOUT RESTORE FUNCTIONS =====
   // Direct module restore for layout loading (bypasses addModule logic)
   const restoreModules = useCallback((moduleSnapshots) => {
-    // Create modules with complete state directly
+    // Create modules with complete state directly INCLUDING viewState
     const restoredModules = moduleSnapshots.map((snapshot, index) => ({
       id: `module-${Date.now()}-${index}`,
       type: snapshot.type,
@@ -638,7 +645,8 @@ export const WorkspaceProvider = ({ children }) => {
       zIndex: snapshot.zIndex || index,
       pinMode: snapshot.pinMode || 'none',
       isMaximized: snapshot.isMaximized || false,
-      snappedState: snapshot.snappedState || null
+      snappedState: snapshot.snappedState || null,
+      viewState: snapshot.viewState || null // Pass viewState to module
     }));
     
     setModules(restoredModules);
@@ -652,7 +660,8 @@ export const WorkspaceProvider = ({ children }) => {
       type: snapshot.type,
       position: snapshot.position || { x: 100, y: 100 },
       size: snapshot.size || { width: 400, height: 300 },
-      zIndex: snapshot.zIndex || 0
+      zIndex: snapshot.zIndex || 0,
+      viewState: snapshot.viewState || null
     }));
     
     setDeferredModules(restoredDeferred);
