@@ -304,26 +304,30 @@ const DraggableModule = ({ module }) => {
     e.preventDefault();
     e.stopPropagation();
     
-    // ANTI-JUMP FIX: Store drag start snapshot, but DON'T activate drag yet
-    // Drag activates only after threshold (2px movement) to prevent jump
-    const rect = moduleRef.current.getBoundingClientRect();
+    // ANTI-JUMP FIX: Work in WORKSPACE COORDINATES (state x/y)
+    // Get workspace container (canvas element)
+    const workspaceRoot = moduleRef.current?.closest('.workspace-canvas') || document.querySelector('.workspace-canvas');
     
-    dragStartSnapshot.current = {
+    // Get pointer position in workspace coords
+    const pointerLocal = getLocalPointer(e, workspaceRoot);
+    
+    // Module position from state = source of truth (in workspace coords)
+    const windowPosLocal = { x: module.position.x, y: module.position.y };
+    
+    // Calculate grab offset in workspace coords (where user grabbed relative to window top-left)
+    const grabOffsetX = pointerLocal.x - windowPosLocal.x;
+    const grabOffsetY = pointerLocal.y - windowPosLocal.y;
+    
+    // Store drag state - DON'T activate drag yet (wait for threshold)
+    dragStateRef.current = {
       pointerStart: { x: e.clientX, y: e.clientY },
-      windowRectStart: { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
-      grabOffset: { x: e.clientX - rect.left, y: e.clientY - rect.top },
+      grabOffset: { x: grabOffsetX, y: grabOffsetY },
+      workspaceRoot: workspaceRoot,
       activatedDrag: false
     };
     
-    // Store offset for later use (when drag activates)
-    setDragOffset({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    });
-    
     // DON'T set isDragging=true here - wait for first mousemove with threshold
     // DON'T call bringToFront here - it can cause z-index jump
-    // These will be called in mousemove after threshold is exceeded
   };
 
   const handleDragStart = (e) => {
