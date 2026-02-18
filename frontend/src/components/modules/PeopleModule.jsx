@@ -317,7 +317,7 @@ const PeopleModule = () => {
         <div className="flex items-center justify-between mb-3">
           <div>
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <Users className="h-5 w-5 text-cyan-400" />
+              <Users className="h-5 w-5 text-indigo-400" />
               Lidi
             </h3>
             <p className="text-xs text-gray-400">{people.length} {people.length === 1 ? 'osoba' : people.length >= 2 && people.length <= 4 ? 'osoby' : 'osob'} v databázi</p>
