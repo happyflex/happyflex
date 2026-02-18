@@ -208,6 +208,42 @@ const ProjectWorldModule = ({ project, onBack }) => {
   };
 
   const deleteItem = (id) => {
+    // Find the item to delete
+    const itemToDelete = items.find(item => item.id === id);
+    
+    if (itemToDelete) {
+      // Get item type label for toast
+      const typeLabels = {
+        note: 'Poznámka',
+        task: 'Úkol',
+        contact: 'Kontakt',
+        milestone: 'Milestone',
+        media: 'Media',
+        flow: 'Flow Diagram'
+      };
+      
+      // Add to Trash with full restore data
+      addToTrash({
+        type: TRASH_TYPES.PROJECT, // Using PROJECT type for project elements
+        name: itemToDelete.data?.title || typeLabels[itemToDelete.type] || 'Element',
+        data: itemToDelete,
+        sourceModule: 'Projekty',
+        metadata: {
+          projectId: project.id,
+          projectName: project.name,
+          itemType: itemToDelete.type,
+          nodePath: [...currentPath], // Store path for potential restore
+          connections: connections.filter(conn => conn.from === id || conn.to === id)
+        }
+      });
+
+      toast({
+        title: 'Přesunuto do koše',
+        description: `${typeLabels[itemToDelete.type] || 'Element'} byl přesunut do koše`
+      });
+    }
+
+    // Remove item and its connections
     updateCurrentNodeItems(items.filter(item => item.id !== id));
     updateCurrentNodeConnections(connections.filter(conn => conn.from !== id && conn.to !== id));
     setSelectedItem(null);
