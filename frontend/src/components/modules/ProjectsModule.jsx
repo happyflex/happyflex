@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TrendingUp, Users, Calendar, ExternalLink, Layout, Plus, X, Trash2 } from 'lucide-react';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import { useTrash } from '../../context/TrashContext';
