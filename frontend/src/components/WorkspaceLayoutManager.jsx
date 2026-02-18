@@ -270,62 +270,22 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
       localStorage.setItem(STORAGE_KEYS.SAVED_LAYOUTS, JSON.stringify(updatedLayouts));
       setLayouts(updatedLayouts);
       
-      // ===== STEP 1: Clear current state =====
-      // Clear focus mode first
-      workspace.clearFocusMode();
+      // ===== STEP 1: Clear ALL current state =====
+      workspace.clearAllModules();
       
-      // Remove all current modules
-      const currentModules = [...workspace.modules];
-      for (const m of currentModules) {
-        workspace.removeModule(m.id);
-      }
-      
-      // Clear deferred modules (CANVAS)
-      const currentDeferred = [...workspace.deferredModules];
-      for (const m of currentDeferred) {
-        workspace.removeFromCanvas(m.id);
-      }
-
       // Wait for state to settle
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       // ===== STEP 2: Restore application data =====
       if (layout.data) {
-        // Clear and restore notes
-        const currentNotes = [...workspace.notes];
-        for (const n of currentNotes) {
-          workspace.deleteNote(n.id);
-        }
-        
-        // Clear and restore tasks
-        const currentTasks = [...workspace.tasks];
-        for (const t of currentTasks) {
-          workspace.deleteTask(t.id);
-        }
-
-        await new Promise(resolve => setTimeout(resolve, 50));
-
-        // Restore notes
+        // Restore notes directly
         if (layout.data.notes) {
-          for (const note of layout.data.notes) {
-            workspace.addNote({
-              title: note.title,
-              content: note.content,
-              color: note.color
-            });
-          }
+          workspace.setNotes(layout.data.notes);
         }
 
-        // Restore tasks
+        // Restore tasks directly
         if (layout.data.tasks) {
-          for (const task of layout.data.tasks) {
-            workspace.addTask({
-              title: task.title,
-              priority: task.priority,
-              dueDate: task.dueDate,
-              completed: task.completed
-            });
-          }
+          workspace.setTasks(layout.data.tasks);
         }
 
         // Restore timer
@@ -334,113 +294,66 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
         }
       }
 
-      // ===== STEP 3: Restore modules with positions/sizes =====
-      const moduleIdMap = {}; // Map old IDs to new IDs
-      
-      for (let i = 0; i < layout.modules.length; i++) {
-        const moduleData = layout.modules[i];
+      // ===== STEP 3: Restore modules with COMPLETE state =====
+      if (layout.modules && layout.modules.length > 0) {
+        // Filter out invalid modules
+        const validModules = layout.modules.filter(m => m && m.type);
         
-        // Skip invalid modules
-        if (!moduleData || !moduleData.type) {
-          console.warn('Skipping invalid module in layout:', moduleData);
-          continue;
-        }
+        // Use direct restore function - sets all properties at once
+        const restoredModules = workspace.restoreModules(validModules);
         
-        try {
-          // Add module with position
-          workspace.addModule(moduleData.type, moduleData.position);
-          
-          // Wait for module to be created
-          await new Promise(resolve => setTimeout(resolve, 80));
-          
-          // Find the newly created module
-          const newModules = workspace.modules;
-          const newModule = newModules[newModules.length - 1];
-          
-          if (newModule) {
-            moduleIdMap[moduleData.id] = newModule.id;
-            
-            // Update size if different from default
-            if (moduleData.size) {
-              workspace.updateModuleSize(newModule.id, moduleData.size);
-            }
-            
-            // ===== STEP 4: Apply window state flags =====
-            // Apply pinMode (pin/lock/top)
-            if (moduleData.pinMode && moduleData.pinMode !== 'none') {
-              // Cycle through modes until we reach the desired one
-              let currentMode = 'none';
-              const targetMode = moduleData.pinMode;
-              const modeOrder = ['none', 'pin', 'lock', 'top'];
-              
-              while (currentMode !== targetMode) {
-                workspace.togglePinMode(newModule.id);
-                await new Promise(resolve => setTimeout(resolve, 30));
-                const currentIndex = modeOrder.indexOf(currentMode);
-                currentMode = modeOrder[(currentIndex + 1) % modeOrder.length];
-              }
-            }
-            
-            // ===== STEP 5: Restore module view state =====
-            if (moduleData.viewState && Object.keys(moduleData.viewState).length > 0) {
-              restoreModuleViewState(moduleData.type, moduleData.viewState);
-            }
+        // Wait for state to settle
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // ===== STEP 4: Restore view state for each module type =====
+        for (const moduleData of validModules) {
+          if (moduleData.viewState && Object.keys(moduleData.viewState).length > 0) {
+            restoreModuleViewState(moduleData.type, moduleData.viewState);
           }
-        } catch (moduleError) {
-          console.warn(`Failed to restore module ${moduleData.type}:`, moduleError);
-          // Continue with next module
         }
       }
 
-      // ===== STEP 6: Restore CANVAS items =====
+      // ===== STEP 5: Restore CANVAS items =====
       const canvasItems = layout.canvasModules || layout.deferredModules || [];
       
-      // Sort by order if available
-      const sortedCanvasItems = [...canvasItems].sort((a, b) => 
-        (a.order || 0) - (b.order || 0)
-      );
-      
-      for (const canvasItem of sortedCanvasItems) {
-        if (!canvasItem || !canvasItem.type) continue;
+      if (canvasItems.length > 0) {
+        // Sort by order if available
+        const sortedCanvasItems = [...canvasItems]
+          .filter(item => item && item.type)
+          .sort((a, b) => (a.order || 0) - (b.order || 0));
         
-        try {
-          // Create a temporary module to defer
-          // First add to workspace, then defer it
-          workspace.addModule(canvasItem.type, canvasItem.position || { x: 100, y: 100 });
-          
-          await new Promise(resolve => setTimeout(resolve, 50));
-          
-          // Find and defer the module
-          const latestModules = workspace.modules;
-          const addedModule = latestModules[latestModules.length - 1];
-          
-          if (addedModule) {
-            workspace.deferModule(addedModule.id);
-            
-            // Restore view state for canvas item
-            if (canvasItem.viewState && Object.keys(canvasItem.viewState).length > 0) {
-              restoreModuleViewState(canvasItem.type, canvasItem.viewState);
-            }
+        // Use direct restore function
+        workspace.restoreDeferredModules(sortedCanvasItems);
+        
+        // Restore view state for canvas items
+        for (const canvasItem of sortedCanvasItems) {
+          if (canvasItem.viewState && Object.keys(canvasItem.viewState).length > 0) {
+            restoreModuleViewState(canvasItem.type, canvasItem.viewState);
           }
-        } catch (canvasError) {
-          console.warn(`Failed to restore canvas item ${canvasItem.type}:`, canvasError);
         }
       }
 
-      // ===== STEP 7: Restore focus mode =====
+      // ===== STEP 6: Restore focus mode =====
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
       if (layout.focusedModuleId) {
-        // Find the new ID for the focused module
-        const newFocusedId = moduleIdMap[layout.focusedModuleId];
-        if (newFocusedId) {
-          await new Promise(resolve => setTimeout(resolve, 100));
-          workspace.setFocusMode(newFocusedId);
+        // Find the module with matching type (since IDs changed)
+        const focusedModuleData = layout.modules.find(m => m.id === layout.focusedModuleId);
+        if (focusedModuleData) {
+          // Find the restored module by index/type
+          const moduleIndex = layout.modules.findIndex(m => m.id === layout.focusedModuleId);
+          if (moduleIndex >= 0 && workspace.modules[moduleIndex]) {
+            workspace.setFocusMode(workspace.modules[moduleIndex].id);
+          }
         }
       }
 
       onClose();
+      
+      const canvasCount = canvasItems.filter(i => i && i.type).length;
       toast({
         title: 'Layout načten',
-        description: `"${layout.name}" byl obnoven s ${layout.modules.length} moduly a kompletním stavem`
+        description: `"${layout.name}" obnoven: ${layout.modules.length} modulů${canvasCount > 0 ? `, ${canvasCount} v CANVAS` : ''}${layout.focusedModuleId ? ', Focus mode' : ''}`
       });
     } catch (error) {
       console.error('Error loading layout:', error);
