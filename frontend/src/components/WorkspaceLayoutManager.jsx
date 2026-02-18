@@ -401,14 +401,20 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
         case 'calendar':
           localStorage.setItem('steward_calendar_view_state', JSON.stringify(viewState));
           break;
+        case 'files':
+          localStorage.setItem('steward_files_view_state', JSON.stringify(viewState));
+          break;
+        case 'processes':
+          localStorage.setItem('steward_processes_view_state', JSON.stringify(viewState));
+          break;
+        case 'people':
+          localStorage.setItem('steward_people_view_state', JSON.stringify(viewState));
+          break;
         case 'notes':
           localStorage.setItem('steward_notes_view_state', JSON.stringify(viewState));
           break;
         case 'tasks':
           localStorage.setItem('steward_tasks_view_state', JSON.stringify(viewState));
-          break;
-        case 'people':
-          localStorage.setItem('steward_people_view_state', JSON.stringify(viewState));
           break;
         default:
           break;
