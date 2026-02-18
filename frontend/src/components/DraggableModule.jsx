@@ -512,7 +512,6 @@ const DraggableModule = ({ module }) => {
     };
 
     if (isDragging || isResizing) {
-      console.log(`[EFFECT DEBUG] ${module.id} adding listeners, isDragging=${isDragging}`);
       document.body.style.userSelect = 'none';
       document.body.style.webkitUserSelect = 'none';
       document.body.style.cursor = isResizing ? (resizeHandle || 'nwse-resize') + '-resize' : 'grabbing';
@@ -526,7 +525,6 @@ const DraggableModule = ({ module }) => {
     }
 
     return () => {
-      console.log(`[EFFECT DEBUG] ${module.id} cleanup, isDragging was=${isDragging}`);
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
       document.body.style.userSelect = '';
