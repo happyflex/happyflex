@@ -201,6 +201,14 @@ project_world_{projectId}: {
 - [x] Persistence do localStorage (knihovna, playlisty, stav přehrávání)
 - [x] Integrace s CANVAS buffer (blok ↔ okno)
 
+### Session 10 - Oprava Drag koordinátů (Prosinec 2025)
+- [x] Sdílený helper `getLocalPointer()` pro konzistentní převod souřadnic
+- [x] Opravený drag oken - kurzor zůstává "přilepený" na grab point (žádný skok)
+- [x] Opravený drag elementů v ProjectWorldModule - stejná logika
+- [x] 2px práh pro aktivaci dragu (prevence skoku na mousedown)
+- [x] 30px mezera mezi snapnutými okny vlevo/vpravo (WORKSPACE_WINDOW_GAP)
+- [x] Podpora CSS transform/scale v koordinátových výpočtech
+
 ## Upcoming Tasks
 
 ### P1: Integrace Lidi do Project World
