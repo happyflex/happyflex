@@ -42,6 +42,10 @@ const ProjectWorldModule = ({ project, onBack, initialPath }) => {
           const data = JSON.parse(saved);
           if (data.structure) {
             setStructure(data.structure);
+            // If initialPath was provided, navigate to it after loading
+            if (initialPath && initialPath.length > 1) {
+              setCurrentPath(initialPath);
+            }
           }
         } catch (e) {
           console.error('Error loading project:', e);
@@ -70,7 +74,7 @@ const ProjectWorldModule = ({ project, onBack, initialPath }) => {
     return () => {
       window.removeEventListener('steward-project-element-restored', handleElementRestored);
     };
-  }, [project.id]);
+  }, [project.id, initialPath]);
 
   // Auto-save
   useEffect(() => {
