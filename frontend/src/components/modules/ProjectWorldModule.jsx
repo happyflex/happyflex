@@ -35,17 +35,41 @@ const ProjectWorldModule = ({ project, onBack }) => {
 
   // Load project data from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem(`project_world_${project.id}`);
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        if (data.structure) {
-          setStructure(data.structure);
+    const loadProjectData = () => {
+      const saved = localStorage.getItem(`project_world_${project.id}`);
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          if (data.structure) {
+            setStructure(data.structure);
+          }
+        } catch (e) {
+          console.error('Error loading project:', e);
         }
-      } catch (e) {
-        console.error('Error loading project:', e);
       }
-    }
+    };
+
+    loadProjectData();
+
+    // Listen for restore events
+    const handleElementRestored = (event) => {
+      if (event.detail?.projectId === project.id) {
+        loadProjectData();
+        // Navigate to the restored element's path if provided
+        if (event.detail?.nodePath) {
+          setCurrentPath(event.detail.nodePath);
+        }
+        toast({
+          title: 'Data obnovena',
+          description: 'Element byl obnoven do projektu'
+        });
+      }
+    };
+
+    window.addEventListener('steward-project-element-restored', handleElementRestored);
+    return () => {
+      window.removeEventListener('steward-project-element-restored', handleElementRestored);
+    };
   }, [project.id]);
 
   // Auto-save
