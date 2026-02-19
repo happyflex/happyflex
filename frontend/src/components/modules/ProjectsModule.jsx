@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { TrendingUp, Users, Calendar, ExternalLink, Layout, Plus, X, Trash2 } from 'lucide-react';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import { useTrash } from '../../context/TrashContext';
@@ -10,7 +10,7 @@ import ProjectWorldModule from './ProjectWorldModule';
 import ModuleHeader from './ModuleHeader';
 import { toast } from '../../hooks/use-toast';
 
-const ProjectsModule = () => {
+const ProjectsModule = ({ initialViewState, onViewStateChange }) => {
   const { projects, setProjects } = useWorkspace();
   const { addToTrash, TRASH_TYPES } = useTrash();
   const [selectedProject, setSelectedProject] = useState(null);
@@ -22,6 +22,49 @@ const ProjectsModule = () => {
     deadline: '',
     team: ''
   });
+  
+  // VIEW STATE GUARDS: Prevent infinite loops
+  const didApplyInitialViewState = useRef(false);
+  const lastEmittedViewState = useRef(null);
+  const isInitialized = useRef(false);
+
+  // VIEW STATE: Apply initial viewState (once on mount or layout load)
+  useEffect(() => {
+    if (!initialViewState || didApplyInitialViewState.current) return;
+    
+    // Apply viewState from layout - find project by ID
+    if (initialViewState.openProjectId && projects.length > 0) {
+      const project = projects.find(p => p.id === initialViewState.openProjectId);
+      if (project) {
+        setSelectedProject(project);
+        if (initialViewState.nodePath) setInitialNodePath(initialViewState.nodePath);
+      }
+    }
+    
+    didApplyInitialViewState.current = true;
+  }, [initialViewState, projects]);
+
+  // VIEW STATE: Emit changes (with deep-equal guard)
+  useEffect(() => {
+    if (!onViewStateChange || !isInitialized.current) return;
+    
+    const nextViewState = {
+      openProjectId: selectedProject?.id || undefined,
+      nodePath: initialNodePath || undefined
+    };
+    
+    // Deep-equal guard: only emit if changed
+    const nextJson = JSON.stringify(nextViewState);
+    if (lastEmittedViewState.current === nextJson) return;
+    
+    lastEmittedViewState.current = nextJson;
+    onViewStateChange(nextViewState);
+  }, [selectedProject, initialNodePath, onViewStateChange]);
+
+  // Mark as initialized
+  useEffect(() => {
+    isInitialized.current = true;
+  }, []);
 
   // Listen for project element restore events to open the correct project
   useEffect(() => {
