@@ -445,6 +445,13 @@ export const WorkspaceProvider = ({ children }) => {
     ));
   }, []);
 
+  // Update maximize state for a module (persisted for CANVAS transfer)
+  const updateModuleMaximizeState = useCallback((id, isMaximized, restoreRect) => {
+    setModules(prev => prev.map(m => 
+      m.id === id ? { ...m, isMaximized, restoreRect } : m
+    ));
+  }, []);
+
   const bringToFront = useCallback((id) => {
     setModules(prev => {
       const maxZ = Math.max(...prev.map(m => m.zIndex));
