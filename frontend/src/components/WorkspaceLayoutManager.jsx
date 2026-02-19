@@ -80,7 +80,7 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
       name: layoutName.trim(),
       createdAt: now,
       lastUsedAt: now,
-      // Full window state for each module
+      // Full window state for each module (including viewState)
       modules: workspace.modules.map(m => ({
         id: m.id,
         type: m.type,
@@ -89,7 +89,9 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
         zIndex: m.zIndex,
         pinMode: m.pinMode || 'none',
         isAlwaysOnTop: m.isAlwaysOnTop || false,
-        snappedState: m.snappedState || null
+        snappedState: m.snappedState || null,
+        // ViewState per window instance (module's internal UI state)
+        viewState: m.viewState || undefined
       })),
       // CANVAS (deferred modules) with full state
       deferredModules: workspace.deferredModules.map(m => ({
@@ -98,7 +100,8 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
         position: { x: m.position.x, y: m.position.y },
         size: { width: m.size.width, height: m.size.height },
         zIndex: m.zIndex,
-        pinMode: m.pinMode || 'none'
+        pinMode: m.pinMode || 'none',
+        viewState: m.viewState || undefined
       })),
       // Focus mode state
       focusedModuleId: workspace.focusedModuleId,
