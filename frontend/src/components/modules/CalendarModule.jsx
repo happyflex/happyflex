@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Plus, X, Clock, Target, Calendar as CalendarIcon, AlertCircle, Focus, Bell } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -40,7 +40,7 @@ const formatDateKey = (date) => {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 };
 
-const CalendarModule = () => {
+const CalendarModule = ({ initialViewState, onViewStateChange }) => {
   const [view, setView] = useState('week');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState(() => {
@@ -53,6 +53,50 @@ const CalendarModule = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedHour, setSelectedHour] = useState(9);
   const [draggedEvent, setDraggedEvent] = useState(null);
+  
+  // VIEW STATE GUARDS: Prevent infinite loops
+  const didApplyInitialViewState = useRef(false);
+  const lastEmittedViewState = useRef(null);
+  const isInitialized = useRef(false);
+
+  // VIEW STATE: Apply initial viewState (once on mount or layout load)
+  useEffect(() => {
+    if (!initialViewState || didApplyInitialViewState.current) return;
+    
+    // Apply viewState from layout
+    if (initialViewState.view) setView(initialViewState.view);
+    if (initialViewState.selectedDate) {
+      try {
+        setCurrentDate(new Date(initialViewState.selectedDate));
+      } catch (e) {
+        // Invalid date - ignore
+      }
+    }
+    
+    didApplyInitialViewState.current = true;
+  }, [initialViewState]);
+
+  // VIEW STATE: Emit changes (with deep-equal guard)
+  useEffect(() => {
+    if (!onViewStateChange || !isInitialized.current) return;
+    
+    const nextViewState = {
+      view,
+      selectedDate: formatDateKey(currentDate)
+    };
+    
+    // Deep-equal guard: only emit if changed
+    const nextJson = JSON.stringify(nextViewState);
+    if (lastEmittedViewState.current === nextJson) return;
+    
+    lastEmittedViewState.current = nextJson;
+    onViewStateChange(nextViewState);
+  }, [view, currentDate, onViewStateChange]);
+
+  // Mark as initialized
+  useEffect(() => {
+    isInitialized.current = true;
+  }, []);
 
   // Save events to localStorage whenever they change
   useEffect(() => {
