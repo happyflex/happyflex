@@ -9,6 +9,7 @@ import BottomToolbar from "./components/BottomToolbar";
 import RightSidebar from "./components/RightSidebar";
 import CursorHUD from "./components/CursorHUD";
 import CommandWheel from "./components/CommandWheel";
+import LastSessionOverlay from "./components/LastSessionOverlay";
 import { Toaster } from "./components/ui/toaster";
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
           <Toaster />
           <CursorHUD />
           <CommandWheel />
+          <LastSessionOverlay />
         </div>
       </TrashProvider>
     </WorkspaceProvider>
