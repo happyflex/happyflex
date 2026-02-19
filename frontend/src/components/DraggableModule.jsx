@@ -315,26 +315,30 @@ const DraggableModule = ({ module }) => {
     e.preventDefault();
     e.stopPropagation();
     
-    // ANTI-JUMP FIX: Store drag start snapshot, but DON'T activate drag yet
-    // Drag activates only after threshold (2px movement) to prevent jump
+    // ANTI-JUMP FIX: Snapshot only - NO position changes on mousedown
     const rect = moduleRef.current.getBoundingClientRect();
     
-    dragStartSnapshot.current = {
-      pointerStart: { x: e.clientX, y: e.clientY },
-      windowRectStart: { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
-      grabOffset: { x: e.clientX - rect.left, y: e.clientY - rect.top },
-      activatedDrag: false
-    };
+    // Store initial rect exactly once
+    initialRectRef.current = rect;
     
-    // Store offset for later use (when drag activates)
-    setDragOffset({
+    // Store pointer start position
+    startPointerRef.current = { x: e.clientX, y: e.clientY };
+    
+    // Calculate grab offset (where cursor grabbed relative to element top-left)
+    grabOffsetRef.current = {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top
-    });
+    };
     
-    // DON'T set isDragging=true here - wait for first mousemove with threshold
-    // DON'T call bringToFront here - it can cause z-index jump
-    // These will be called in mousemove after threshold is exceeded
+    // Arm the drag (but don't activate yet - wait for threshold)
+    draggingArmedRef.current = true;
+    isDraggingRef.current = false;
+    
+    // IMPORTANT: Set state to trigger re-render and attach mousemove/mouseup listeners
+    setIsMouseDown(true);
+    
+    // DO NOT: call updateModulePosition, setIsDragging, bringToFront here
+    // These happen in mousemove after threshold is exceeded
   };
 
   const handleDragStart = (e) => {
