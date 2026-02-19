@@ -195,6 +195,11 @@ const DraggableModule = ({ module }) => {
   const draggingArmedRef = useRef(false);
   const isDraggingRef = useRef(false);
   
+  // RESIZE STABILITY: Refs for resize start snapshot
+  const resizeStartMouseRef = useRef({ x: 0, y: 0 });
+  const resizeStartRectRef = useRef({ x: 0, y: 0, width: 0, height: 0 });
+  const resizeRAFRef = useRef(null);
+  
   // Use ref for modules to avoid effect re-runs when other modules change
   const modulesRef = useRef(modules);
   modulesRef.current = modules;
