@@ -314,9 +314,12 @@ const DraggableModule = ({ module }) => {
     e.preventDefault();
     e.stopPropagation();
     
-    // ANTI-JUMP FIX: Get rect from WRAPPER (moduleRef), not titlebar (e.currentTarget)
-    // This ensures grabOffset is calculated relative to the element that actually moves
+    // ANTI-JUMP FIX: Get rect from WRAPPER (moduleRef)
     const wrapperRect = moduleRef.current.getBoundingClientRect();
+    
+    // Get Canvas rect (parent container where modules are positioned)
+    const canvas = moduleRef.current.closest('[data-workspace="main"]');
+    const canvasRect = canvas ? canvas.getBoundingClientRect() : { left: 0, top: 0 };
     
     // Store initial rect exactly once
     initialRectRef.current = wrapperRect;
@@ -324,10 +327,13 @@ const DraggableModule = ({ module }) => {
     // Store pointer start position
     startPointerRef.current = { x: e.clientX, y: e.clientY };
     
-    // Calculate grab offset relative to WRAPPER top-left (not titlebar)
+    // Calculate grab offset relative to CANVAS coordinate system
+    // grabOffset = pointer position in canvas - module position in canvas
+    // pointer in canvas = e.clientX - canvasRect.left
+    // module in canvas = module.position.x (which equals wrapperRect.left - canvasRect.left)
     grabOffsetRef.current = {
-      x: e.clientX - wrapperRect.left,
-      y: e.clientY - wrapperRect.top
+      x: (e.clientX - canvasRect.left) - module.position.x,
+      y: (e.clientY - canvasRect.top) - module.position.y
     };
     
     // Arm the drag (but don't activate yet - wait for threshold)
