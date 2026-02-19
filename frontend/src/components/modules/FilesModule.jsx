@@ -198,6 +198,20 @@ const FilesModule = ({ initialViewState, onViewStateChange }) => {
     return current;
   }, []);
 
+  // Find item by ID in tree (moved here to be available for viewState restore)
+  const findItemById = useCallback((items, id) => {
+    if (!items) return null;
+    
+    for (const item of items) {
+      if (item.id === id) return item;
+      if (item.children) {
+        const found = findItemById(item.children, id);
+        if (found) return found;
+      }
+    }
+    return null;
+  }, []);
+
   // Load from localStorage
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
