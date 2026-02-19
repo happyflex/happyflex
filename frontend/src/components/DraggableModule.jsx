@@ -421,43 +421,44 @@ const DraggableModule = ({ module }) => {
 
   useEffect(() => {
     const handleMouseMove = (e) => {
-      // ANTI-JUMP: Check if we have drag start snapshot (mouse is down but drag not activated)
-      if (dragStartSnapshot.current && !dragStartSnapshot.current.activatedDrag && !isDragging) {
-        const dx = Math.abs(e.clientX - dragStartSnapshot.current.pointerStart.x);
-        const dy = Math.abs(e.clientY - dragStartSnapshot.current.pointerStart.y);
+      // ANTI-JUMP: Check if drag is armed but not yet activated (threshold check)
+      if (draggingArmedRef.current && !isDraggingRef.current) {
+        const dx = Math.abs(e.clientX - startPointerRef.current.x);
+        const dy = Math.abs(e.clientY - startPointerRef.current.y);
         
-        // Threshold: Activate drag only after 2px movement
-        if (dx + dy < 2) {
+        // Threshold: Activate drag only after 3px movement
+        if (dx + dy < 3) {
           return; // Don't activate drag yet - prevents jump
         }
         
         // Threshold exceeded - activate drag NOW
-        dragStartSnapshot.current.activatedDrag = true;
+        isDraggingRef.current = true;
         setIsDragging(true);
         setIsDraggingWindow(true);
         bringToFront(module.id);
         
-        // First position calculation (no jump - use stored grab offset)
-        const newX = e.clientX - dragStartSnapshot.current.grabOffset.x;
-        const newY = e.clientY - dragStartSnapshot.current.grabOffset.y;
+        // First position calculation using STORED grab offset (no jump)
+        const newX = e.clientX - grabOffsetRef.current.x;
+        const newY = e.clientY - grabOffsetRef.current.y;
         
         // Validate
         if (!isValidNumber(newX) || !isValidNumber(newY)) {
           return;
         }
         
-        // DON'T apply snap/magnetic on first move - just clamp to prevent jump
+        // DON'T apply snap/magnetic on first move - just clamp
         const clamped = clampPosition(newX, newY, module.size.width, module.size.height);
         updateModulePosition(module.id, clamped);
         return;
       }
       
-      if (isDragging) {
+      // During active drag: use STORED grabOffset, never recalculate
+      if (isDraggingRef.current) {
         e.preventDefault();
         
-        // Calculate new position based on stored offset
-        let newX = e.clientX - dragOffset.x;
-        let newY = e.clientY - dragOffset.y;
+        // Calculate new position using STORED grab offset
+        let newX = e.clientX - grabOffsetRef.current.x;
+        let newY = e.clientY - grabOffsetRef.current.y;
         
         // Validate calculated position
         if (!isValidNumber(newX) || !isValidNumber(newY)) {
@@ -546,10 +547,9 @@ const DraggableModule = ({ module }) => {
     };
 
     const handleMouseUp = () => {
-      // ANTI-JUMP: Clear drag start snapshot
-      if (dragStartSnapshot.current) {
-        dragStartSnapshot.current = null;
-      }
+      // ANTI-JUMP: Reset all drag refs
+      draggingArmedRef.current = false;
+      isDraggingRef.current = false;
       
       // Apply snap if preview is active
       if (isDragging && currentSnapZone) {
@@ -565,6 +565,9 @@ const DraggableModule = ({ module }) => {
         setCurrentSnapZone(null);
         setSnapPreview(null);
       }
+      
+      // Reset all states
+      setIsMouseDown(false);
       setIsDragging(false);
       setIsDraggingWindow(false);
       setIsResizing(false);
@@ -572,7 +575,8 @@ const DraggableModule = ({ module }) => {
       setSnapPreview(null);
     };
 
-    if (isDragging || isResizing || dragStartSnapshot.current) {
+    // CRITICAL: Attach listeners when isMouseDown is true (state triggers re-render)
+    if (isMouseDown || isDragging || isResizing) {
       document.body.style.userSelect = 'none';
       document.body.style.webkitUserSelect = 'none';
       document.body.style.cursor = isResizing ? (resizeHandle || 'nwse-resize') + '-resize' : (isDragging ? 'grabbing' : 'grab');
