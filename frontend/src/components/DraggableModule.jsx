@@ -426,6 +426,9 @@ const DraggableModule = ({ module }) => {
   };
 
   useEffect(() => {
+    // Get Canvas reference for coordinate conversion
+    const canvas = moduleRef.current?.closest('[data-workspace="main"]');
+    
     const handleMouseMove = (e) => {
       // ANTI-JUMP: Check if drag is armed but not yet activated (threshold check)
       if (draggingArmedRef.current && !isDraggingRef.current) {
@@ -444,8 +447,15 @@ const DraggableModule = ({ module }) => {
         bringToFront(module.id);
         
         // First position calculation using STORED grab offset (no jump)
-        const newX = e.clientX - grabOffsetRef.current.x;
-        const newY = e.clientY - grabOffsetRef.current.y;
+        // Convert viewport coords to canvas-relative coords
+        const canvasRect = canvas ? canvas.getBoundingClientRect() : { left: 0, top: 0 };
+        const pointerInCanvas = {
+          x: e.clientX - canvasRect.left,
+          y: e.clientY - canvasRect.top
+        };
+        
+        const newX = pointerInCanvas.x - grabOffsetRef.current.x;
+        const newY = pointerInCanvas.y - grabOffsetRef.current.y;
         
         // Validate
         if (!isValidNumber(newX) || !isValidNumber(newY)) {
@@ -462,9 +472,16 @@ const DraggableModule = ({ module }) => {
       if (isDraggingRef.current) {
         e.preventDefault();
         
+        // Convert viewport coords to canvas-relative coords
+        const canvasRect = canvas ? canvas.getBoundingClientRect() : { left: 0, top: 0 };
+        const pointerInCanvas = {
+          x: e.clientX - canvasRect.left,
+          y: e.clientY - canvasRect.top
+        };
+        
         // Calculate new position using STORED grab offset
-        let newX = e.clientX - grabOffsetRef.current.x;
-        let newY = e.clientY - grabOffsetRef.current.y;
+        let newX = pointerInCanvas.x - grabOffsetRef.current.x;
+        let newY = pointerInCanvas.y - grabOffsetRef.current.y;
         
         // Validate calculated position
         if (!isValidNumber(newX) || !isValidNumber(newY)) {
