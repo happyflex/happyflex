@@ -26,9 +26,13 @@ const MEDIA_TYPES = {
   link: { icon: Link2, label: 'Link', color: 'text-yellow-400' }
 };
 
-const MusicModule = () => {
+const MusicModule = ({ initialViewState, onViewStateChange }) => {
   // Track if initial load is complete
   const isInitialized = useRef(false);
+  
+  // VIEW STATE GUARDS: Prevent infinite loops
+  const didApplyInitialViewState = useRef(false);
+  const lastEmittedViewState = useRef(null);
   
   // Load initial data from localStorage synchronously
   const getInitialLibrary = () => {
@@ -111,6 +115,36 @@ const MusicModule = () => {
   const audioRef = useRef(null);
   const fileInputRef = useRef(null);
   const downloadPollRef = useRef(null);
+
+  // VIEW STATE: Apply initial viewState (once on mount or layout load)
+  useEffect(() => {
+    if (!initialViewState || didApplyInitialViewState.current) return;
+    
+    // Apply viewState from layout
+    if (initialViewState.activeTab) setActiveTab(initialViewState.activeTab);
+    if (initialViewState.selectedPlaylistId) setCurrentPlaylist(initialViewState.selectedPlaylistId);
+    if (typeof initialViewState.isMiniMode === 'boolean') setMiniMode(initialViewState.isMiniMode);
+    
+    didApplyInitialViewState.current = true;
+  }, [initialViewState]);
+
+  // VIEW STATE: Emit changes (with deep-equal guard)
+  useEffect(() => {
+    if (!onViewStateChange || !isInitialized.current) return;
+    
+    const nextViewState = {
+      activeTab,
+      selectedPlaylistId: currentPlaylist,
+      isMiniMode: miniMode
+    };
+    
+    // Deep-equal guard: only emit if changed
+    const nextJson = JSON.stringify(nextViewState);
+    if (lastEmittedViewState.current === nextJson) return;
+    
+    lastEmittedViewState.current = nextJson;
+    onViewStateChange(nextViewState);
+  }, [activeTab, currentPlaylist, miniMode, onViewStateChange]);
 
   // Mark as initialized after first render
   useEffect(() => {
