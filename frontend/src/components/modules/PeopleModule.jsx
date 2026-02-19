@@ -35,7 +35,7 @@ const AVAILABILITY = {
   unknown: { label: 'Neznámá', color: 'bg-gray-500' }
 };
 
-const PeopleModule = () => {
+const PeopleModule = ({ initialViewState, onViewStateChange }) => {
   const { addPersonToTrash } = useTrash();
   const [people, setPeople] = useState(null); // null = not loaded yet
   const [selectedPerson, setSelectedPerson] = useState(null);
@@ -45,9 +45,45 @@ const PeopleModule = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingPerson, setEditingPerson] = useState(null);
   const [draggedPerson, setDraggedPerson] = useState(null);
+  
+  // VIEW STATE GUARDS: Prevent infinite loops
+  const didApplyInitialViewState = React.useRef(false);
+  const lastEmittedViewState = React.useRef(null);
+  const isInitialized = React.useRef(false);
+
+  // VIEW STATE: Apply initial viewState (once on mount or layout load)
+  useEffect(() => {
+    if (!initialViewState || didApplyInitialViewState.current) return;
+    
+    // Apply viewState from layout
+    if (initialViewState.selectedPersonId) setSelectedPerson(initialViewState.selectedPersonId);
+    if (initialViewState.filterType) setFilterType(initialViewState.filterType);
+    if (initialViewState.searchQuery) setSearchQuery(initialViewState.searchQuery);
+    
+    didApplyInitialViewState.current = true;
+  }, [initialViewState]);
+
+  // VIEW STATE: Emit changes (with deep-equal guard)
+  useEffect(() => {
+    if (!onViewStateChange || !isInitialized.current) return;
+    
+    const nextViewState = {
+      selectedPersonId: selectedPerson,
+      filterType: filterType !== 'all' ? filterType : undefined,
+      searchQuery: searchQuery || undefined
+    };
+    
+    // Deep-equal guard: only emit if changed
+    const nextJson = JSON.stringify(nextViewState);
+    if (lastEmittedViewState.current === nextJson) return;
+    
+    lastEmittedViewState.current = nextJson;
+    onViewStateChange(nextViewState);
+  }, [selectedPerson, filterType, searchQuery, onViewStateChange]);
 
   // Load from localStorage
   useEffect(() => {
+    isInitialized.current = true;
     const loadPeople = () => {
       const saved = localStorage.getItem('steward_contacts');
       if (saved) {
