@@ -73,24 +73,36 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
       return;
     }
 
+    const now = new Date().toISOString();
+    
     const newLayout = {
       id: Date.now().toString(),
       name: layoutName.trim(),
-      timestamp: new Date().toISOString(),
+      createdAt: now,
+      lastUsedAt: now,
+      // Full window state for each module
       modules: workspace.modules.map(m => ({
         id: m.id,
         type: m.type,
-        position: m.position,
-        size: m.size,
-        zIndex: m.zIndex
+        position: { x: m.position.x, y: m.position.y },
+        size: { width: m.size.width, height: m.size.height },
+        zIndex: m.zIndex,
+        pinMode: m.pinMode || 'none',
+        isAlwaysOnTop: m.isAlwaysOnTop || false,
+        snappedState: m.snappedState || null
       })),
+      // CANVAS (deferred modules) with full state
       deferredModules: workspace.deferredModules.map(m => ({
         id: m.id,
         type: m.type,
-        position: m.position,
-        size: m.size,
-        zIndex: m.zIndex
+        position: { x: m.position.x, y: m.position.y },
+        size: { width: m.size.width, height: m.size.height },
+        zIndex: m.zIndex,
+        pinMode: m.pinMode || 'none'
       })),
+      // Focus mode state
+      focusedModuleId: workspace.focusedModuleId,
+      // Legacy data for backward compatibility
       data: {
         notes: workspace.notes,
         tasks: workspace.tasks,
@@ -114,61 +126,96 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
 
   const loadLayout = (layout) => {
     try {
-      // Zavřeme všechny současné moduly
-      const currentModules = [...workspace.modules];
-      currentModules.forEach(m => workspace.removeModule(m.id));
+      // A) Clear all modules and CANVAS - direct state replacement
+      workspace.setModules([]);
+      workspace.setDeferredModules([]);
+      workspace.clearFocusMode();
       
-      // Vymažeme současná data
-      const currentNotes = [...workspace.notes];
-      currentNotes.forEach(n => workspace.deleteNote(n.id));
-
-      const currentTasks = [...workspace.tasks];
-      currentTasks.forEach(t => workspace.deleteTask(t.id));
-
-      // Načteme data z layoutu - postupně přidáme
-      setTimeout(() => {
-        layout.data.notes.forEach(note => {
-          workspace.addNote({
-            title: note.title,
-            content: note.content,
-            color: note.color
-          });
-        });
-
-        layout.data.tasks.forEach(task => {
-          workspace.addTask({
-            title: task.title,
-            priority: task.priority,
-            dueDate: task.dueDate,
-            completed: task.completed
-          });
-        });
-
-        // Obnovíme moduly s jejich původní pozicí a velikostí
-        layout.modules.forEach((moduleData, index) => {
-          setTimeout(() => {
-            const newModule = {
-              id: `module-${Date.now()}-${index}`,
-              type: moduleData.type,
-              position: moduleData.position,
-              size: moduleData.size,
-              zIndex: moduleData.zIndex
-            };
-            workspace.addModule(moduleData.type, moduleData.position);
-            // Aktualizujeme velikost po přidání
-            setTimeout(() => {
-              workspace.updateModuleSize(newModule.id, moduleData.size);
-            }, 100);
-          }, index * 100);
-        });
-
-        workspace.setTimerSeconds(layout.data.timerSeconds || 0);
-      }, 300);
+      // B) Restore modules DIRECTLY with their snapshot values
+      // No addModule + update - create complete module objects directly
+      const restoredModules = (layout.modules || []).map((moduleData, index) => ({
+        // Use stored ID or generate new one (for backward compatibility)
+        id: moduleData.id || `module-${Date.now()}-${index}`,
+        type: moduleData.type,
+        // Position with fallback
+        position: {
+          x: moduleData.position?.x ?? 100 + index * 30,
+          y: moduleData.position?.y ?? 100 + index * 30
+        },
+        // Size with fallback
+        size: {
+          width: moduleData.size?.width ?? 400,
+          height: moduleData.size?.height ?? 300
+        },
+        // zIndex with fallback
+        zIndex: moduleData.zIndex ?? index,
+        // pinMode with fallback (backward compatibility)
+        pinMode: moduleData.pinMode || 'none',
+        // Optional properties with fallback
+        isAlwaysOnTop: moduleData.isAlwaysOnTop || false,
+        snappedState: moduleData.snappedState || null
+      }));
+      
+      // Set modules directly
+      workspace.setModules(restoredModules);
+      
+      // C) Restore CANVAS (deferred modules) in correct order
+      const restoredDeferredModules = (layout.deferredModules || []).map((moduleData, index) => ({
+        id: moduleData.id || `deferred-${Date.now()}-${index}`,
+        type: moduleData.type,
+        position: {
+          x: moduleData.position?.x ?? 100,
+          y: moduleData.position?.y ?? 100
+        },
+        size: {
+          width: moduleData.size?.width ?? 400,
+          height: moduleData.size?.height ?? 300
+        },
+        zIndex: moduleData.zIndex ?? index,
+        pinMode: moduleData.pinMode || 'none'
+      }));
+      
+      workspace.setDeferredModules(restoredDeferredModules);
+      
+      // D) Restore focus mode AFTER modules are created
+      if (layout.focusedModuleId) {
+        // Verify the focused module exists in restored modules
+        const focusedExists = restoredModules.some(m => m.id === layout.focusedModuleId);
+        if (focusedExists) {
+          workspace.setFocusMode(layout.focusedModuleId);
+        }
+      }
+      
+      // Restore data (notes, tasks, etc.) with backward compatibility
+      if (layout.data) {
+        if (layout.data.notes && Array.isArray(layout.data.notes)) {
+          workspace.setNotes(layout.data.notes);
+        }
+        if (layout.data.tasks && Array.isArray(layout.data.tasks)) {
+          workspace.setTasks(layout.data.tasks);
+        }
+        if (typeof layout.data.timerSeconds === 'number') {
+          workspace.setTimerSeconds(layout.data.timerSeconds);
+        }
+      }
+      
+      // Update lastUsedAt
+      const updatedLayouts = layouts.map(l => 
+        l.id === layout.id 
+          ? { ...l, lastUsedAt: new Date().toISOString() }
+          : l
+      );
+      localStorage.setItem(STORAGE_KEYS.SAVED_LAYOUTS, JSON.stringify(updatedLayouts));
+      setLayouts(updatedLayouts);
 
       onClose();
+      
+      const moduleCount = restoredModules.length;
+      const canvasCount = restoredDeferredModules.length;
+      
       toast({
         title: 'Layout načten',
-        description: `"${layout.name}" byl obnoven s ${layout.modules.length} moduly`
+        description: `"${layout.name}" obnoven: ${moduleCount} oken${canvasCount > 0 ? `, ${canvasCount} v CANVAS` : ''}`
       });
     } catch (error) {
       console.error('Error loading layout:', error);
