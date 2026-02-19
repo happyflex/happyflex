@@ -316,8 +316,13 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
                             <div className="flex-1">
                               <h4 className="font-semibold text-white mb-1">{layout.name}</h4>
                               <p className="text-xs text-gray-500">
-                                {new Date(layout.timestamp).toLocaleString('cs-CZ')}
+                                Vytvořeno: {new Date(layout.createdAt || layout.timestamp).toLocaleString('cs-CZ')}
                               </p>
+                              {layout.lastUsedAt && layout.lastUsedAt !== layout.createdAt && (
+                                <p className="text-xs text-gray-500">
+                                  Naposledy: {new Date(layout.lastUsedAt).toLocaleString('cs-CZ')}
+                                </p>
+                              )}
                               <div className="flex flex-wrap gap-1.5 mt-2">
                                 {/* Module count badge */}
                                 <span 
