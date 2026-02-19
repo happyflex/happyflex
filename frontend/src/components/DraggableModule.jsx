@@ -372,6 +372,16 @@ const DraggableModule = ({ module }) => {
   const handleResizeStart = (e, handle) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    // RESIZE STABILITY: Store start snapshot for delta-based calculation
+    resizeStartMouseRef.current = { x: e.clientX, y: e.clientY };
+    resizeStartRectRef.current = {
+      x: module.position.x,
+      y: module.position.y,
+      width: module.size.width,
+      height: module.size.height
+    };
+    
     setIsResizing(true);
     setResizeHandle(handle);
     bringToFront(module.id);
