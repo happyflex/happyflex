@@ -682,6 +682,7 @@ export const WorkspaceProvider = ({ children }) => {
     updateModulePosition,
     updateModuleSize,
     updateModuleViewState,
+    updateModuleMaximizeState,
     bringToFront,
     reorderModulesZIndex,
     getModulesSortedByZIndex,
