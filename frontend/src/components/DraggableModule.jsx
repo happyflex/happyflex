@@ -167,6 +167,7 @@ const DraggableModule = ({ module }) => {
     updateModulePosition, 
     updateModuleSize,
     updateModuleViewState,
+    updateModuleMaximizeState,
     bringToFront, 
     deferModule,
     togglePinMode,
@@ -181,8 +182,10 @@ const DraggableModule = ({ module }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [resizeHandle, setResizeHandle] = useState(null);
-  const [isMaximized, setIsMaximized] = useState(false);
-  const [previousState, setPreviousState] = useState(null);
+  // Initialize isMaximized from module state (persisted for CANVAS transfer)
+  const [isMaximized, setIsMaximized] = useState(module.isMaximized || false);
+  // Initialize restoreRect from module state (persisted for CANVAS transfer)
+  const [previousState, setPreviousState] = useState(module.restoreRect || null);
   const [currentSnapZone, setCurrentSnapZone] = useState(null);
   const moduleRef = useRef(null);
   
