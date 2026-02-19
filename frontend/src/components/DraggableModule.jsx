@@ -186,8 +186,15 @@ const DraggableModule = ({ module }) => {
   const [currentSnapZone, setCurrentSnapZone] = useState(null);
   const moduleRef = useRef(null);
   
-  // ANTI-JUMP: Drag start snapshot (prevents jump on mousedown)
-  const dragStartSnapshot = useRef(null);
+  // ANTI-JUMP FIX: State to trigger re-render and attach listeners
+  const [isMouseDown, setIsMouseDown] = useState(false);
+  
+  // ANTI-JUMP: Refs for drag start snapshot (no position changes on mousedown)
+  const startPointerRef = useRef({ x: 0, y: 0 });
+  const grabOffsetRef = useRef({ x: 0, y: 0 });
+  const initialRectRef = useRef(null);
+  const draggingArmedRef = useRef(false);
+  const isDraggingRef = useRef(false);
   
   // Use ref for modules to avoid effect re-runs when other modules change
   const modulesRef = useRef(modules);
