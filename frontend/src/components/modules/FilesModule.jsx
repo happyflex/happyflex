@@ -313,20 +313,6 @@ const FilesModule = ({ initialViewState, onViewStateChange }) => {
     }
   }, [fileSystem, activeSource, selectedFolder]);
 
-  // Find item by ID in tree
-  const findItemById = useCallback((items, id) => {
-    if (!items) return null;
-    
-    for (const item of items) {
-      if (item.id === id) return item;
-      if (item.children) {
-        const found = findItemById(item.children, id);
-        if (found) return found;
-      }
-    }
-    return null;
-  }, []);
-
   // Find parent of item
   const findParentOfItem = useCallback((root, targetId, parent = null) => {
     if (!root) return null;
