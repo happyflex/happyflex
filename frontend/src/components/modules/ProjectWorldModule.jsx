@@ -11,7 +11,7 @@ import ProjectTree from './ProjectTree';
 import ItemDetailPanel from './ItemDetailPanel';
 import RelationshipTypeDialog from './RelationshipTypeDialog';
 
-const ProjectWorldModule = ({ project, onBack, initialPath }) => {
+const ProjectWorldModule = ({ project, onBack, initialPath, onPathChange }) => {
   const { addToTrash, TRASH_TYPES } = useTrash();
   const [structure, setStructure] = useState({ 
     root: { 
@@ -32,6 +32,18 @@ const ProjectWorldModule = ({ project, onBack, initialPath }) => {
   const [showAddSubproject, setShowAddSubproject] = useState(false);
   const [newSubprojectName, setNewSubprojectName] = useState('');
   const canvasRef = useRef(null);
+  
+  // Notify parent when path changes (for viewState persistence)
+  const lastReportedPath = useRef(null);
+  useEffect(() => {
+    if (onPathChange && currentPath) {
+      const pathJson = JSON.stringify(currentPath);
+      if (lastReportedPath.current !== pathJson) {
+        lastReportedPath.current = pathJson;
+        onPathChange(currentPath);
+      }
+    }
+  }, [currentPath, onPathChange]);
 
   // Load project data from localStorage
   useEffect(() => {
