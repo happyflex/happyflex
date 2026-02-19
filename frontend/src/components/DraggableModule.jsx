@@ -180,7 +180,6 @@ const DraggableModule = ({ module }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [resizeHandle, setResizeHandle] = useState(null);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isMaximized, setIsMaximized] = useState(false);
   const [previousState, setPreviousState] = useState(null);
   const [currentSnapZone, setCurrentSnapZone] = useState(null);
