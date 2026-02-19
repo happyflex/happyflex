@@ -633,9 +633,10 @@ const DraggableModule = ({ module }) => {
           height: newHeight
         };
         
+        // Apply updates
         updateModuleSize(module.id, { width: newWidth, height: newHeight });
-        if (clampedPos.x !== module.position.x || clampedPos.y !== module.position.y) {
-          updateModulePosition(module.id, clampedPos);
+        if (newX !== module.position.x || newY !== module.position.y) {
+          updateModulePosition(module.id, { x: newX, y: newY });
         }
       }
     };
