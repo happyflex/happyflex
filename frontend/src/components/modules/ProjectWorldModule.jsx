@@ -671,15 +671,21 @@ const ProjectWorldModule = ({ project, onBack, initialPath }) => {
   );
 };
 
-// ProjectItem component (zůstává stejný jako předtím)
+// ProjectItem component (ANTI-JUMP FIX applied)
 const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdate, onDelete, onConnect }) => {
   const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const itemRef = useRef(null);
   const lastValidPosition = useRef({ x: item.position?.x || 0, y: item.position?.y || 0 });
   
-  // ANTI-JUMP: Drag start snapshot
-  const dragStartSnapshot = useRef(null);
+  // ANTI-JUMP FIX: State to trigger re-render and attach listeners
+  const [isMouseDown, setIsMouseDown] = useState(false);
+  
+  // ANTI-JUMP: Refs for drag start snapshot (no position changes on mousedown)
+  const startPointerRef = useRef({ x: 0, y: 0 });
+  const grabOffsetRef = useRef({ x: 0, y: 0 });
+  const initialRectRef = useRef(null);
+  const draggingArmedRef = useRef(false);
+  const isDraggingRef = useRef(false);
   
   // Validation helper
   const isValidNumber = (num) => {
@@ -706,25 +712,24 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
     
     e.preventDefault();
     
-    // ANTI-JUMP: Store snapshot but DON'T activate drag yet
+    // ANTI-JUMP FIX: Snapshot only - NO position changes on mousedown
     const rect = itemRef.current?.getBoundingClientRect();
     if (!rect) return;
     
-    // Store offset relative to element's top-left corner
-    const offsetX = e.clientX - rect.left;
-    const offsetY = e.clientY - rect.top;
+    // Store initial rect exactly once
+    initialRectRef.current = rect;
     
-    // Validate offset values
-    if (!isValidNumber(offsetX) || !isValidNumber(offsetY)) return;
+    // Store pointer start position
+    startPointerRef.current = { x: e.clientX, y: e.clientY };
     
-    dragStartSnapshot.current = {
-      pointerStart: { x: e.clientX, y: e.clientY },
-      elementRectStart: { left: rect.left, top: rect.top, width: rect.width, height: rect.height },
-      grabOffset: { x: offsetX, y: offsetY },
-      activatedDrag: false
+    // Calculate grab offset (where cursor grabbed relative to element top-left)
+    grabOffsetRef.current = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
     };
     
-    setDragOffset({ x: offsetX, y: offsetY });
+    // Validate offset values
+    if (!isValidNumber(grabOffsetRef.current.x) || !isValidNumber(grabOffsetRef.current.y)) return;
     
     // Store current position as last valid
     lastValidPosition.current = { 
@@ -732,8 +737,15 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
       y: item.position?.y || 0 
     };
     
-    // DON'T set isDragging=true here - wait for threshold
-    // DON'T call onSelect() here - it might cause rerender/jump
+    // Arm the drag (but don't activate yet - wait for threshold)
+    draggingArmedRef.current = true;
+    isDraggingRef.current = false;
+    
+    // IMPORTANT: Set state to trigger re-render and attach mousemove/mouseup listeners
+    setIsMouseDown(true);
+    
+    // DO NOT: call onMove, setIsDragging, onSelect here
+    // These happen in mousemove after threshold is exceeded
   };
 
   useEffect(() => {
