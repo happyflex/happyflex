@@ -14,7 +14,7 @@ const ProjectsModule = ({ initialViewState, onViewStateChange }) => {
   const { projects, setProjects } = useWorkspace();
   const { addToTrash, TRASH_TYPES } = useTrash();
   const [selectedProject, setSelectedProject] = useState(null);
-  const [initialNodePath, setInitialNodePath] = useState(null);
+  const [currentNodePath, setCurrentNodePath] = useState(null); // Track current path from ProjectWorld
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newProject, setNewProject] = useState({
     name: '',
@@ -37,7 +37,10 @@ const ProjectsModule = ({ initialViewState, onViewStateChange }) => {
       const project = projects.find(p => p.id === initialViewState.openProjectId);
       if (project) {
         setSelectedProject(project);
-        if (initialViewState.nodePath) setInitialNodePath(initialViewState.nodePath);
+        // Set initial node path for deep restore
+        if (initialViewState.nodePath && Array.isArray(initialViewState.nodePath)) {
+          setCurrentNodePath(initialViewState.nodePath);
+        }
       }
     }
     
@@ -50,7 +53,10 @@ const ProjectsModule = ({ initialViewState, onViewStateChange }) => {
     
     const nextViewState = {
       openProjectId: selectedProject?.id || undefined,
-      nodePath: initialNodePath || undefined
+      nodePath: currentNodePath || undefined,
+      selectedNodeId: currentNodePath && currentNodePath.length > 0 
+        ? currentNodePath[currentNodePath.length - 1] 
+        : undefined
     };
     
     // Deep-equal guard: only emit if changed
@@ -59,11 +65,16 @@ const ProjectsModule = ({ initialViewState, onViewStateChange }) => {
     
     lastEmittedViewState.current = nextJson;
     onViewStateChange(nextViewState);
-  }, [selectedProject, initialNodePath, onViewStateChange]);
+  }, [selectedProject, currentNodePath, onViewStateChange]);
 
   // Mark as initialized
   useEffect(() => {
     isInitialized.current = true;
+  }, []);
+
+  // Handle path change from ProjectWorldModule
+  const handlePathChange = useCallback((newPath) => {
+    setCurrentNodePath(newPath);
   }, []);
 
   // Listen for project element restore events to open the correct project
