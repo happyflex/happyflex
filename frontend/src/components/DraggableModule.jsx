@@ -522,62 +522,118 @@ const DraggableModule = ({ module }) => {
       } else if (isResizing && resizeHandle) {
         e.preventDefault();
         
-        const rect = moduleRef.current?.getBoundingClientRect();
-        if (!rect) return;
+        // RESIZE STABILITY: Use delta-based calculation from start snapshot
+        // This prevents race conditions when mouse moves faster than render
+        const startRect = resizeStartRectRef.current;
+        const startMouse = resizeStartMouseRef.current;
         
-        let newWidth = module.size.width;
-        let newHeight = module.size.height;
-        let newX = module.position.x;
-        let newY = module.position.y;
+        // Calculate mouse delta from resize start
+        const dx = e.clientX - startMouse.x;
+        const dy = e.clientY - startMouse.y;
         
-        // Calculate new dimensions based on resize handle
+        // Start with initial values from snapshot
+        let newWidth = startRect.width;
+        let newHeight = startRect.height;
+        let newX = startRect.x;
+        let newY = startRect.y;
+        
+        // Calculate fixed edges (edges that should NOT move during resize)
+        const fixedBottom = startRect.y + startRect.height;
+        const fixedRight = startRect.x + startRect.width;
+        
+        // EAST edge: width increases with positive dx, left edge fixed
         if (resizeHandle.includes('e')) {
-          newWidth = e.clientX - rect.left;
+          newWidth = startRect.width + dx;
         }
+        
+        // SOUTH edge: height increases with positive dy, top edge fixed
         if (resizeHandle.includes('s')) {
-          newHeight = e.clientY - rect.top;
+          newHeight = startRect.height + dy;
         }
+        
+        // WEST edge: right edge fixed, width decreases with positive dx
         if (resizeHandle.includes('w')) {
-          const deltaX = e.clientX - rect.left;
-          newWidth = module.size.width - deltaX;
-          newX = module.position.x + deltaX;
+          newWidth = startRect.width - dx;
+          newX = startRect.x + dx;
         }
+        
+        // NORTH edge: bottom edge fixed, height decreases with positive dy
         if (resizeHandle.includes('n')) {
-          const deltaY = e.clientY - rect.top;
-          newHeight = module.size.height - deltaY;
-          newY = module.position.y + deltaY;
+          newHeight = startRect.height - dy;
+          newY = startRect.y + dy;
         }
         
         // Validate all values before applying
         if (!isValidNumber(newWidth) || !isValidNumber(newHeight) || 
             !isValidNumber(newX) || !isValidNumber(newY)) {
-          // Use last valid rect as fallback
           return;
         }
         
-        // Clamp size to valid bounds
-        const clampedSize = clampSize(newWidth, newHeight);
+        // Get workspace bounds
+        const { maxWidth, maxHeight } = getWorkspaceBounds();
+        const workspaceTopBound = 0;
+        const workspaceBottomBound = maxHeight;
         
-        // Adjust position if size was clamped (for west/north handles)
-        if (resizeHandle.includes('w') && clampedSize.width !== newWidth) {
-          newX = module.position.x + (module.size.width - clampedSize.width);
-        }
-        if (resizeHandle.includes('n') && clampedSize.height !== newHeight) {
-          newY = module.position.y + (module.size.height - clampedSize.height);
+        // CLAMP SIZE first
+        newWidth = Math.max(WORKSPACE_BOUNDS.minWidth, Math.min(maxWidth, newWidth));
+        newHeight = Math.max(WORKSPACE_BOUNDS.minHeight, Math.min(maxHeight, newHeight));
+        
+        // CLAMP POSITION based on which edges are being resized
+        // For NORTH edge: keep bottom fixed, adjust Y based on clamped height
+        if (resizeHandle.includes('n')) {
+          // Bottom edge should stay fixed
+          newY = fixedBottom - newHeight;
+          // Clamp Y to workspace top
+          if (newY < workspaceTopBound) {
+            newY = workspaceTopBound;
+            newHeight = fixedBottom - newY;
+          }
         }
         
-        // Clamp position
-        const clampedPos = clampPosition(newX, newY, clampedSize.width, clampedSize.height);
+        // For WEST edge: keep right fixed, adjust X based on clamped width
+        if (resizeHandle.includes('w')) {
+          newX = fixedRight - newWidth;
+          // Clamp X to workspace left (allow some negative for accessibility)
+          const minX = -newWidth + 100;
+          if (newX < minX) {
+            newX = minX;
+            newWidth = fixedRight - newX;
+          }
+        }
+        
+        // For SOUTH edge: clamp bottom to workspace
+        if (resizeHandle.includes('s')) {
+          if (newY + newHeight > workspaceBottomBound) {
+            newHeight = workspaceBottomBound - newY;
+          }
+        }
+        
+        // For EAST edge: clamp right to workspace
+        if (resizeHandle.includes('e')) {
+          if (newX + newWidth > maxWidth) {
+            newWidth = maxWidth - newX;
+          }
+        }
+        
+        // Final safety clamp on size
+        newWidth = Math.max(WORKSPACE_BOUNDS.minWidth, newWidth);
+        newHeight = Math.max(WORKSPACE_BOUNDS.minHeight, newHeight);
+        
+        // Final safety clamp on position
+        const minX = -newWidth + 100;
+        const maxX = maxWidth - 100;
+        newX = Math.max(minX, Math.min(maxX, newX));
+        newY = Math.max(workspaceTopBound, Math.min(workspaceBottomBound - WORKSPACE_BOUNDS.titlebarHeight, newY));
         
         // Update last valid rect
         lastValidRect.current = {
-          x: clampedPos.x,
-          y: clampedPos.y,
-          width: clampedSize.width,
-          height: clampedSize.height
+          x: newX,
+          y: newY,
+          width: newWidth,
+          height: newHeight
         };
         
-        updateModuleSize(module.id, clampedSize);
+        updateModuleSize(module.id, { width: newWidth, height: newHeight });
         if (clampedPos.x !== module.position.x || clampedPos.y !== module.position.y) {
           updateModulePosition(module.id, clampedPos);
         }
