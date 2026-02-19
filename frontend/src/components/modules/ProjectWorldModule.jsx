@@ -45,7 +45,7 @@ const ProjectWorldModule = ({ project, onBack, initialPath, onPathChange }) => {
     }
   }, [currentPath, onPathChange]);
 
-  // Load project data from localStorage
+  // Load project data from localStorage (only on mount or project change)
   useEffect(() => {
     const loadProjectData = () => {
       const saved = localStorage.getItem(`project_world_${project.id}`);
@@ -54,10 +54,6 @@ const ProjectWorldModule = ({ project, onBack, initialPath, onPathChange }) => {
           const data = JSON.parse(saved);
           if (data.structure) {
             setStructure(data.structure);
-            // If initialPath was provided, navigate to it after loading
-            if (initialPath && initialPath.length > 1) {
-              setCurrentPath(initialPath);
-            }
           }
         } catch (e) {
           console.error('Error loading project:', e);
@@ -86,7 +82,7 @@ const ProjectWorldModule = ({ project, onBack, initialPath, onPathChange }) => {
     return () => {
       window.removeEventListener('steward-project-element-restored', handleElementRestored);
     };
-  }, [project.id, initialPath]);
+  }, [project.id]); // Removed initialPath - it caused data reload on every path change
 
   // Auto-save
   useEffect(() => {
