@@ -134,7 +134,7 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
       workspace.setDeferredModules([]);
       workspace.clearFocusMode();
       
-      // B) Restore modules DIRECTLY with their snapshot values
+      // B) Restore modules DIRECTLY with their snapshot values (including viewState)
       // No addModule + update - create complete module objects directly
       const restoredModules = (layout.modules || []).map((moduleData, index) => ({
         // Use stored ID or generate new one (for backward compatibility)
@@ -156,13 +156,15 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
         pinMode: moduleData.pinMode || 'none',
         // Optional properties with fallback
         isAlwaysOnTop: moduleData.isAlwaysOnTop || false,
-        snappedState: moduleData.snappedState || null
+        snappedState: moduleData.snappedState || null,
+        // ViewState per window instance (backward compatible - undefined if not present)
+        viewState: moduleData.viewState || undefined
       }));
       
       // Set modules directly
       workspace.setModules(restoredModules);
       
-      // C) Restore CANVAS (deferred modules) in correct order
+      // C) Restore CANVAS (deferred modules) in correct order (including viewState)
       const restoredDeferredModules = (layout.deferredModules || []).map((moduleData, index) => ({
         id: moduleData.id || `deferred-${Date.now()}-${index}`,
         type: moduleData.type,
@@ -175,7 +177,8 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
           height: moduleData.size?.height ?? 300
         },
         zIndex: moduleData.zIndex ?? index,
-        pinMode: moduleData.pinMode || 'none'
+        pinMode: moduleData.pinMode || 'none',
+        viewState: moduleData.viewState || undefined
       }));
       
       workspace.setDeferredModules(restoredDeferredModules);
