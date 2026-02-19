@@ -314,19 +314,20 @@ const DraggableModule = ({ module }) => {
     e.preventDefault();
     e.stopPropagation();
     
-    // ANTI-JUMP FIX: Snapshot only - NO position changes on mousedown
-    const rect = moduleRef.current.getBoundingClientRect();
+    // ANTI-JUMP FIX: Get rect from WRAPPER (moduleRef), not titlebar (e.currentTarget)
+    // This ensures grabOffset is calculated relative to the element that actually moves
+    const wrapperRect = moduleRef.current.getBoundingClientRect();
     
     // Store initial rect exactly once
-    initialRectRef.current = rect;
+    initialRectRef.current = wrapperRect;
     
     // Store pointer start position
     startPointerRef.current = { x: e.clientX, y: e.clientY };
     
-    // Calculate grab offset (where cursor grabbed relative to element top-left)
+    // Calculate grab offset relative to WRAPPER top-left (not titlebar)
     grabOffsetRef.current = {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
+      x: e.clientX - wrapperRect.left,
+      y: e.clientY - wrapperRect.top
     };
     
     // Arm the drag (but don't activate yet - wait for threshold)
