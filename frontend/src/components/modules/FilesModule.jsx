@@ -143,9 +143,14 @@ const createDefaultFileSystem = () => ({
 // Storage key
 const STORAGE_KEY = 'steward_files';
 
-const FilesModule = () => {
+const FilesModule = ({ initialViewState, onViewStateChange }) => {
   const { addToTrash, TRASH_TYPES } = useTrash();
   const { addModule } = useWorkspace();
+  
+  // VIEW STATE GUARDS: Prevent infinite loops
+  const didApplyInitialViewState = React.useRef(false);
+  const lastEmittedViewState = React.useRef(null);
+  const isInitialized = React.useRef(false);
   
   // State
   const [fileSystem, setFileSystem] = useState(null);
@@ -159,6 +164,39 @@ const FilesModule = () => {
   const [newFolderName, setNewFolderName] = useState('');
   const [draggedItem, setDraggedItem] = useState(null);
   const [dropTarget, setDropTarget] = useState(null);
+
+  // Helper: Get path to folder (array of folder IDs from root to target)
+  const getFolderPath = useCallback((root, targetId, currentPath = []) => {
+    if (!root) return null;
+    
+    const newPath = [...currentPath, root.id];
+    
+    if (root.id === targetId) return newPath;
+    
+    if (root.children) {
+      for (const child of root.children) {
+        if (child.type === 'folder') {
+          const found = getFolderPath(child, targetId, newPath);
+          if (found) return found;
+        }
+      }
+    }
+    return null;
+  }, []);
+
+  // Helper: Find folder by path
+  const findFolderByPath = useCallback((root, path) => {
+    if (!root || !path || path.length === 0) return null;
+    
+    let current = root;
+    for (let i = 1; i < path.length; i++) { // Skip first (root)
+      if (!current.children) return current; // Can't go deeper, return last valid
+      const next = current.children.find(c => c.id === path[i] && c.type === 'folder');
+      if (!next) return current; // Path broken, return last valid
+      current = next;
+    }
+    return current;
+  }, []);
 
   // Load from localStorage
   useEffect(() => {
@@ -182,10 +220,82 @@ const FilesModule = () => {
     }
   }, [fileSystem]);
 
-  // Initialize selected folder
+  // VIEW STATE: Apply initial viewState (once when fileSystem is loaded)
   useEffect(() => {
-    if (fileSystem && !selectedFolder) {
+    if (!initialViewState || !fileSystem || didApplyInitialViewState.current) return;
+    
+    // Apply activeSource first
+    if (initialViewState.activeSource && SOURCES[initialViewState.activeSource]) {
+      setActiveSource(initialViewState.activeSource);
+    }
+    
+    const source = initialViewState.activeSource || 'local';
+    const root = fileSystem[source];
+    
+    // Apply folder path (deep restore)
+    if (initialViewState.selectedFolderPath && Array.isArray(initialViewState.selectedFolderPath)) {
+      // Expand all folders in path
+      const pathSet = new Set(initialViewState.selectedFolderPath);
+      setExpandedFolders(prev => new Set([...prev, ...pathSet]));
+      
+      // Find and select the deepest valid folder
+      const folder = findFolderByPath(root, initialViewState.selectedFolderPath);
+      if (folder) {
+        setSelectedFolder(folder);
+      }
+    } else if (initialViewState.selectedFolderId) {
+      // Fallback: just selectedFolderId without path
+      const folder = findItemById(root?.children || [], initialViewState.selectedFolderId);
+      if (folder) {
+        setSelectedFolder(folder);
+        // Try to compute and expand ancestors
+        const path = getFolderPath(root, initialViewState.selectedFolderId);
+        if (path) {
+          setExpandedFolders(prev => new Set([...prev, ...path]));
+        }
+      }
+    }
+    
+    // Apply expanded folders (merge with path)
+    if (initialViewState.expandedFolders && Array.isArray(initialViewState.expandedFolders)) {
+      setExpandedFolders(prev => new Set([...prev, ...initialViewState.expandedFolders]));
+    }
+    
+    didApplyInitialViewState.current = true;
+    isInitialized.current = true;
+  }, [initialViewState, fileSystem, findFolderByPath, findItemById, getFolderPath]);
+
+  // VIEW STATE: Emit changes (with deep-equal guard)
+  useEffect(() => {
+    if (!onViewStateChange || !isInitialized.current || !fileSystem) return;
+    
+    // Build folder path for selected folder
+    let selectedFolderPath = null;
+    if (selectedFolder && selectedFolder.id) {
+      const root = fileSystem[activeSource];
+      selectedFolderPath = getFolderPath(root, selectedFolder.id);
+    }
+    
+    const nextViewState = {
+      activeSource: activeSource !== 'local' ? activeSource : undefined,
+      selectedFolderId: selectedFolder?.id,
+      selectedFolderPath: selectedFolderPath,
+      expandedFolders: Array.from(expandedFolders)
+    };
+    
+    // Deep-equal guard: only emit if changed
+    const nextJson = JSON.stringify(nextViewState);
+    if (lastEmittedViewState.current === nextJson) return;
+    
+    lastEmittedViewState.current = nextJson;
+    onViewStateChange(nextViewState);
+  }, [activeSource, selectedFolder, expandedFolders, fileSystem, onViewStateChange, getFolderPath]);
+
+  // Initialize selected folder (only if not restored from viewState)
+  useEffect(() => {
+    if (fileSystem && !selectedFolder && !didApplyInitialViewState.current) {
       setSelectedFolder(fileSystem[activeSource]);
+      isInitialized.current = true;
     }
   }, [fileSystem, activeSource, selectedFolder]);
 
