@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Target, Plus, Calendar, CheckCircle2, Circle, 
   TrendingUp, FileText, ChevronRight, Edit2, Trash2,
@@ -27,16 +27,53 @@ const GOAL_STATUS = {
   archived: { label: 'Archivováno', color: 'bg-gray-500/20 text-gray-500 border-gray-500/40', icon: Circle }
 };
 
-const GoalsModule = () => {
+const GoalsModule = ({ initialViewState, onViewStateChange }) => {
   const { addToTrash, TRASH_TYPES } = useTrash();
   const [goals, setGoals] = useState(null); // null = not loaded yet
   const [selectedGoal, setSelectedGoal] = useState(null);
   const [showAddGoalDialog, setShowAddGoalDialog] = useState(false);
   const [showPlanCanvas, setShowPlanCanvas] = useState(null); // { goalId, planId }
   const [filterStatus, setFilterStatus] = useState('all');
+  
+  // VIEW STATE GUARDS: Prevent infinite loops
+  const didApplyInitialViewState = useRef(false);
+  const lastEmittedViewState = useRef(null);
+  const isInitialized = useRef(false);
+
+  // VIEW STATE: Apply initial viewState (once on mount or layout load)
+  useEffect(() => {
+    if (!initialViewState || didApplyInitialViewState.current) return;
+    
+    // Apply viewState from layout
+    if (initialViewState.selectedGoalId) setSelectedGoal(initialViewState.selectedGoalId);
+    if (initialViewState.activeSection === 'planning' && initialViewState.planCanvasState) {
+      setShowPlanCanvas(initialViewState.planCanvasState);
+    }
+    
+    didApplyInitialViewState.current = true;
+  }, [initialViewState]);
+
+  // VIEW STATE: Emit changes (with deep-equal guard)
+  useEffect(() => {
+    if (!onViewStateChange || !isInitialized.current) return;
+    
+    const nextViewState = {
+      selectedGoalId: selectedGoal,
+      activeSection: showPlanCanvas ? 'planning' : undefined,
+      planCanvasState: showPlanCanvas || undefined
+    };
+    
+    // Deep-equal guard: only emit if changed
+    const nextJson = JSON.stringify(nextViewState);
+    if (lastEmittedViewState.current === nextJson) return;
+    
+    lastEmittedViewState.current = nextJson;
+    onViewStateChange(nextViewState);
+  }, [selectedGoal, showPlanCanvas, onViewStateChange]);
 
   // Load from localStorage
   useEffect(() => {
+    isInitialized.current = true;
     const loadGoals = () => {
       const saved = localStorage.getItem('steward_goals');
       if (saved) {
