@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   GitBranch, Plus, Users, FileText, Target,
   ChevronRight, Edit2, Trash2, X, Layers
@@ -18,16 +18,50 @@ const DialogContent = DialogPrimitive.DialogContent;
 const DialogHeader = DialogPrimitive.DialogHeader;
 const DialogTitle = DialogPrimitive.DialogTitle;
 
-const ProcessesModule = () => {
+const ProcessesModule = ({ initialViewState, onViewStateChange }) => {
   const { addToTrash, TRASH_TYPES } = useTrash();
   const [processes, setProcesses] = useState(null); // null = not loaded yet
   const [goals, setGoals] = useState([]);
   const [selectedProcess, setSelectedProcess] = useState(null);
   const [showAddProcessDialog, setShowAddProcessDialog] = useState(false);
   const [showProcessCanvas, setShowProcessCanvas] = useState(null); // processId
+  
+  // VIEW STATE GUARDS: Prevent infinite loops
+  const didApplyInitialViewState = useRef(false);
+  const lastEmittedViewState = useRef(null);
+  const isInitialized = useRef(false);
+
+  // VIEW STATE: Apply initial viewState (once on mount or layout load)
+  useEffect(() => {
+    if (!initialViewState || didApplyInitialViewState.current) return;
+    
+    // Apply viewState from layout
+    if (initialViewState.selectedProcessId) setSelectedProcess(initialViewState.selectedProcessId);
+    if (initialViewState.showProcessCanvasId) setShowProcessCanvas(initialViewState.showProcessCanvasId);
+    
+    didApplyInitialViewState.current = true;
+  }, [initialViewState]);
+
+  // VIEW STATE: Emit changes (with deep-equal guard)
+  useEffect(() => {
+    if (!onViewStateChange || !isInitialized.current) return;
+    
+    const nextViewState = {
+      selectedProcessId: selectedProcess,
+      showProcessCanvasId: showProcessCanvas || undefined
+    };
+    
+    // Deep-equal guard: only emit if changed
+    const nextJson = JSON.stringify(nextViewState);
+    if (lastEmittedViewState.current === nextJson) return;
+    
+    lastEmittedViewState.current = nextJson;
+    onViewStateChange(nextViewState);
+  }, [selectedProcess, showProcessCanvas, onViewStateChange]);
 
   // Load processes from localStorage
   useEffect(() => {
+    isInitialized.current = true;
     const loadProcesses = () => {
       const saved = localStorage.getItem('steward_processes');
       if (saved) {
