@@ -216,6 +216,15 @@ const DraggableModule = ({ module }) => {
     height: module.size.height 
   });
   
+  // Sync maximize state to module object (for CANVAS transfer persistence)
+  useEffect(() => {
+    // Only update if values actually changed to avoid infinite loops
+    if (module.isMaximized !== isMaximized || 
+        JSON.stringify(module.restoreRect) !== JSON.stringify(previousState)) {
+      updateModuleMaximizeState(module.id, isMaximized, previousState);
+    }
+  }, [isMaximized, previousState, module.id, module.isMaximized, module.restoreRect, updateModuleMaximizeState]);
+  
   // Workspace bounds constants
   const WORKSPACE_BOUNDS = {
     minWidth: 280,
