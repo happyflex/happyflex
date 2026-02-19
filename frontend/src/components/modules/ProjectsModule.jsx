@@ -86,7 +86,7 @@ const ProjectsModule = ({ initialViewState, onViewStateChange }) => {
         const project = projects.find(p => p.id === projectId);
         if (project) {
           // Store the nodePath to pass to ProjectWorldModule
-          setInitialNodePath(nodePath || null);
+          setCurrentNodePath(nodePath || null);
           setSelectedProject(project);
         }
       }
