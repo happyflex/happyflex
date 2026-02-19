@@ -33,6 +33,9 @@ const ProjectWorldModule = ({ project, onBack, initialPath, onPathChange }) => {
   const [newSubprojectName, setNewSubprojectName] = useState('');
   const canvasRef = useRef(null);
   
+  // Track if initial path was applied (for layout restore)
+  const didApplyInitialPath = useRef(false);
+  
   // Notify parent when path changes (for viewState persistence)
   const lastReportedPath = useRef(null);
   useEffect(() => {
@@ -44,6 +47,27 @@ const ProjectWorldModule = ({ project, onBack, initialPath, onPathChange }) => {
       }
     }
   }, [currentPath, onPathChange]);
+
+  // Apply initial path once after data is loaded (for layout restore)
+  useEffect(() => {
+    if (!didApplyInitialPath.current && initialPath && initialPath.length > 1 && structure.root.children) {
+      // Verify the path exists in current structure before applying
+      let valid = true;
+      let node = structure.root;
+      for (let i = 1; i < initialPath.length && valid; i++) {
+        const child = node.children?.find(c => c.id === initialPath[i]);
+        if (child) {
+          node = child;
+        } else {
+          valid = false;
+        }
+      }
+      if (valid) {
+        setCurrentPath(initialPath);
+      }
+      didApplyInitialPath.current = true;
+    }
+  }, [initialPath, structure]);
 
   // Load project data from localStorage (only on mount or project change)
   useEffect(() => {
