@@ -695,6 +695,10 @@ export const WorkspaceProvider = ({ children }) => {
     setTasks,
     setContacts,
     setProjects,
+    // Direct state setters for layout restore
+    setModules,
+    setDeferredModules,
+    setFocusedModuleId,
     // Command Wheel actions
     duplicateModule,
     setPinMode,
