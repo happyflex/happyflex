@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test S.T.E.W.A.R.D. Workspace Dashboard na URL: https://steward-release.preview.emergentagent.com. Proveď následující testy: 1. Načtení stránky. 2. Bottom Toolbar. 3. Přidávání modulů. 4. Right Sidebar. 5. Header. 6. Toast Notifikace. 7. Moduly - Obsah. 8. Zavření modulu. 9. Responzivita."
+user_problem_statement: "Test S.T.E.W.A.R.D. Workspace Dashboard na URL: https://steward-preview-1.preview.emergentagent.com. Proveď následující testy: 1. Načtení stránky. 2. Bottom Toolbar. 3. Přidávání modulů. 4. Right Sidebar. 5. Header. 6. Toast Notifikace. 7. Moduly - Obsah. 8. Zavření modulu. 9. Responzivita."
 
 frontend:
   - task: "Dashboard Loading"
