@@ -438,6 +438,13 @@ export const WorkspaceProvider = ({ children }) => {
     ));
   }, []);
 
+  // Update viewState for a specific module (used by module components)
+  const updateModuleViewState = useCallback((id, viewState) => {
+    setModules(prev => prev.map(m => 
+      m.id === id ? { ...m, viewState } : m
+    ));
+  }, []);
+
   const bringToFront = useCallback((id) => {
     setModules(prev => {
       const maxZ = Math.max(...prev.map(m => m.zIndex));
