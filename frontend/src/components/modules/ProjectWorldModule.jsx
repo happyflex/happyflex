@@ -750,34 +750,31 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
 
   useEffect(() => {
     const handleMouseMove = (e) => {
-      // ANTI-JUMP: Check if drag should activate (threshold check)
-      if (dragStartSnapshot.current && !dragStartSnapshot.current.activatedDrag && !isDragging) {
-        const dx = Math.abs(e.clientX - dragStartSnapshot.current.pointerStart.x);
-        const dy = Math.abs(e.clientY - dragStartSnapshot.current.pointerStart.y);
+      // ANTI-JUMP: Check if drag is armed but not yet activated (threshold check)
+      if (draggingArmedRef.current && !isDraggingRef.current) {
+        const dx = Math.abs(e.clientX - startPointerRef.current.x);
+        const dy = Math.abs(e.clientY - startPointerRef.current.y);
         
-        // Threshold: 2px movement required
-        if (dx + dy < 2) {
-          return; // Don't activate yet
+        // Threshold: Activate drag only after 3px movement
+        if (dx + dy < 3) {
+          return; // Don't activate drag yet - prevents jump
         }
         
-        // Activate drag now
-        dragStartSnapshot.current.activatedDrag = true;
+        // Threshold exceeded - activate drag NOW
+        isDraggingRef.current = true;
         setIsDragging(true);
         onSelect();
         
-        // Calculate first position (no jump)
-        const canvas = itemRef.current?.closest('.relative.overflow-auto');
+        // Calculate first position using STORED grab offset (no jump)
+        const canvas = itemRef.current?.closest('.relative.overflow-hidden');
         
         if (canvas) {
           const canvasRect = canvas.getBoundingClientRect();
           const scrollLeft = canvas.scrollLeft || 0;
           const scrollTop = canvas.scrollTop || 0;
           
-          const pointerX = (e.clientX - canvasRect.left) + scrollLeft;
-          const pointerY = (e.clientY - canvasRect.top) + scrollTop;
-          
-          const newX = pointerX - dragStartSnapshot.current.grabOffset.x;
-          const newY = pointerY - dragStartSnapshot.current.grabOffset.y;
+          const newX = (e.clientX - canvasRect.left) + scrollLeft - grabOffsetRef.current.x;
+          const newY = (e.clientY - canvasRect.top) + scrollTop - grabOffsetRef.current.y;
           
           if (isValidNumber(newX) && isValidNumber(newY)) {
             const clamped = clampPosition(newX, newY);
@@ -788,27 +785,23 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
         return;
       }
       
-      if (!isDragging) return;
+      // During active drag: use STORED grabOffset, never recalculate
+      if (!isDraggingRef.current) return;
       
       // Get the canvas element to calculate relative position
-      const canvas = itemRef.current?.closest('.relative.overflow-auto');
+      const canvas = itemRef.current?.closest('.relative.overflow-hidden');
       
       if (canvas) {
-        // FIXED: Calculate position relative to canvas with scroll
-        // Use viewport coords (clientX/clientY) and canvas rect
         const canvasRect = canvas.getBoundingClientRect();
         const scrollLeft = canvas.scrollLeft || 0;
         const scrollTop = canvas.scrollTop || 0;
         
-        // Convert viewport coords to canvas-relative coords
-        // Pointer position in canvas: clientX - canvasRect.left + scroll
-        // Element position: pointer position - grab offset
-        const newX = (e.clientX - canvasRect.left) + scrollLeft - dragOffset.x;
-        const newY = (e.clientY - canvasRect.top) + scrollTop - dragOffset.y;
+        // Calculate position using STORED grab offset
+        const newX = (e.clientX - canvasRect.left) + scrollLeft - grabOffsetRef.current.x;
+        const newY = (e.clientY - canvasRect.top) + scrollTop - grabOffsetRef.current.y;
         
         // Validate calculated position
         if (!isValidNumber(newX) || !isValidNumber(newY)) {
-          // Use last valid position as fallback
           return;
         }
         
@@ -821,8 +814,8 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
         onMove(item.id, clamped);
       } else {
         // Fallback: direct viewport positioning (no canvas)
-        const newX = e.clientX - dragOffset.x;
-        const newY = e.clientY - dragOffset.y;
+        const newX = e.clientX - grabOffsetRef.current.x;
+        const newY = e.clientY - grabOffsetRef.current.y;
         
         // Validate calculated position
         if (!isValidNumber(newX) || !isValidNumber(newY)) {
@@ -840,19 +833,20 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
     };
 
     const handleMouseUp = () => {
-      // ANTI-JUMP: Clear snapshot
-      if (dragStartSnapshot.current) {
-        // If drag never activated (just a click), trigger onSelect
-        if (!dragStartSnapshot.current.activatedDrag) {
-          onSelect();
-        }
-        dragStartSnapshot.current = null;
+      // ANTI-JUMP: If drag never activated (just a click), trigger onSelect
+      if (draggingArmedRef.current && !isDraggingRef.current) {
+        onSelect();
       }
       
+      // Reset all drag refs and state
+      draggingArmedRef.current = false;
+      isDraggingRef.current = false;
+      setIsMouseDown(false);
       setIsDragging(false);
     };
 
-    if (isDragging || dragStartSnapshot.current) {
+    // CRITICAL: Attach listeners when isMouseDown is true (state triggers re-render)
+    if (isMouseDown || isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
       document.body.style.userSelect = 'none';
@@ -868,7 +862,7 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
       document.body.style.userSelect = '';
       document.body.style.cursor = '';
     };
-  }, [isDragging, dragOffset, item.id, item.position, item.size, onMove, onSelect]);
+  }, [isMouseDown, isDragging, item.id, item.position, item.size, onMove, onSelect]);
 
   const getItemColor = () => {
     switch (item.type) {
