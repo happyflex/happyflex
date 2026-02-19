@@ -123,9 +123,10 @@ const ProjectsModule = ({ initialViewState, onViewStateChange }) => {
         project={selectedProject} 
         onBack={() => {
           setSelectedProject(null);
-          setInitialNodePath(null);
+          setCurrentNodePath(null);
         }}
-        initialPath={initialNodePath}
+        initialPath={currentNodePath}
+        onPathChange={handlePathChange}
       />
     );
   }
