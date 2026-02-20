@@ -218,9 +218,25 @@ export const useCommandWheel = () => {
     };
   }, [isOpen, modules, deferredModules]);
 
+  // Central close function - handles HUD cleanup
   const close = useCallback(() => {
     setIsOpen(false);
     blockedItemRef.current = null;
+    
+    // HUD cleanup on ring close:
+    // If ALT is not held, disable HUD + highlight
+    if (!altPressedRef.current) {
+      document.body.classList.remove('steward-alt-target-visible');
+      document.body.classList.remove('steward-item-mode-active');
+      document.body.classList.remove('steward-item-mode-scan');
+      scanTriggeredRef.current = false;
+      
+      if (scanTimeoutRef.current) {
+        clearTimeout(scanTimeoutRef.current);
+        scanTimeoutRef.current = null;
+      }
+    }
+    // If ALT is still held, HUD stays active (user can continue targeting)
   }, []);
 
   // Check if drag should be blocked for specific item
