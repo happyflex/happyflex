@@ -95,7 +95,8 @@ const RightSidebar = () => {
   // Handle drop from workspace
   const handleDrop = (e) => {
     e.preventDefault();
-    setIsDragOver(false);
+    // Always reset drag state on drop
+    resetCanvasDragState();
     try {
       const data = JSON.parse(e.dataTransfer.getData('application/json'));
       // Only handle workspace-to-canvas drops, let others propagate
@@ -126,8 +127,9 @@ const RightSidebar = () => {
   };
 
   const handleDragLeave = (e) => {
-    // Only set false if leaving the sidebar entirely
-    if (e.currentTarget === e.target) {
+    // Reset when leaving sidebar - use relatedTarget to check if truly leaving
+    const relatedTarget = e.relatedTarget;
+    if (!relatedTarget || !e.currentTarget.contains(relatedTarget)) {
       setIsDragOver(false);
     }
   };
