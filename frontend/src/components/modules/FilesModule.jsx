@@ -476,29 +476,12 @@ const FilesModule = ({ initialViewState, onViewStateChange }) => {
     toast({ title: 'Přesunuto do koše', description: item.name });
   };
 
-  // Helper to find item by ID in file system tree
-  const findItemById = useCallback((id) => {
-    if (!fileSystem) return null;
-    const searchTree = (node) => {
-      if (node.id === id) return node;
-      if (node.children) {
-        for (const child of node.children) {
-          const found = searchTree(child);
-          if (found) return found;
-        }
-      }
-      return null;
-    };
-    for (const sourceKey of Object.keys(fileSystem)) {
-      const found = searchTree(fileSystem[sourceKey]);
-      if (found) return found;
-    }
-    return null;
-  }, [fileSystem]);
-
   // === ITEM MODE: Register in central registry for folder/file ===
   useEffect(() => {
     if (!fileSystem) return;
+    
+    const root = fileSystem[activeSource];
+    const items = root?.children || [];
     
     // Register folder type
     const unregisterFolder = register({
@@ -506,11 +489,11 @@ const FilesModule = ({ initialViewState, onViewStateChange }) => {
       moduleType: 'files',
       handlers: {
         [ITEM_ACTIONS.DELETE]: (payload) => {
-          const item = findItemById(payload.itemId);
+          const item = findItemById(items, payload.itemId);
           if (item) deleteItem(item);
         },
         [ITEM_ACTIONS.DUPLICATE]: (payload) => {
-          const item = findItemById(payload.itemId);
+          const item = findItemById(items, payload.itemId);
           if (item) {
             toast({ title: 'Duplikace složky', description: 'Funkce bude brzy dostupná' });
           }
@@ -524,11 +507,11 @@ const FilesModule = ({ initialViewState, onViewStateChange }) => {
       moduleType: 'files',
       handlers: {
         [ITEM_ACTIONS.DELETE]: (payload) => {
-          const item = findItemById(payload.itemId);
+          const item = findItemById(items, payload.itemId);
           if (item) deleteItem(item);
         },
         [ITEM_ACTIONS.DUPLICATE]: (payload) => {
-          const item = findItemById(payload.itemId);
+          const item = findItemById(items, payload.itemId);
           if (item) {
             toast({ title: 'Duplikace souboru', description: 'Funkce bude brzy dostupná' });
           }
@@ -540,7 +523,7 @@ const FilesModule = ({ initialViewState, onViewStateChange }) => {
       unregisterFolder();
       unregisterFile();
     };
-  }, [fileSystem, register, findItemById]);
+  }, [fileSystem, activeSource, register, findItemById]);
 
   // Drag and drop handlers
   const handleDragStart = (e, item) => {
