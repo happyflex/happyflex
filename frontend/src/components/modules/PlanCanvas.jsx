@@ -257,7 +257,13 @@ const AreaCard = ({ area, index, isEditing, onEdit, onSave, onCancel, onDelete }
   }
 
   return (
-    <div className={`p-4 rounded-lg border-2 group ${area.color}`}>
+    <div 
+      className={`p-4 rounded-lg border-2 group ${area.color}`}
+      // === ITEM MODE: Data attributes for Mouse Ring ===
+      data-steward-item="planArea"
+      data-item-id={area.id}
+      data-module-type="goals"
+    >
       <div className="flex items-start gap-3">
         <div className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab">
           <GripVertical className="h-5 w-5 text-gray-500" />
