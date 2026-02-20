@@ -359,12 +359,12 @@ const CommandWheel = () => {
         return; // Don't close
       // === ITEM MODE: Execute item actions via adapter ===
       case 'itemAction':
-        const { actionType, itemType, itemId, parentId, moduleType } = params;
+        const { actionType, itemType, itemId, parentId, moduleType, parentContext } = params;
         executeItemAction({
           scope: 'item',
           itemType,
           itemId,
-          parentContext: parentId,
+          parentContext: parentContext || { parentId }, // Full context or fallback
           moduleType,
           action: actionType,
           source: 'mouseRing'
