@@ -30,7 +30,10 @@ function App() {
             <CommandWheel />
             <LastSessionOverlay />
             {/* HUD Overlay for Item Mode */}
-            <div id="steward-item-hud">ITEM MODE ACTIVE</div>
+            <div id="steward-item-hud">
+              <span className="hud-icon" aria-hidden="true" />
+              <span>ITEM MODE ACTIVE</span>
+            </div>
             {/* Scanline sweep overlay */}
             <div id="steward-scanline-overlay" aria-hidden="true" />
           </div>
