@@ -12,6 +12,7 @@ import * as DialogPrimitive from '../ui/dialog';
 import { Checkbox } from '../ui/checkbox';
 import { toast } from '../../hooks/use-toast';
 import { useTrash } from '../../context/TrashContext';
+import { useItemActions, ITEM_ACTIONS, ITEM_TYPES } from '../../context/ItemActionContext';
 
 const Dialog = DialogPrimitive.Dialog;
 const DialogContent = DialogPrimitive.DialogContent;
