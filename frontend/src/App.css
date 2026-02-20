@@ -206,6 +206,6 @@ div:hover > .resize-handle {
 .steward-item-mode-active .steward-workspace-root::before,
 .steward-item-mode-active.steward-workspace-root::before {
   border-top-color: rgba(34, 211, 238, 0.3);
-  border-right-color: rgba(34, 211, 238, 0.3);
+  border-left-color: rgba(34, 211, 238, 0.3);
 }
 
