@@ -206,6 +206,7 @@ const getContentActions = (contentType, module) => {
 
 const CommandWheel = () => {
   const { isOpen, position, target, close } = useCommandWheel();
+  const { executeItemAction } = useItemActions();
   const {
     activeWorkzone,
     addModule,
