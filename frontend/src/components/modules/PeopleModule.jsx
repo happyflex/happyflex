@@ -38,6 +38,7 @@ const AVAILABILITY = {
 
 const PeopleModule = ({ initialViewState, onViewStateChange }) => {
   const { addPersonToTrash } = useTrash();
+  const { registerHandlers } = useItemActions();
   const [people, setPeople] = useState(null); // null = not loaded yet
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
