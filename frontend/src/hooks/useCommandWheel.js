@@ -158,7 +158,13 @@ export const useCommandWheel = () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('blur', handleBlur);
-      disableTargetMode(); // Cleanup
+      // Cleanup
+      document.body.classList.remove('steward-alt-target-visible');
+      document.body.classList.remove('steward-item-mode-active');
+      document.body.classList.remove('steward-item-mode-scan');
+      if (scanTimeoutRef.current) {
+        clearTimeout(scanTimeoutRef.current);
+      }
     };
   }, [isOpen]);
 
