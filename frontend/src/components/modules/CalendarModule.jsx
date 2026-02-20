@@ -43,6 +43,7 @@ const formatDateKey = (date) => {
 };
 
 const CalendarModule = ({ initialViewState, onViewStateChange }) => {
+  const { register } = useItemActions();
   const [view, setView] = useState('week');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState(() => {
