@@ -424,6 +424,10 @@ const StepNode = ({
       onDrag={onDrag}
       onDragEnd={onDragEnd}
       onClick={handleClick}
+      // === ITEM MODE: Data attributes for Mouse Ring ===
+      data-steward-item="processStep"
+      data-item-id={step.id}
+      data-module-type="processes"
       className={`
         absolute group
         ${isConnectionMode ? 'cursor-pointer' : 'cursor-move'}
