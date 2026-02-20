@@ -393,6 +393,10 @@ const ProcessCard = ({ process, goal, plan, isSelected, onSelect, onDelete }) =>
   return (
     <div
       onClick={onSelect}
+      // === ITEM MODE: Data attributes for Mouse Ring ===
+      data-steward-item="process"
+      data-item-id={process.id}
+      data-module-type="processes"
       className={`
         group p-4 bg-[#0a1628] rounded-lg border transition-all cursor-pointer
         ${isSelected ? 'border-cyan-400 ring-1 ring-cyan-400/50' : 'border-cyan-500/20 hover:border-cyan-500/40'}
