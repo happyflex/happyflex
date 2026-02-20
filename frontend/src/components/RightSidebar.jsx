@@ -43,6 +43,12 @@ const RightSidebar = () => {
   const [draggedModule, setDraggedModule] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
 
+  // Single reset function for all drag state
+  const resetCanvasDragState = () => {
+    setDraggedModule(null);
+    setIsDragOver(false);
+  };
+
   const handleDragStart = (e, module, index) => {
     setDraggedModule({ module, index });
     e.dataTransfer.effectAllowed = 'move';
@@ -53,7 +59,8 @@ const RightSidebar = () => {
   };
 
   const handleDragEnd = () => {
-    setDraggedModule(null);
+    // Always reset all drag state when drag ends
+    resetCanvasDragState();
   };
 
   const handleDragOver = (e, targetIndex) => {
