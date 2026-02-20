@@ -294,7 +294,14 @@ const ProcessesModule = ({ initialViewState, onViewStateChange }) => {
   }
 
   return (
-    <div className="h-full flex flex-col bg-transparent">
+    <div 
+      className="h-full flex flex-col bg-transparent"
+      // === SCOPE ROOT CONTRACT: Processes module ===
+      data-module-scope-root={selectedProcess ? "true" : undefined}
+      data-module-type="processes"
+      data-scope-id={selectedProcess?.id || ''}
+      data-scope-type="process"
+    >
       {/* Header */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-3">
