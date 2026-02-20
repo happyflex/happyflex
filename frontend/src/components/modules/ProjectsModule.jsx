@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { TrendingUp, Users, Calendar, ExternalLink, Layout, Plus, X, Trash2 } from 'lucide-react';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import { useTrash } from '../../context/TrashContext';
+import { useItemActions, ITEM_ACTIONS, ITEM_TYPES } from '../../context/ItemActionContext';
 import { ScrollArea } from '../ui/scroll-area';
 import { Progress } from '../ui/progress';
 import { Button } from '../ui/button';
