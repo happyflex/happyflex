@@ -34,11 +34,14 @@ import {
   User,
   Edit2,
   CheckCircle2,
-  FolderPlus
+  FolderPlus,
+  Layout,
+  GitBranch,
+  ExternalLink as ExternalLinkIcon
 } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { useCommandWheel } from '../hooks/useCommandWheel';
-import { useItemActions, ITEM_ACTIONS, ITEM_TYPES, getItemActions } from '../context/ItemActionContext';
+import { useItemActions, ITEM_ACTIONS, ITEM_TYPES } from '../context/ItemActionContext';
 import { toast } from '../hooks/use-toast';
 
 // Workzones for switch action
