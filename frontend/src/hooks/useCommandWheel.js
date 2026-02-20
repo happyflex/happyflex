@@ -76,26 +76,50 @@ export const useCommandWheel = () => {
   const [target, setTarget] = useState({ type: 'empty', data: null });
   const altPressedRef = useRef(false);
   const blockedItemRef = useRef(null); // Track item that should have drag blocked
+  const scanTimeoutRef = useRef(null); // Track scan animation timeout
   
   const { modules, deferredModules } = useWorkspace();
 
   // Handle Alt key press + Target Acquisition Mode + HUD Mode
   useEffect(() => {
     const enableTargetMode = () => {
+      // Guard: If already active, don't re-trigger (handles key repeat)
+      if (document.body.classList.contains('steward-item-mode-active')) {
+        return;
+      }
+      
       document.body.classList.add('steward-alt-target-visible');
       document.body.classList.add('steward-item-mode-active');
+      
+      // Trigger scan animation (one-shot)
+      document.body.classList.add('steward-item-mode-scan');
+      
+      // Remove scan class after animation completes (prevent re-trigger)
+      if (scanTimeoutRef.current) {
+        clearTimeout(scanTimeoutRef.current);
+      }
+      scanTimeoutRef.current = setTimeout(() => {
+        document.body.classList.remove('steward-item-mode-scan');
+      }, 950); // Slightly longer than animation duration
     };
     
     const disableTargetMode = () => {
       document.body.classList.remove('steward-alt-target-visible');
       document.body.classList.remove('steward-item-mode-active');
+      document.body.classList.remove('steward-item-mode-scan');
+      
+      // Clear timeout if deactivating early
+      if (scanTimeoutRef.current) {
+        clearTimeout(scanTimeoutRef.current);
+        scanTimeoutRef.current = null;
+      }
     };
     
     const handleKeyDown = (e) => {
       if (e.key === 'Alt') {
         e.preventDefault();
         altPressedRef.current = true;
-        // Enable Target Acquisition Mode + HUD
+        // Enable Target Acquisition Mode + HUD (with guard against key repeat)
         enableTargetMode();
       }
       // Close on Escape
