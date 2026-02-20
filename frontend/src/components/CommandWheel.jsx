@@ -227,7 +227,7 @@ const getContentActions = (contentType, module) => {
 
 const CommandWheel = () => {
   const { isOpen, position, target, close } = useCommandWheel();
-  const { executeItemAction } = useItemActions();
+  const { executeItemAction, getAvailableActions } = useItemActions();
   const {
     activeWorkzone,
     addModule,
@@ -263,10 +263,10 @@ const CommandWheel = () => {
     }
   }, [activeWorkzone]);
   
-  // Menu items based on context
+  // Menu items based on context (pass getAvailableActions for item mode)
   const menuItems = useMemo(() => {
-    return getMenuItems(target, activeWorkzone, { modules });
-  }, [target, activeWorkzone, modules]);
+    return getMenuItems(target, activeWorkzone, { modules }, getAvailableActions);
+  }, [target, activeWorkzone, modules, getAvailableActions]);
   
   // Parallax effect
   useEffect(() => {
