@@ -476,6 +476,72 @@ const FilesModule = ({ initialViewState, onViewStateChange }) => {
     toast({ title: 'Přesunuto do koše', description: item.name });
   };
 
+  // Helper to find item by ID in file system tree
+  const findItemById = useCallback((id) => {
+    if (!fileSystem) return null;
+    const searchTree = (node) => {
+      if (node.id === id) return node;
+      if (node.children) {
+        for (const child of node.children) {
+          const found = searchTree(child);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+    for (const sourceKey of Object.keys(fileSystem)) {
+      const found = searchTree(fileSystem[sourceKey]);
+      if (found) return found;
+    }
+    return null;
+  }, [fileSystem]);
+
+  // === ITEM MODE: Register in central registry for folder/file ===
+  useEffect(() => {
+    if (!fileSystem) return;
+    
+    // Register folder type
+    const unregisterFolder = register({
+      itemType: 'folder',
+      moduleType: 'files',
+      handlers: {
+        [ITEM_ACTIONS.DELETE]: (payload) => {
+          const item = findItemById(payload.itemId);
+          if (item) deleteItem(item);
+        },
+        [ITEM_ACTIONS.DUPLICATE]: (payload) => {
+          const item = findItemById(payload.itemId);
+          if (item) {
+            toast({ title: 'Duplikace složky', description: 'Funkce bude brzy dostupná' });
+          }
+        }
+      }
+    });
+    
+    // Register file type
+    const unregisterFile = register({
+      itemType: 'file',
+      moduleType: 'files',
+      handlers: {
+        [ITEM_ACTIONS.DELETE]: (payload) => {
+          const item = findItemById(payload.itemId);
+          if (item) deleteItem(item);
+        },
+        [ITEM_ACTIONS.DUPLICATE]: (payload) => {
+          const item = findItemById(payload.itemId);
+          if (item) {
+            toast({ title: 'Duplikace souboru', description: 'Funkce bude brzy dostupná' });
+          }
+        }
+      }
+    });
+    
+    return () => {
+      unregisterFolder();
+      unregisterFile();
+    };
+  }, [fileSystem, register, findItemById]);
+
   // Drag and drop handlers
   const handleDragStart = (e, item) => {
     setDraggedItem(item);
