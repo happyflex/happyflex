@@ -3,6 +3,7 @@ import React from "react";
 import "./App.css";
 import { WorkspaceProvider } from "./context/WorkspaceContext";
 import { TrashProvider } from "./context/TrashContext";
+import { ItemActionProvider } from "./context/ItemActionContext";
 import Header from "./components/Header";
 import Canvas from "./components/Canvas";
 import BottomToolbar from "./components/BottomToolbar";
@@ -16,18 +17,20 @@ function App() {
   return (
     <WorkspaceProvider>
       <TrashProvider>
-        <div className="App h-screen flex flex-col bg-[#0a1628] overflow-hidden">
-          <Header />
-          <div className="flex-1 flex overflow-hidden">
-            <Canvas />
-            <RightSidebar />
+        <ItemActionProvider>
+          <div className="App h-screen flex flex-col bg-[#0a1628] overflow-hidden">
+            <Header />
+            <div className="flex-1 flex overflow-hidden">
+              <Canvas />
+              <RightSidebar />
+            </div>
+            <BottomToolbar />
+            <Toaster />
+            <CursorHUD />
+            <CommandWheel />
+            <LastSessionOverlay />
           </div>
-          <BottomToolbar />
-          <Toaster />
-          <CursorHUD />
-          <CommandWheel />
-          <LastSessionOverlay />
-        </div>
+        </ItemActionProvider>
       </TrashProvider>
     </WorkspaceProvider>
   );
