@@ -134,6 +134,9 @@ div:hover > .resize-handle {
   position: fixed;
   top: 72px; /* Below header */
   left: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.15em;
@@ -146,12 +149,60 @@ div:hover > .resize-handle {
   font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', monospace;
 }
 
+/* Target reticle icon - CSS circle with crosshair */
+#steward-item-hud .hud-icon {
+  width: 10px;
+  height: 10px;
+  border: 1px solid rgba(34, 211, 238, 0);
+  border-radius: 50%;
+  position: relative;
+  flex-shrink: 0;
+  transition: border-color 120ms ease-out, box-shadow 120ms ease-out;
+}
+
+#steward-item-hud .hud-icon::before,
+#steward-item-hud .hud-icon::after {
+  content: '';
+  position: absolute;
+  background: rgba(34, 211, 238, 0);
+  transition: background-color 120ms ease-out;
+}
+
+/* Vertical line */
+#steward-item-hud .hud-icon::before {
+  width: 1px;
+  height: 6px;
+  left: 50%;
+  top: 2px;
+  transform: translateX(-50%);
+}
+
+/* Horizontal line */
+#steward-item-hud .hud-icon::after {
+  height: 1px;
+  width: 6px;
+  top: 50%;
+  left: 2px;
+  transform: translateY(-50%);
+}
+
 /* HUD Label active state */
 .steward-item-mode-active #steward-item-hud {
   color: rgba(34, 211, 238, 0.7);
   text-shadow: 
     0 0 8px rgba(34, 211, 238, 0.4),
     0 0 16px rgba(34, 211, 238, 0.2);
+}
+
+/* Icon active state */
+.steward-item-mode-active #steward-item-hud .hud-icon {
+  border-color: rgba(34, 211, 238, 0.6);
+  box-shadow: 0 0 4px rgba(34, 211, 238, 0.35);
+}
+
+.steward-item-mode-active #steward-item-hud .hud-icon::before,
+.steward-item-mode-active #steward-item-hud .hud-icon::after {
+  background: rgba(34, 211, 238, 0.6);
 }
 
 /* Scanline sweep overlay - default hidden */
