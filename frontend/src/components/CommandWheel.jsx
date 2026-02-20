@@ -35,9 +35,7 @@ import {
   Edit2,
   CheckCircle2,
   FolderPlus,
-  Layout,
-  GitBranch,
-  ExternalLink as ExternalLinkIcon
+  Layout
 } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { useCommandWheel } from '../hooks/useCommandWheel';
