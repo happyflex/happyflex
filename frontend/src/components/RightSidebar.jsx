@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, ChevronUp, ChevronDown, GripVertical, Edit3, ListChecks, Users, Layout, Target, GitBranch, BarChart3, Timer, Calendar, Music, Trash2 } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { useTrash } from '../context/TrashContext';
