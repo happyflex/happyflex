@@ -87,6 +87,11 @@ const DEFAULT_ITEM_ACTIONS = {
     { id: ITEM_ACTIONS.EDIT, label: 'Upravit', icon: 'Edit2' }
   ],
   
+  // Plan Area (nested inside Plan Canvas)
+  [ITEM_TYPES.PLAN_AREA]: [
+    { id: ITEM_ACTIONS.EDIT, label: 'Upravit', icon: 'Edit2' }
+  ],
+  
   [ITEM_TYPES.PERSON]: [
     { id: ITEM_ACTIONS.OPEN_PROFILE, label: 'Otevřít profil', icon: 'User' }
   ],
@@ -98,6 +103,11 @@ const DEFAULT_ITEM_ACTIONS = {
   
   [ITEM_TYPES.PROCESS]: [
     { id: ITEM_ACTIONS.OPEN_DETAIL, label: 'Otevřít canvas', icon: 'GitBranch' },
+    { id: ITEM_ACTIONS.EDIT, label: 'Upravit', icon: 'Edit2' }
+  ],
+  
+  // Process Step (nested inside Process Canvas)
+  [ITEM_TYPES.PROCESS_STEP]: [
     { id: ITEM_ACTIONS.EDIT, label: 'Upravit', icon: 'Edit2' }
   ],
   
