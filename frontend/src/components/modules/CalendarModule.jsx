@@ -190,6 +190,52 @@ const CalendarModule = ({ initialViewState, onViewStateChange }) => {
     }
   };
 
+  // === ITEM MODE: Register in central registry ===
+  useEffect(() => {
+    const unregister = register({
+      itemType: ITEM_TYPES.CALENDAR_EVENT,
+      moduleType: 'calendar',
+      handlers: {
+        [ITEM_ACTIONS.DELETE]: (payload) => {
+          const event = events.find(e => e.id === payload.itemId);
+          if (event) {
+            setEvents(prev => prev.filter(e => e.id !== payload.itemId));
+            toast({ title: 'Událost smazána', description: event.title });
+          }
+        },
+        [ITEM_ACTIONS.DUPLICATE]: (payload) => {
+          const event = events.find(e => e.id === payload.itemId);
+          if (event) {
+            const duplicated = {
+              ...event,
+              id: `event-${Date.now()}`,
+              title: `${event.title} (kopie)`
+            };
+            setEvents(prev => [...prev, duplicated]);
+            toast({ title: 'Událost duplikována', description: duplicated.title });
+          }
+        },
+        [ITEM_ACTIONS.EDIT]: (payload) => {
+          const event = events.find(e => e.id === payload.itemId);
+          if (event) {
+            setFormData({
+              title: event.title,
+              date: event.date,
+              startTime: event.startTime,
+              endTime: event.endTime,
+              type: event.type,
+              project: event.project || ''
+            });
+            setEditingEvent(event);
+            setShowEventForm(true);
+          }
+        }
+      }
+    });
+    
+    return unregister;
+  }, [events, register]);
+
   const handleDragStart = (event, e) => {
     setDraggedEvent(event);
     e.dataTransfer.effectAllowed = 'move';
