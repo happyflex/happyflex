@@ -340,7 +340,14 @@ const GoalsModule = ({ initialViewState, onViewStateChange }) => {
   }
 
   return (
-    <div className="h-full flex flex-col bg-transparent">
+    <div 
+      className="h-full flex flex-col bg-transparent"
+      // === SCOPE ROOT CONTRACT: Goals module ===
+      data-module-scope-root={selectedGoal ? "true" : undefined}
+      data-module-type="goals"
+      data-scope-id={selectedGoal?.id || ''}
+      data-scope-type="goal"
+    >
       {/* Header */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-3">
