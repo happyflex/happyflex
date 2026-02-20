@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight, Plus, X, Clock, Target, Calendar as CalendarIcon, AlertCircle, Focus, Bell } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, X, Clock, Target, Calendar as CalendarIcon, AlertCircle, Focus, Bell, Trash2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import * as DialogPrimitive from '../ui/dialog';
 import ModuleHeader from './ModuleHeader';
+import { useItemActions, ITEM_ACTIONS, ITEM_TYPES } from '../../context/ItemActionContext';
+import { toast } from '../../hooks/use-toast';
 
 const Dialog = DialogPrimitive.Dialog;
 const DialogContent = DialogPrimitive.DialogContent;
