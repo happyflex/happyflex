@@ -1,21 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit3 } from 'lucide-react';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import { useTrash } from '../../context/TrashContext';
+import { useItemActions, ITEM_ACTIONS, ITEM_TYPES } from '../../context/ItemActionContext';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { Input } from '../ui/input';
 import { ScrollArea } from '../ui/scroll-area';
 import ModuleHeader from './ModuleHeader';
+import { toast } from '../../hooks/use-toast';
 
 const NotesModule = () => {
-  const { notes, addNote, updateNote, deleteNote } = useWorkspace();
+  const { notes, addNote, updateNote, deleteNote, tasks, addTask } = useWorkspace();
   const { addNoteToTrash } = useTrash();
+  const { registerHandlers } = useItemActions();
   const [isAdding, setIsAdding] = useState(false);
   const [newNote, setNewNote] = useState({ title: '', content: '', color: '#0ea5e9' });
   const [editingId, setEditingId] = useState(null);
 
   const colors = ['#0ea5e9', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
+
+  // Register item action handlers for Mouse Ring
+  useEffect(() => {
+    const handlers = {
+      [ITEM_ACTIONS.DELETE]: (payload) => {
+        const note = notes.find(n => n.id === payload.itemId);
+        if (note) {
+          // Full trash payload contract
+          addNoteToTrash(note);
+          deleteNote(note.id);
+          toast({ title: 'Poznámka smazána', description: note.title });
+        }
+      },
+      [ITEM_ACTIONS.DUPLICATE]: (payload) => {
+        const note = notes.find(n => n.id === payload.itemId);
+        if (note) {
+          const duplicated = {
+            title: `${note.title} (kopie)`,
+            content: note.content,
+            color: note.color
+          };
+          addNote(duplicated);
+          toast({ title: 'Poznámka duplikována', description: duplicated.title });
+        }
+      },
+      [ITEM_ACTIONS.CONVERT_TO_TASK]: (payload) => {
+        const note = notes.find(n => n.id === payload.itemId);
+        if (note && addTask) {
+          const newTask = {
+            title: note.title || 'Úkol z poznámky',
+            description: note.content,
+            priority: 'medium',
+            dueDate: null,
+            completed: false
+          };
+          addTask(newTask);
+          toast({ title: 'Převedeno na úkol', description: note.title });
+        } else if (!addTask) {
+          toast({ 
+            title: 'Nelze převést', 
+            description: 'Modul úkolů není k dispozici',
+            variant: 'destructive'
+          });
+        }
+      }
+    };
+    
+    const unregister = registerHandlers('notes', handlers);
+    return unregister;
+  }, [notes, addNote, deleteNote, addNoteToTrash, addTask, registerHandlers]);
 
   const handleAddNote = () => {
     if (newNote.title.trim() || newNote.content.trim()) {
@@ -114,6 +167,10 @@ const NotesModule = () => {
             {notes.map((note) => (
               <div
                 key={note.id}
+                // === ITEM MODE: Data attributes for Mouse Ring detection ===
+                data-steward-item="note"
+                data-item-id={note.id}
+                data-module-type="notes"
                 className="group p-4 rounded-lg border transition-all duration-200 hover:shadow-lg hover:shadow-cyan-500/10 cursor-pointer"
                 style={{
                   backgroundColor: `${note.color}15`,
