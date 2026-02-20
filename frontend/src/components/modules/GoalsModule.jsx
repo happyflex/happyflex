@@ -30,6 +30,7 @@ const GOAL_STATUS = {
 
 const GoalsModule = ({ initialViewState, onViewStateChange }) => {
   const { addToTrash, TRASH_TYPES } = useTrash();
+  const { registerHandlers } = useItemActions();
   const [goals, setGoals] = useState(null); // null = not loaded yet
   const [selectedGoal, setSelectedGoal] = useState(null);
   const [showAddGoalDialog, setShowAddGoalDialog] = useState(false);
