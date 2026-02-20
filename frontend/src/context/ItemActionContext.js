@@ -49,11 +49,13 @@ export const ITEM_TYPES = {
   TASK: 'task',
   PROCESS: 'process',
   PROJECT: 'project',
+  PROJECT_NODE: 'projectNode',
   SUBPROJECT: 'subproject',
   CALENDAR_EVENT: 'calendar_event',
   MUSIC_TRACK: 'music_track',
   PLAYLIST: 'playlist',
   FILE: 'file',
+  FOLDER: 'folder',
   TIMER_SESSION: 'timer_session'
 };
 
