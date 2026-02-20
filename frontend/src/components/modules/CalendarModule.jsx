@@ -311,6 +311,10 @@ const CalendarModule = ({ initialViewState, onViewStateChange }) => {
                   {hourEvents.map(event => (
                     <div
                       key={event.id}
+                      // === ITEM MODE: Data attributes for Mouse Ring ===
+                      data-steward-item="calendar_event"
+                      data-item-id={event.id}
+                      data-module-type="calendar"
                       draggable
                       onDragStart={(e) => handleDragStart(event, e)}
                       onClick={(e) => openEditEventForm(event, e)}
