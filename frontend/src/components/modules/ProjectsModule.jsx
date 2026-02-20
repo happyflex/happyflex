@@ -342,7 +342,11 @@ const ProjectsModule = ({ initialViewState, onViewStateChange }) => {
               {validProjects.map((project) => (
                 <div
                   key={project.id}
-                  className="group p-4 bg-[#0a1628] rounded-lg border border-cyan-500/20 hover:border-cyan-500/40 transition-all"
+                  // === ITEM MODE: Data attributes for Mouse Ring ===
+                  data-steward-item="project"
+                  data-item-id={project.id}
+                  data-module-type="projects"
+                  className="group p-4 bg-[#0a1628] rounded-lg border border-cyan-500/20 hover:border-cyan-500/40 transition-all relative"
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
