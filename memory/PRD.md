@@ -227,4 +227,4 @@ project_world_{projectId}: {
 - Testing agent iteration_4: Pending (Kalendář - manuálně otestován)
 
 ## Preview URL
-https://steward-branch-1.preview.emergentagent.com
+https://steward-9b8.preview.emergentagent.com
