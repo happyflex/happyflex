@@ -69,3 +69,56 @@ div:hover > .resize-handle {
   opacity: 0.3;
   background-color: rgba(6, 182, 212, 0.5);
 }
+
+
+/* ============================================================================
+   STEWARD TARGET ACQUISITION MODE
+   Activated when ALT key is held - highlights valid Mouse Ring targets
+   ============================================================================ */
+
+/* Base: Items with data-steward-item need relative positioning for pseudo-element */
+.steward-alt-target-visible [data-steward-item] {
+  position: relative;
+}
+
+/* Target highlight - subtle Stark-style outline */
+.steward-alt-target-visible [data-steward-item]::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border: 1px solid rgba(34, 211, 238, 0.25);
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 100ms ease-out, border-color 100ms ease-out;
+  z-index: 1;
+  box-shadow: 
+    inset 0 0 8px rgba(34, 211, 238, 0.05),
+    0 0 4px rgba(34, 211, 238, 0.1);
+}
+
+/* Animate in when ALT mode active */
+.steward-alt-target-visible [data-steward-item]::after {
+  opacity: 1;
+}
+
+/* Hover enhancement - slightly stronger glow on direct hover */
+.steward-alt-target-visible [data-steward-item]:hover::after {
+  border-color: rgba(34, 211, 238, 0.5);
+  box-shadow: 
+    inset 0 0 12px rgba(34, 211, 238, 0.1),
+    0 0 8px rgba(34, 211, 238, 0.2);
+}
+
+/* Exclude UI controls from highlighting (safety guard) */
+.steward-alt-target-visible [data-steward-item][data-ui-control="true"]::after,
+.steward-alt-target-visible button[data-steward-item]::after,
+.steward-alt-target-visible input[data-steward-item]::after {
+  display: none;
+}
+
+/* Ensure nested items also get highlighted properly */
+.steward-alt-target-visible [data-steward-item] [data-steward-item]::after {
+  z-index: 2;
+}
+
