@@ -142,6 +142,7 @@ const getMenuItems = (target, activeWorkzone, workspace, getAvailableActions = n
       'Trash2': Trash2,
       'ListChecks': ListChecks,
       'FolderPlus': FolderPlus,
+      'FolderOpen': FolderOpen,
       'Map': Map,
       'User': User,
       'Edit2': Edit2,
