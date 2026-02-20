@@ -118,6 +118,42 @@ const ProjectsModule = ({ initialViewState, onViewStateChange }) => {
     }
   };
 
+  // === ITEM MODE: Register in central registry ===
+  useEffect(() => {
+    const unregister = register({
+      itemType: ITEM_TYPES.PROJECT,
+      moduleType: 'projects',
+      handlers: {
+        [ITEM_ACTIONS.DELETE]: (payload) => {
+          deleteProject(payload.itemId);
+        },
+        [ITEM_ACTIONS.DUPLICATE]: (payload) => {
+          const project = projects.find(p => p.id === payload.itemId);
+          if (project) {
+            const duplicated = {
+              id: `proj-${Date.now()}`,
+              name: `${project.name} (kopie)`,
+              progress: 0,
+              status: project.status,
+              deadline: project.deadline,
+              team: [...(project.team || [])]
+            };
+            setProjects(prev => [...prev, duplicated]);
+            toast({ title: 'Projekt duplikován', description: duplicated.name });
+          }
+        },
+        [ITEM_ACTIONS.OPEN_DETAIL]: (payload) => {
+          const project = projects.find(p => p.id === payload.itemId);
+          if (project) {
+            setSelectedProject(project);
+          }
+        }
+      }
+    });
+    
+    return unregister;
+  }, [projects, register, setProjects, addToTrash, TRASH_TYPES]);
+
   // If project is selected, show Project World
   if (selectedProject) {
     return (
