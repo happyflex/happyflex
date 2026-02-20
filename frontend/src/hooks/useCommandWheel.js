@@ -168,6 +168,20 @@ export const useCommandWheel = () => {
 
   // Handle mouse click while Alt is pressed
   useEffect(() => {
+    // Helper to cleanup HUD when ring closes and ALT not held
+    const cleanupHudIfNeeded = () => {
+      if (!altPressedRef.current) {
+        document.body.classList.remove('steward-alt-target-visible');
+        document.body.classList.remove('steward-item-mode-active');
+        document.body.classList.remove('steward-item-mode-scan');
+        scanTriggeredRef.current = false;
+        if (scanTimeoutRef.current) {
+          clearTimeout(scanTimeoutRef.current);
+          scanTimeoutRef.current = null;
+        }
+      }
+    };
+    
     const handleClick = (e) => {
       // Alt + Click to open
       if (altPressedRef.current && !isOpen) {
@@ -194,6 +208,7 @@ export const useCommandWheel = () => {
       if (isOpen && !e.target.closest('.command-wheel')) {
         setIsOpen(false);
         blockedItemRef.current = null;
+        cleanupHudIfNeeded();
       }
     };
     
