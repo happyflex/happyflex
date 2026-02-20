@@ -124,13 +124,7 @@ export const useCommandWheel = () => {
         altPressedRef.current = true;
         enableTargetMode();
       }
-      // Close on Escape
-      if (e.key === 'Escape') {
-        // Use ref to avoid dependency on isOpen
-        if (document.querySelector('.command-wheel')) {
-          disableTargetMode();
-        }
-      }
+      // Note: ESC is handled in CommandWheel component via close()
     };
     
     const handleKeyUp = (e) => {
