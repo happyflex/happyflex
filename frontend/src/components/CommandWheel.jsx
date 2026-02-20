@@ -322,6 +322,19 @@ const CommandWheel = () => {
       case 'switchWorkzone':
         setShowSubmenu(!showSubmenu);
         return; // Don't close
+      // === ITEM MODE: Execute item actions via adapter ===
+      case 'itemAction':
+        const { actionType, itemType, itemId, parentId, moduleType } = params;
+        executeItemAction({
+          scope: 'item',
+          itemType,
+          itemId,
+          parentContext: parentId,
+          moduleType,
+          action: actionType,
+          source: 'mouseRing'
+        });
+        break;
       default:
         toast({ title: item.label, description: 'Funkce bude brzy dostupná' });
     }
