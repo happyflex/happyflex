@@ -10,6 +10,7 @@ import { Input } from '../ui/input';
 import { ScrollArea } from '../ui/scroll-area';
 import { useTrash } from '../../context/TrashContext';
 import { useWorkspace } from '../../context/WorkspaceContext';
+import { useItemActions, ITEM_ACTIONS, ITEM_TYPES } from '../../context/ItemActionContext';
 import { toast } from '../../hooks/use-toast';
 import ModuleHeader from './ModuleHeader';
 
