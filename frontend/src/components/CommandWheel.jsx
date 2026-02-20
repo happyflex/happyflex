@@ -52,7 +52,7 @@ const WORKZONES = [
 ];
 
 // Get menu items based on context
-const getMenuItems = (target, activeWorkzone, workspace) => {
+const getMenuItems = (target, activeWorkzone, workspace, getAvailableActions = null) => {
   const { type, data, contentType } = target;
   
   // Empty workspace
