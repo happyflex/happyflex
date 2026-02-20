@@ -365,14 +365,14 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Item Mode Mouse Ring"
+    - "Universal Item Mode - Central Registry"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
     - agent: "main"
-    - message: "Implementováno Item Mode pro Mouse Ring. Změny: 1) Vytvořen ItemActionContext.js - centrální adapter pro item akce 2) Upraven useCommandWheel.js - detekce data-steward-item atributů 3) Upraven CommandWheel.jsx - item mode menu s kontextovými akcemi 4) Přidány data atributy do NotesModule, GoalsModule, PeopleModule, TasksModule 5) Registrace handlerů pro delete, duplicate a specifické akce v každém modulu. ALT + klik nad itemem otevře ring s akcemi pro daný item."
+    - message: "Implementován Universal Item Mode s Central ItemRegistry. Změny: 1) Přepracován ItemActionContext.js na centrální registr s: register(), registerItemType(), registerHandlers(), executeItemAction(), getAvailableActions(), isActionSupported() 2) Aktualizovány moduly NotesModule, GoalsModule, PeopleModule, TasksModule, ProcessesModule, CalendarModule pro použití nového register() API 3) Přidány data atributy (data-steward-item, data-item-id, data-module-type) do všech modulů 4) CommandWheel.jsx používá getAvailableActions() z kontextu pro dynamické menu 5) Graceful degradation - ring nespadne pokud chybí handler. Nový modul potřebuje jen: a) data atributy na item root, b) volání register() s handlers."
     - agent: "testing"
     - message: "✅ WINDOW CLOSING FUNCTIONALITY TEST COMPLETED SUCCESSFULLY. Key findings: 1) Bottom toolbar buttons work perfectly - all modules open correctly 2) X button closing works (minor overlay issues but core functionality operational) 3) Modules are properly removed from workspace when closed 4) Trash functionality working - shows closed windows with statistics 5) All tested modules (Notes, Tasks, Timer) open and close as expected. The module closing feature is fully functional."
     - agent: "testing"
