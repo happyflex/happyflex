@@ -134,7 +134,7 @@ const getMenuItems = (target, activeWorkzone, workspace, getAvailableActions = n
   
   // === ITEM MODE: Actions for individual items ===
   if (type === 'item') {
-    const { itemType, itemId, parentId, moduleType } = target;
+    const { itemType, itemId, parentId, moduleType, parentContext } = target;
     
     // Icon mapping for item actions
     const iconMap = {
@@ -165,7 +165,7 @@ const getMenuItems = (target, activeWorkzone, workspace, getAvailableActions = n
           icon: Edit2,
           label: 'Položka',
           action: 'itemInfo',
-          params: { itemType, itemId, moduleType }
+          params: { itemType, itemId, moduleType, parentContext }
         }
       ];
     }
@@ -180,7 +180,8 @@ const getMenuItems = (target, activeWorkzone, workspace, getAvailableActions = n
         itemType,
         itemId,
         parentId,
-        moduleType
+        moduleType,
+        parentContext // Full hierarchy context
       },
       danger: action.danger || false,
       recommended: action.id === ITEM_ACTIONS.DUPLICATE
