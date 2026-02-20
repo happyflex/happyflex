@@ -134,6 +134,42 @@ const RightSidebar = () => {
     }
   };
 
+  // Global safety reset: ensure drag state is always cleared
+  useEffect(() => {
+    const handleGlobalDragEnd = () => {
+      // Delayed reset to allow drop handlers to execute first
+      setTimeout(() => {
+        setIsDragOver(false);
+        setDraggedModule(null);
+      }, 50);
+    };
+    
+    const handleWindowBlur = () => {
+      // Immediate reset on window blur (alt-tab, etc.)
+      setIsDragOver(false);
+      setDraggedModule(null);
+    };
+    
+    const handleKeyDown = (e) => {
+      // Reset on ESC
+      if (e.key === 'Escape') {
+        setIsDragOver(false);
+        setDraggedModule(null);
+      }
+    };
+    
+    // Listen for global dragend (catches drops outside of any target)
+    document.addEventListener('dragend', handleGlobalDragEnd);
+    window.addEventListener('blur', handleWindowBlur);
+    window.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      document.removeEventListener('dragend', handleGlobalDragEnd);
+      window.removeEventListener('blur', handleWindowBlur);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   return (
     <div 
       className={`w-80 bg-[#0a1628]/80 backdrop-blur-lg border-l flex flex-col transition-all ${
