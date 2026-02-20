@@ -2,6 +2,53 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useWorkspace } from '../context/WorkspaceContext';
 
 /**
+ * Build hierarchical path from scope root to target item
+ * Walks up the DOM collecting data-steward-item elements
+ */
+const buildParentPath = (itemElement) => {
+  const path = [];
+  let current = itemElement;
+  
+  // Collect all ancestors with data-steward-item up to scope root
+  while (current) {
+    if (current.dataset && current.dataset.stewardItem && current.dataset.itemId) {
+      path.unshift({
+        type: current.dataset.stewardItem,
+        id: current.dataset.itemId,
+        moduleType: current.dataset.moduleType || null
+      });
+    }
+    
+    // Stop at scope root
+    if (current.dataset && current.dataset.moduleScopeRoot === 'true') {
+      break;
+    }
+    
+    current = current.parentElement;
+  }
+  
+  return path;
+};
+
+/**
+ * Find nearest scope root ancestor
+ */
+const findScopeRoot = (element) => {
+  let current = element;
+  while (current) {
+    if (current.dataset && current.dataset.moduleScopeRoot === 'true') {
+      return {
+        scopeId: current.dataset.scopeId || null,
+        scopeType: current.dataset.scopeType || null,
+        moduleType: current.dataset.moduleType || null
+      };
+    }
+    current = current.parentElement;
+  }
+  return null;
+};
+
+/**
  * Detect what's under the cursor
  * Priority: item > module-content > window > canvas-block > canvas-area > empty
  */
@@ -9,25 +56,60 @@ const detectTarget = (element, modules, deferredModules) => {
   if (!element) return { type: 'empty', data: null };
   
   // === ITEM MODE: Check for item with data-steward-item attribute ===
-  const itemElement = element.closest('[data-steward-item]');
+  const itemElement = element.closest('[data-steward-item][data-item-id]');
   if (itemElement) {
     const itemType = itemElement.dataset.stewardItem;
     const itemId = itemElement.dataset.itemId;
     const parentId = itemElement.dataset.parentId || null;
     const moduleType = itemElement.dataset.moduleType || null;
+    const scopeId = itemElement.dataset.scopeId || null;
     
-    // Also get parent module for context
+    // Build hierarchical path (deep resolution)
+    const path = buildParentPath(itemElement);
+    
+    // Find scope root for context
+    const scopeRoot = findScopeRoot(itemElement);
+    
+    // Resolve moduleType from ancestors if not on item
+    let resolvedModuleType = moduleType;
+    if (!resolvedModuleType) {
+      // Try to find moduleType from ancestors
+      let ancestor = itemElement.parentElement;
+      while (ancestor && !resolvedModuleType) {
+        if (ancestor.dataset && ancestor.dataset.moduleType) {
+          resolvedModuleType = ancestor.dataset.moduleType;
+        }
+        ancestor = ancestor.parentElement;
+      }
+    }
+    
+    // Also get parent module window for context
     const moduleElement = itemElement.closest('[data-module-id]');
     const moduleId = moduleElement?.dataset.moduleId;
     const module = modules.find(m => m.id === moduleId);
+    
+    // Build parentContext with full hierarchy info
+    const parentContext = {
+      scopeId: scopeId || scopeRoot?.scopeId || null,
+      scopeType: scopeRoot?.scopeType || null,
+      path: path.length > 1 ? path.slice(0, -1) : [], // Ancestors only (exclude self)
+      fullPath: path, // Include self
+      parentId: parentId,
+      // Legacy support
+      raw: {
+        scopeRoot,
+        moduleType: resolvedModuleType
+      }
+    };
     
     return {
       type: 'item',
       itemType,
       itemId,
       parentId,
-      moduleType: moduleType || module?.type,
+      moduleType: resolvedModuleType || module?.type,
       moduleId,
+      parentContext,
       data: module
     };
   }
