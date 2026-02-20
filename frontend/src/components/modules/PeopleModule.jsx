@@ -336,6 +336,48 @@ const PeopleModule = ({ initialViewState, onViewStateChange }) => {
     setDraggedPerson(null);
   };
 
+  // === ITEM MODE: Register handlers for Mouse Ring ===
+  useEffect(() => {
+    if (people === null) return;
+    
+    const handlers = {
+      [ITEM_ACTIONS.DELETE]: (payload) => {
+        const person = people.find(p => p.id === payload.itemId);
+        if (person) {
+          addPersonToTrash(person);
+          setPeople(prev => prev ? prev.filter(p => p.id !== payload.itemId) : prev);
+          if (selectedPerson?.id === payload.itemId) setSelectedPerson(null);
+          toast({ title: 'Osoba smazána', description: person.name });
+        }
+      },
+      [ITEM_ACTIONS.DUPLICATE]: (payload) => {
+        const person = people.find(p => p.id === payload.itemId);
+        if (person) {
+          const duplicated = {
+            ...person,
+            id: `person-${Date.now()}`,
+            name: `${person.name} (kopie)`,
+            todos: [],
+            calendar: [],
+            checklist: []
+          };
+          setPeople(prev => prev ? [...prev, duplicated] : [duplicated]);
+          toast({ title: 'Osoba duplikována', description: duplicated.name });
+        }
+      },
+      [ITEM_ACTIONS.OPEN_PROFILE]: (payload) => {
+        const person = people.find(p => p.id === payload.itemId);
+        if (person) {
+          setSelectedPerson(person);
+          toast({ title: 'Profil otevřen', description: person.name });
+        }
+      }
+    };
+    
+    const unregister = registerHandlers('people', handlers);
+    return unregister;
+  }, [people, selectedPerson, addPersonToTrash, registerHandlers]);
+
   // Loading state
   if (people === null) {
     return (
