@@ -147,11 +147,29 @@ const getMenuItems = (target, activeWorkzone, workspace, getAvailableActions = n
       'Map': Map,
       'User': User,
       'Edit2': Edit2,
-      'CheckCircle2': CheckCircle2
+      'CheckCircle2': CheckCircle2,
+      'Layout': Layout,
+      'GitBranch': GitBranch,
+      'ExternalLink': ExternalLinkIcon
     };
     
-    // Get actions from ItemActionContext
-    const itemActions = getItemActions(itemType);
+    // Get available actions from registry (filtered by what's supported)
+    const itemActions = getAvailableActions 
+      ? getAvailableActions(itemType, moduleType) 
+      : [];
+    
+    // If no actions available, show minimal fallback
+    if (itemActions.length === 0) {
+      return [
+        {
+          id: 'item-info',
+          icon: Edit2,
+          label: 'Položka',
+          action: 'itemInfo',
+          params: { itemType, itemId, moduleType }
+        }
+      ];
+    }
     
     return itemActions.map(action => ({
       id: `item-${action.id}`,
