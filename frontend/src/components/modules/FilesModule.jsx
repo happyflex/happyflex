@@ -577,7 +577,12 @@ const FilesModule = ({ initialViewState, onViewStateChange }) => {
     return (
       <div key={item.id}>
         <div
-          className={`flex items-center gap-1 px-2 py-1 rounded cursor-pointer transition-colors
+          // === ITEM MODE: Data attributes for Mouse Ring ===
+          data-steward-item={item.type === 'folder' ? 'folder' : 'file'}
+          data-item-id={item.id}
+          data-module-type="files"
+          data-parent-id={selectedFolder?.id || ''}
+          className={`flex items-center gap-1 px-2 py-1 rounded cursor-pointer transition-colors relative
             ${isSelected ? 'bg-cyan-500/20 text-cyan-400' : 'hover:bg-white/5 text-gray-300'}
             ${isDropping ? 'bg-cyan-500/30 ring-1 ring-cyan-400' : ''}
           `}
