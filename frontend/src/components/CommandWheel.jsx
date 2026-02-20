@@ -148,7 +148,7 @@ const getMenuItems = (target, activeWorkzone, workspace, getAvailableActions = n
       'CheckCircle2': CheckCircle2,
       'Layout': Layout,
       'GitBranch': GitBranch,
-      'ExternalLink': ExternalLinkIcon
+      'ExternalLink': ExternalLink
     };
     
     // Get available actions from registry (filtered by what's supported)
