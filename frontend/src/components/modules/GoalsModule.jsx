@@ -244,60 +244,68 @@ const GoalsModule = ({ initialViewState, onViewStateChange }) => {
     toast({ title: 'Plán přesunut do koše' });
   };
 
-  // === ITEM MODE: Register handlers for Mouse Ring ===
+  // === ITEM MODE: Register in central registry ===
   useEffect(() => {
     if (goals === null) return;
     
-    const handlers = {
-      [ITEM_ACTIONS.DELETE]: (payload) => {
-        const goal = goals.find(g => g.id === payload.itemId);
-        if (goal) {
-          addToTrash({
-            type: TRASH_TYPES.GOAL,
-            name: goal.name,
-            data: goal,
-            sourceModule: 'goals',
-            metadata: { status: goal.status, plansCount: goal.plans?.length || 0 }
-          });
-          setGoals(prev => prev ? prev.filter(g => g.id !== payload.itemId) : prev);
-          if (selectedGoal?.id === payload.itemId) setSelectedGoal(null);
-          toast({ title: 'Cíl smazán', description: goal.name });
-        }
-      },
-      [ITEM_ACTIONS.DUPLICATE]: (payload) => {
-        const goal = goals.find(g => g.id === payload.itemId);
-        if (goal) {
-          const duplicated = {
-            id: `goal-${Date.now()}`,
-            name: `${goal.name} (kopie)`,
-            description: goal.description,
-            desiredOutcome: goal.desiredOutcome,
-            deadline: goal.deadline,
-            status: 'draft',
-            createdAt: new Date().toISOString(),
-            plans: [] // Don't duplicate plans
-          };
-          setGoals(prev => prev ? [...prev, duplicated] : [duplicated]);
-          toast({ title: 'Cíl duplikován', description: duplicated.name });
-        }
-      },
-      [ITEM_ACTIONS.OPEN_PLANNING]: (payload) => {
-        const goal = goals.find(g => g.id === payload.itemId);
-        if (goal) {
-          setSelectedGoal(goal);
-          if (goal.plans?.length > 0) {
-            // Open first plan canvas
-            setShowPlanCanvas({ goalId: goal.id, planId: goal.plans[0].id });
-          } else {
-            toast({ title: 'Žádné plány', description: 'Nejprve vytvořte plán pro tento cíl' });
+    const unregister = register({
+      itemType: ITEM_TYPES.GOAL,
+      moduleType: 'goals',
+      handlers: {
+        [ITEM_ACTIONS.DELETE]: (payload) => {
+          const goal = goals.find(g => g.id === payload.itemId);
+          if (goal) {
+            addToTrash({
+              type: TRASH_TYPES.GOAL,
+              name: goal.name,
+              data: goal,
+              sourceModule: 'goals',
+              metadata: { status: goal.status, plansCount: goal.plans?.length || 0 }
+            });
+            setGoals(prev => prev ? prev.filter(g => g.id !== payload.itemId) : prev);
+            if (selectedGoal?.id === payload.itemId) setSelectedGoal(null);
+            toast({ title: 'Cíl smazán', description: goal.name });
+          }
+        },
+        [ITEM_ACTIONS.DUPLICATE]: (payload) => {
+          const goal = goals.find(g => g.id === payload.itemId);
+          if (goal) {
+            const duplicated = {
+              id: `goal-${Date.now()}`,
+              name: `${goal.name} (kopie)`,
+              description: goal.description,
+              desiredOutcome: goal.desiredOutcome,
+              deadline: goal.deadline,
+              status: 'draft',
+              createdAt: new Date().toISOString(),
+              plans: []
+            };
+            setGoals(prev => prev ? [...prev, duplicated] : [duplicated]);
+            toast({ title: 'Cíl duplikován', description: duplicated.name });
+          }
+        },
+        [ITEM_ACTIONS.OPEN_PLANNING]: (payload) => {
+          const goal = goals.find(g => g.id === payload.itemId);
+          if (goal) {
+            setSelectedGoal(goal);
+            if (goal.plans?.length > 0) {
+              setShowPlanCanvas({ goalId: goal.id, planId: goal.plans[0].id });
+            } else {
+              toast({ title: 'Žádné plány', description: 'Nejprve vytvořte plán' });
+            }
+          }
+        },
+        [ITEM_ACTIONS.EDIT]: (payload) => {
+          const goal = goals.find(g => g.id === payload.itemId);
+          if (goal) {
+            setSelectedGoal(goal);
           }
         }
       }
-    };
+    });
     
-    const unregister = registerHandlers('goals', handlers);
     return unregister;
-  }, [goals, selectedGoal, addToTrash, TRASH_TYPES, registerHandlers]);
+  }, [goals, selectedGoal, addToTrash, TRASH_TYPES, register]);
 
   // Filter goals - handle null state
   const filteredGoals = goals ? goals.filter(goal => 
