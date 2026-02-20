@@ -131,6 +131,42 @@ const getMenuItems = (target, activeWorkzone, workspace) => {
     ];
   }
   
+  // === ITEM MODE: Actions for individual items ===
+  if (type === 'item') {
+    const { itemType, itemId, parentId, moduleType } = target;
+    
+    // Icon mapping for item actions
+    const iconMap = {
+      'Copy': Copy,
+      'Trash2': Trash2,
+      'ListChecks': ListChecks,
+      'FolderPlus': FolderPlus,
+      'Map': Map,
+      'User': User,
+      'Edit2': Edit2,
+      'CheckCircle2': CheckCircle2
+    };
+    
+    // Get actions from ItemActionContext
+    const itemActions = getItemActions(itemType);
+    
+    return itemActions.map(action => ({
+      id: `item-${action.id}`,
+      icon: iconMap[action.icon] || Copy,
+      label: action.label,
+      action: 'itemAction',
+      params: {
+        actionType: action.id,
+        itemType,
+        itemId,
+        parentId,
+        moduleType
+      },
+      danger: action.danger || false,
+      recommended: action.id === ITEM_ACTIONS.DUPLICATE
+    }));
+  }
+  
   return [];
 };
 
