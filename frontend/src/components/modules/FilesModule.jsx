@@ -630,7 +630,12 @@ const FilesModule = ({ initialViewState, onViewStateChange }) => {
     return (
       <div
         key={item.id}
-        className={`group p-3 rounded-lg border transition-all cursor-pointer
+        // === ITEM MODE: Data attributes for Mouse Ring ===
+        data-steward-item={item.type === 'folder' ? 'folder' : 'file'}
+        data-item-id={item.id}
+        data-module-type="files"
+        data-parent-id={selectedFolder?.id || ''}
+        className={`group p-3 rounded-lg border transition-all cursor-pointer relative
           ${isSelected 
             ? 'bg-cyan-500/10 border-cyan-500/40' 
             : 'bg-white/5 border-transparent hover:bg-white/10 hover:border-cyan-500/20'}
