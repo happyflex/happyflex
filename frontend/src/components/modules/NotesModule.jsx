@@ -13,60 +13,59 @@ import { toast } from '../../hooks/use-toast';
 const NotesModule = () => {
   const { notes, addNote, updateNote, deleteNote, tasks, addTask } = useWorkspace();
   const { addNoteToTrash } = useTrash();
-  const { registerHandlers } = useItemActions();
+  const { register } = useItemActions();
   const [isAdding, setIsAdding] = useState(false);
   const [newNote, setNewNote] = useState({ title: '', content: '', color: '#0ea5e9' });
   const [editingId, setEditingId] = useState(null);
 
   const colors = ['#0ea5e9', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
 
-  // Register item action handlers for Mouse Ring
+  // Register item type and handlers in central registry
   useEffect(() => {
-    const handlers = {
-      [ITEM_ACTIONS.DELETE]: (payload) => {
-        const note = notes.find(n => n.id === payload.itemId);
-        if (note) {
-          // Full trash payload contract
-          addNoteToTrash(note);
-          deleteNote(note.id);
-          toast({ title: 'Poznámka smazána', description: note.title });
-        }
-      },
-      [ITEM_ACTIONS.DUPLICATE]: (payload) => {
-        const note = notes.find(n => n.id === payload.itemId);
-        if (note) {
-          const duplicated = {
-            title: `${note.title} (kopie)`,
-            content: note.content,
-            color: note.color
-          };
-          addNote(duplicated);
-          toast({ title: 'Poznámka duplikována', description: duplicated.title });
-        }
-      },
-      [ITEM_ACTIONS.CONVERT_TO_TASK]: (payload) => {
-        const note = notes.find(n => n.id === payload.itemId);
-        if (note && addTask) {
-          const newTask = {
-            title: note.title || 'Úkol z poznámky',
-            description: note.content,
-            priority: 'medium',
-            dueDate: null,
-            completed: false
-          };
-          addTask(newTask);
-          toast({ title: 'Převedeno na úkol', description: note.title });
-        } else if (!addTask) {
-          toast({ 
-            title: 'Nelze převést', 
-            description: 'Modul úkolů není k dispozici',
-            variant: 'destructive'
-          });
+    const unregister = register({
+      itemType: ITEM_TYPES.NOTE,
+      moduleType: 'notes',
+      handlers: {
+        [ITEM_ACTIONS.DELETE]: (payload) => {
+          const note = notes.find(n => n.id === payload.itemId);
+          if (note) {
+            addNoteToTrash(note);
+            deleteNote(note.id);
+            toast({ title: 'Poznámka smazána', description: note.title });
+          }
+        },
+        [ITEM_ACTIONS.DUPLICATE]: (payload) => {
+          const note = notes.find(n => n.id === payload.itemId);
+          if (note) {
+            const duplicated = {
+              title: `${note.title} (kopie)`,
+              content: note.content,
+              color: note.color
+            };
+            addNote(duplicated);
+            toast({ title: 'Poznámka duplikována', description: duplicated.title });
+          }
+        },
+        [ITEM_ACTIONS.CONVERT_TO_TASK]: (payload) => {
+          const note = notes.find(n => n.id === payload.itemId);
+          if (note && addTask) {
+            const newTask = {
+              title: note.title || 'Úkol z poznámky',
+              description: note.content,
+              priority: 'medium',
+              dueDate: null,
+              completed: false
+            };
+            addTask(newTask);
+            toast({ title: 'Převedeno na úkol', description: note.title });
+          }
+        },
+        [ITEM_ACTIONS.EDIT]: (payload) => {
+          setEditingId(payload.itemId);
         }
       }
-    };
+    });
     
-    const unregister = registerHandlers('notes', handlers);
     return unregister;
   }, [notes, addNote, deleteNote, addNoteToTrash, addTask, registerHandlers]);
 
