@@ -461,6 +461,10 @@ const CalendarModule = ({ initialViewState, onViewStateChange }) => {
                       {dayEvents.slice(0, 3).map(event => (
                         <div
                           key={event.id}
+                          // === ITEM MODE: Data attributes for Mouse Ring ===
+                          data-steward-item="calendar_event"
+                          data-item-id={event.id}
+                          data-module-type="calendar"
                           onClick={(e) => openEditEventForm(event, e)}
                           className={`text-[10px] px-1 py-0.5 rounded truncate cursor-pointer hover:opacity-80 ${EVENT_TYPES[event.type]?.color || 'bg-cyan-500'} text-white`}
                         >
