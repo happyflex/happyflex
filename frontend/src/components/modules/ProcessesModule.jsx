@@ -11,6 +11,7 @@ import * as DialogPrimitive from '../ui/dialog';
 import { Textarea } from '../ui/textarea';
 import { toast } from '../../hooks/use-toast';
 import { useTrash } from '../../context/TrashContext';
+import { useItemActions, ITEM_ACTIONS, ITEM_TYPES } from '../../context/ItemActionContext';
 import ProcessCanvas from './ProcessCanvas';
 
 const Dialog = DialogPrimitive.Dialog;
