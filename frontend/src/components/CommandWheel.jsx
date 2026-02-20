@@ -28,10 +28,17 @@ import {
   SkipForward,
   Minimize2,
   CalendarPlus,
-  Bell
+  Bell,
+  Trash2,
+  Map,
+  User,
+  Edit2,
+  CheckCircle2,
+  FolderPlus
 } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { useCommandWheel } from '../hooks/useCommandWheel';
+import { useItemActions, ITEM_ACTIONS, ITEM_TYPES, getItemActions } from '../context/ItemActionContext';
 import { toast } from '../hooks/use-toast';
 
 // Workzones for switch action
