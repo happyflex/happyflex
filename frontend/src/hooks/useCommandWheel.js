@@ -79,21 +79,23 @@ export const useCommandWheel = () => {
   
   const { modules, deferredModules } = useWorkspace();
 
-  // Handle Alt key press + Target Acquisition Mode
+  // Handle Alt key press + Target Acquisition Mode + HUD Mode
   useEffect(() => {
     const enableTargetMode = () => {
       document.body.classList.add('steward-alt-target-visible');
+      document.body.classList.add('steward-item-mode-active');
     };
     
     const disableTargetMode = () => {
       document.body.classList.remove('steward-alt-target-visible');
+      document.body.classList.remove('steward-item-mode-active');
     };
     
     const handleKeyDown = (e) => {
       if (e.key === 'Alt') {
         e.preventDefault();
         altPressedRef.current = true;
-        // Enable Target Acquisition Mode
+        // Enable Target Acquisition Mode + HUD
         enableTargetMode();
       }
       // Close on Escape
