@@ -125,6 +125,15 @@ const DEFAULT_ITEM_ACTIONS = {
     { id: ITEM_ACTIONS.OPEN_DETAIL, label: 'Otevřít', icon: 'ExternalLink' }
   ],
   
+  [ITEM_TYPES.FOLDER]: [
+    { id: ITEM_ACTIONS.OPEN_DETAIL, label: 'Otevřít', icon: 'FolderOpen' }
+  ],
+  
+  [ITEM_TYPES.PROJECT_NODE]: [
+    { id: ITEM_ACTIONS.CREATE_SUBPROJECT, label: 'Nový podprojekt', icon: 'FolderPlus' },
+    { id: ITEM_ACTIONS.OPEN_DETAIL, label: 'Otevřít', icon: 'ExternalLink' }
+  ],
+  
   [ITEM_TYPES.TIMER_SESSION]: []
 };
 
