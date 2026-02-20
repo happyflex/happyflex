@@ -780,7 +780,14 @@ const FilesModule = ({ initialViewState, onViewStateChange }) => {
   const files = currentContents.filter(item => item.type === 'file');
 
   return (
-    <div className="h-full flex flex-col">
+    <div 
+      className="h-full flex flex-col"
+      // === SCOPE ROOT CONTRACT: Files module with selected folder ===
+      data-module-scope-root="true"
+      data-module-type="files"
+      data-scope-id={selectedFolder?.id || ''}
+      data-scope-type="folder"
+    >
       <ModuleHeader
         icon={Folder}
         title="Soubory"
