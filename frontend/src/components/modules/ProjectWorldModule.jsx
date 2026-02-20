@@ -387,7 +387,14 @@ const ProjectWorldModule = ({ project, onBack, initialPath, onPathChange }) => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-[#0a1628]">
+    <div 
+      className="h-full flex flex-col bg-[#0a1628]"
+      // === SCOPE ROOT CONTRACT: Project detail view ===
+      data-module-scope-root="true"
+      data-module-type="projects"
+      data-scope-id={project.id}
+      data-scope-type="project"
+    >
       {/* Header */}
       <div className="h-16 bg-[#0f1d35] border-b border-cyan-500/30 flex items-center justify-between px-6">
         <div className="flex items-center gap-4">
