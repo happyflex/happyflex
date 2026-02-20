@@ -1,18 +1,61 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Check, ListChecks, Trash2 } from 'lucide-react';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import { useTrash } from '../../context/TrashContext';
+import { useItemActions, ITEM_ACTIONS, ITEM_TYPES } from '../../context/ItemActionContext';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { ScrollArea } from '../ui/scroll-area';
 import { Checkbox } from '../ui/checkbox';
 import ModuleHeader from './ModuleHeader';
+import { toast } from '../../hooks/use-toast';
 
 const TasksModule = () => {
   const { tasks, addTask, toggleTask, deleteTask } = useWorkspace();
   const { addTaskToTrash } = useTrash();
+  const { registerHandlers } = useItemActions();
   const [isAdding, setIsAdding] = useState(false);
   const [newTask, setNewTask] = useState({ title: '', priority: 'medium', dueDate: '' });
+
+  // === ITEM MODE: Register handlers for Mouse Ring ===
+  useEffect(() => {
+    const handlers = {
+      [ITEM_ACTIONS.DELETE]: (payload) => {
+        const task = tasks.find(t => t.id === payload.itemId);
+        if (task) {
+          addTaskToTrash(task);
+          deleteTask(task.id);
+          toast({ title: 'Úkol smazán', description: task.title });
+        }
+      },
+      [ITEM_ACTIONS.DUPLICATE]: (payload) => {
+        const task = tasks.find(t => t.id === payload.itemId);
+        if (task) {
+          const duplicated = {
+            title: `${task.title} (kopie)`,
+            priority: task.priority,
+            dueDate: task.dueDate,
+            completed: false
+          };
+          addTask(duplicated);
+          toast({ title: 'Úkol duplikován', description: duplicated.title });
+        }
+      },
+      [ITEM_ACTIONS.TOGGLE_COMPLETE]: (payload) => {
+        const task = tasks.find(t => t.id === payload.itemId);
+        if (task) {
+          toggleTask(task.id);
+          toast({ 
+            title: task.completed ? 'Úkol obnoven' : 'Úkol dokončen', 
+            description: task.title 
+          });
+        }
+      }
+    };
+    
+    const unregister = registerHandlers('tasks', handlers);
+    return unregister;
+  }, [tasks, addTask, toggleTask, deleteTask, addTaskToTrash, registerHandlers]);
 
   const handleAddTask = () => {
     if (newTask.title.trim()) {
@@ -128,6 +171,10 @@ const TasksModule = () => {
                   {activeTasks.map((task) => (
                     <div
                       key={task.id}
+                      // === ITEM MODE: Data attributes for Mouse Ring detection ===
+                      data-steward-item="task"
+                      data-item-id={task.id}
+                      data-module-type="tasks"
                       className="group flex items-start gap-3 p-3 bg-[#0a1628] rounded-lg border border-cyan-500/20 hover:border-cyan-500/40 transition-all"
                     >
                       <Checkbox
@@ -169,6 +216,10 @@ const TasksModule = () => {
                   {completedTasks.map((task) => (
                     <div
                       key={task.id}
+                      // === ITEM MODE: Data attributes for Mouse Ring detection ===
+                      data-steward-item="task"
+                      data-item-id={task.id}
+                      data-module-type="tasks"
                       className="group flex items-start gap-3 p-3 bg-[#0a1628] rounded-lg border border-green-500/20 opacity-60"
                     >
                       <Checkbox
