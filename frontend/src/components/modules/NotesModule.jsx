@@ -67,7 +67,7 @@ const NotesModule = () => {
     });
     
     return unregister;
-  }, [notes, addNote, deleteNote, addNoteToTrash, addTask, registerHandlers]);
+  }, [notes, addNote, deleteNote, addNoteToTrash, addTask, register]);
 
   const handleAddNote = () => {
     if (newNote.title.trim() || newNote.content.trim()) {
