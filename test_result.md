@@ -365,12 +365,15 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Universal Item Mode - Central Registry"
+    - "Universal Action Item Contract"
+    - "Nested Item Ring Support"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
+    - agent: "main"
+    - message: "✅ IMPLEMENTOVÁN UNIVERZÁLNÍ ACTION ITEM CONTRACT. Změny provedeny podle specifikace: 1) useCommandWheel.js - přidána deep resolution pro parentContext s buildParentPath() a findScopeRoot() 2) Přidány ITEM_TYPES.PLAN_AREA a ITEM_TYPES.PROCESS_STEP do ItemActionContext.js 3) CommandWheel.jsx - předává plný parentContext místo jen parentId 4) Scope Root Contract implementován v: - ProjectWorldModule.jsx (data-module-scope-root, data-scope-id=project.id) - FilesModule.jsx (data-scope-id=selectedFolder.id) - GoalsModule.jsx (data-scope-id=selectedGoal.id) - ProcessesModule.jsx (data-scope-id=selectedProcess.id) - PlanCanvas.jsx (data-scope-id=plan.id) - ProcessCanvas.jsx (data-scope-id=process.id) 5) Nested item data atributy: - ProjectTree.jsx - přidán data-parent-id a data-path pro hierarchii podprojektů - PlanCanvas.jsx AreaCard - data-steward-item='planArea' - ProcessCanvas.jsx StepNode - data-steward-item='processStep' 6) ALT priorita vs drag - zachována stávající logika blokování dragu při ALT. OVĚŘENO: ProcessCanvas zobrazuje 3 processStep položky s korektními data atributy a scope root."
     - agent: "main"
     - message: "Implementován Universal Item Mode s Central ItemRegistry. Změny: 1) Přepracován ItemActionContext.js na centrální registr s: register(), registerItemType(), registerHandlers(), executeItemAction(), getAvailableActions(), isActionSupported() 2) Aktualizovány moduly NotesModule, GoalsModule, PeopleModule, TasksModule, ProcessesModule, CalendarModule pro použití nového register() API 3) Přidány data atributy (data-steward-item, data-item-id, data-module-type) do všech modulů 4) CommandWheel.jsx používá getAvailableActions() z kontextu pro dynamické menu 5) Graceful degradation - ring nespadne pokud chybí handler. Nový modul potřebuje jen: a) data atributy na item root, b) volání register() s handlers."
     - agent: "testing"
