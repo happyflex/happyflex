@@ -510,6 +510,10 @@ const PersonCard = ({ person, isSelected, onSelect, onDragStart, onDragEnd, isDr
       onDragStart={(e) => onDragStart(e, person)}
       onDragEnd={onDragEnd}
       onClick={onSelect}
+      // === ITEM MODE: Data attributes for Mouse Ring detection ===
+      data-steward-item="person"
+      data-item-id={person.id}
+      data-module-type="people"
       style={{ isolation: 'isolate' }}
       className={`
         group p-3 bg-[#0a1628] rounded-lg border transition-all duration-200 cursor-pointer relative
