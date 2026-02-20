@@ -18,7 +18,7 @@ function App() {
     <WorkspaceProvider>
       <TrashProvider>
         <ItemActionProvider>
-          <div className="App h-screen flex flex-col bg-[#0a1628] overflow-hidden">
+          <div className="App h-screen flex flex-col bg-[#0a1628] overflow-hidden steward-workspace-root">
             <Header />
             <div className="flex-1 flex overflow-hidden">
               <Canvas />
@@ -29,6 +29,10 @@ function App() {
             <CursorHUD />
             <CommandWheel />
             <LastSessionOverlay />
+            {/* HUD Overlay for Item Mode */}
+            <div id="steward-item-hud">ITEM MODE ACTIVE</div>
+            {/* Scanline sweep overlay */}
+            <div id="steward-scanline-overlay" aria-hidden="true" />
           </div>
         </ItemActionProvider>
       </TrashProvider>
