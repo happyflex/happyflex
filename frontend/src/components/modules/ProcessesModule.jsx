@@ -207,6 +207,57 @@ const ProcessesModule = ({ initialViewState, onViewStateChange }) => {
     toast({ title: 'Proces přesunut do koše' });
   };
 
+  // === ITEM MODE: Register in central registry ===
+  useEffect(() => {
+    if (processes === null) return;
+    
+    const unregister = register({
+      itemType: ITEM_TYPES.PROCESS,
+      moduleType: 'processes',
+      handlers: {
+        [ITEM_ACTIONS.DELETE]: (payload) => {
+          const process = processes.find(p => p.id === payload.itemId);
+          if (process) {
+            addToTrash({
+              type: TRASH_TYPES.PROCESS,
+              name: process.name,
+              data: process,
+              sourceModule: 'processes',
+              metadata: { stepsCount: process.steps?.length || 0 }
+            });
+            setProcesses(prev => prev ? prev.filter(p => p.id !== payload.itemId) : prev);
+            if (selectedProcess?.id === payload.itemId) setSelectedProcess(null);
+            toast({ title: 'Proces smazán', description: process.name });
+          }
+        },
+        [ITEM_ACTIONS.DUPLICATE]: (payload) => {
+          const process = processes.find(p => p.id === payload.itemId);
+          if (process) {
+            const duplicated = {
+              ...process,
+              id: `process-${Date.now()}`,
+              name: `${process.name} (kopie)`,
+              createdAt: new Date().toISOString()
+            };
+            setProcesses(prev => prev ? [...prev, duplicated] : [duplicated]);
+            toast({ title: 'Proces duplikován', description: duplicated.name });
+          }
+        },
+        [ITEM_ACTIONS.OPEN_DETAIL]: (payload) => {
+          setShowProcessCanvas(payload.itemId);
+        },
+        [ITEM_ACTIONS.EDIT]: (payload) => {
+          const process = processes.find(p => p.id === payload.itemId);
+          if (process) {
+            setSelectedProcess(process);
+          }
+        }
+      }
+    });
+    
+    return unregister;
+  }, [processes, selectedProcess, addToTrash, TRASH_TYPES, register]);
+
   // Get plan and goal info for a process
   const getProcessContext = (process) => {
     const goal = goals.find(g => g.id === process.goalId);
