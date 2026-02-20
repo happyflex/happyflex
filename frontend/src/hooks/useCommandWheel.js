@@ -77,14 +77,16 @@ export const useCommandWheel = () => {
   const altPressedRef = useRef(false);
   const blockedItemRef = useRef(null); // Track item that should have drag blocked
   const scanTimeoutRef = useRef(null); // Track scan animation timeout
+  const scanTriggeredRef = useRef(false); // Guard against re-triggering scan
   
   const { modules, deferredModules } = useWorkspace();
 
   // Handle Alt key press + Target Acquisition Mode + HUD Mode
+  // Note: This effect has NO dependencies to prevent re-running on state changes
   useEffect(() => {
     const enableTargetMode = () => {
-      // Guard: If already active, don't re-trigger (handles key repeat)
-      if (document.body.classList.contains('steward-item-mode-active')) {
+      // Guard: If scan already triggered this session, don't re-trigger
+      if (scanTriggeredRef.current) {
         return;
       }
       
@@ -93,22 +95,23 @@ export const useCommandWheel = () => {
       
       // Trigger scan animation (one-shot)
       document.body.classList.add('steward-item-mode-scan');
+      scanTriggeredRef.current = true;
       
-      // Remove scan class after animation completes (prevent re-trigger)
+      // Remove scan class after animation completes
       if (scanTimeoutRef.current) {
         clearTimeout(scanTimeoutRef.current);
       }
       scanTimeoutRef.current = setTimeout(() => {
         document.body.classList.remove('steward-item-mode-scan');
-      }, 950); // Slightly longer than animation duration
+      }, 950);
     };
     
     const disableTargetMode = () => {
       document.body.classList.remove('steward-alt-target-visible');
       document.body.classList.remove('steward-item-mode-active');
       document.body.classList.remove('steward-item-mode-scan');
+      scanTriggeredRef.current = false; // Reset for next ALT press
       
-      // Clear timeout if deactivating early
       if (scanTimeoutRef.current) {
         clearTimeout(scanTimeoutRef.current);
         scanTimeoutRef.current = null;
@@ -119,32 +122,28 @@ export const useCommandWheel = () => {
       if (e.key === 'Alt') {
         e.preventDefault();
         altPressedRef.current = true;
-        // Enable Target Acquisition Mode + HUD (with guard against key repeat)
         enableTargetMode();
       }
       // Close on Escape
-      if (e.key === 'Escape' && isOpen) {
-        setIsOpen(false);
-        blockedItemRef.current = null;
-        disableTargetMode();
+      if (e.key === 'Escape') {
+        // Use ref to avoid dependency on isOpen
+        if (document.querySelector('.command-wheel')) {
+          disableTargetMode();
+        }
       }
     };
     
     const handleKeyUp = (e) => {
       if (e.key === 'Alt') {
         altPressedRef.current = false;
-        // Disable Target Acquisition Mode (unless ring is open)
-        if (!isOpen) {
+        // Only disable if ring is not open (check DOM instead of state)
+        if (!document.querySelector('.command-wheel')) {
           disableTargetMode();
         }
-        // Clear drag block when Alt is released
-        if (!isOpen) {
-          blockedItemRef.current = null;
-        }
+        blockedItemRef.current = null;
       }
     };
     
-    // Disable on window blur (safety)
     const handleBlur = () => {
       altPressedRef.current = false;
       disableTargetMode();
@@ -158,7 +157,6 @@ export const useCommandWheel = () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('blur', handleBlur);
-      // Cleanup
       document.body.classList.remove('steward-alt-target-visible');
       document.body.classList.remove('steward-item-mode-active');
       document.body.classList.remove('steward-item-mode-scan');
@@ -166,7 +164,7 @@ export const useCommandWheel = () => {
         clearTimeout(scanTimeoutRef.current);
       }
     };
-  }, [isOpen]);
+  }, []); // Empty dependency array - never re-runs
 
   // Handle mouse click while Alt is pressed
   useEffect(() => {
