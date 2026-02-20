@@ -135,7 +135,14 @@ const ProcessCanvas = ({ process, plan, goal, onClose, onUpdate }) => {
   }, [connectionStart]);
 
   return (
-    <div className="h-full flex flex-col bg-transparent">
+    <div 
+      className="h-full flex flex-col bg-transparent"
+      // === SCOPE ROOT CONTRACT: Process canvas view ===
+      data-module-scope-root="true"
+      data-module-type="processes"
+      data-scope-id={process?.id}
+      data-scope-type="process"
+    >
       {/* Top Bar */}
       <div className="bg-[#0f1d35] rounded-lg border border-cyan-500/30 p-4 mb-3">
         <div className="flex items-center justify-between mb-3">
