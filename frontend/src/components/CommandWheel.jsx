@@ -266,6 +266,20 @@ const CommandWheel = () => {
     return getMenuItems(target, activeWorkzone, { modules }, getAvailableActions);
   }, [target, activeWorkzone, modules, getAvailableActions]);
   
+  // ESC key handler to close ring
+  useEffect(() => {
+    if (!isOpen) return;
+    
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        close();
+      }
+    };
+    
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isOpen, close]);
+  
   // Parallax effect
   useEffect(() => {
     if (!isOpen) return;
