@@ -79,23 +79,38 @@ export const useCommandWheel = () => {
   
   const { modules, deferredModules } = useWorkspace();
 
-  // Handle Alt key press
+  // Handle Alt key press + Target Acquisition Mode
   useEffect(() => {
+    const enableTargetMode = () => {
+      document.body.classList.add('steward-alt-target-visible');
+    };
+    
+    const disableTargetMode = () => {
+      document.body.classList.remove('steward-alt-target-visible');
+    };
+    
     const handleKeyDown = (e) => {
       if (e.key === 'Alt') {
         e.preventDefault();
         altPressedRef.current = true;
+        // Enable Target Acquisition Mode
+        enableTargetMode();
       }
       // Close on Escape
       if (e.key === 'Escape' && isOpen) {
         setIsOpen(false);
         blockedItemRef.current = null;
+        disableTargetMode();
       }
     };
     
     const handleKeyUp = (e) => {
       if (e.key === 'Alt') {
         altPressedRef.current = false;
+        // Disable Target Acquisition Mode (unless ring is open)
+        if (!isOpen) {
+          disableTargetMode();
+        }
         // Clear drag block when Alt is released
         if (!isOpen) {
           blockedItemRef.current = null;
@@ -103,12 +118,21 @@ export const useCommandWheel = () => {
       }
     };
     
+    // Disable on window blur (safety)
+    const handleBlur = () => {
+      altPressedRef.current = false;
+      disableTargetMode();
+    };
+    
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('blur', handleBlur);
     
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('blur', handleBlur);
+      disableTargetMode(); // Cleanup
     };
   }, [isOpen]);
 
