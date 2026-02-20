@@ -122,3 +122,90 @@ div:hover > .resize-handle {
   z-index: 2;
 }
 
+
+
+/* ============================================================================
+   STEWARD ITEM MODE HUD OVERLAY
+   Displays "ITEM MODE ACTIVE" label and scanline sweep when ALT is held
+   ============================================================================ */
+
+/* HUD Label - "ITEM MODE ACTIVE" */
+#steward-item-hud {
+  position: fixed;
+  top: 20px;
+  right: 28px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(34, 211, 238, 0);
+  pointer-events: none;
+  z-index: 9999;
+  user-select: none;
+  transition: color 120ms ease-out, text-shadow 120ms ease-out;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', monospace;
+}
+
+/* HUD Label active state */
+.steward-item-mode-active #steward-item-hud {
+  color: rgba(34, 211, 238, 0.7);
+  text-shadow: 
+    0 0 8px rgba(34, 211, 238, 0.4),
+    0 0 16px rgba(34, 211, 238, 0.2);
+}
+
+/* Scanline sweep overlay */
+#steward-scanline-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 45%,
+    rgba(34, 211, 238, 0.04) 50%,
+    transparent 55%,
+    transparent 100%
+  );
+  background-size: 100% 200%;
+  background-position: 0% 0%;
+}
+
+/* Scanline animation trigger */
+.steward-item-mode-active #steward-scanline-overlay {
+  opacity: 1;
+  animation: steward-scan-sweep 800ms ease-out forwards;
+}
+
+@keyframes steward-scan-sweep {
+  0% {
+    background-position: 0% -100%;
+  }
+  100% {
+    background-position: 0% 200%;
+  }
+}
+
+/* Subtle corner accent indicators (optional enhancement) */
+.steward-workspace-root::before {
+  content: '';
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border-top: 1px solid transparent;
+  border-right: 1px solid transparent;
+  pointer-events: none;
+  z-index: 9997;
+  transition: border-color 120ms ease-out;
+}
+
+.steward-item-mode-active .steward-workspace-root::before,
+.steward-item-mode-active.steward-workspace-root::before {
+  border-top-color: rgba(34, 211, 238, 0.3);
+  border-right-color: rgba(34, 211, 238, 0.3);
+}
+
