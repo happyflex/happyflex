@@ -8,7 +8,11 @@ const TreeNode = ({ node, currentPath, onNavigate, level, expanded, onToggle }) 
 
   return (
     <div
-      className={`flex items-center gap-2 px-3 py-2 cursor-pointer transition-colors ${
+      // === ITEM MODE: Data attributes for Mouse Ring ===
+      data-steward-item="projectNode"
+      data-item-id={node.id}
+      data-module-type="projects"
+      className={`flex items-center gap-2 px-3 py-2 cursor-pointer transition-colors relative ${
         isActive ? 'bg-cyan-500/20 text-cyan-400' : 'text-gray-300 hover:bg-cyan-500/10'
       }`}
       style={{ paddingLeft: `${level * 16 + 12}px` }}
