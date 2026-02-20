@@ -147,6 +147,7 @@ const STORAGE_KEY = 'steward_files';
 const FilesModule = ({ initialViewState, onViewStateChange }) => {
   const { addToTrash, TRASH_TYPES } = useTrash();
   const { addModule } = useWorkspace();
+  const { register } = useItemActions();
   
   // VIEW STATE GUARDS: Prevent infinite loops
   const didApplyInitialViewState = React.useRef(false);
