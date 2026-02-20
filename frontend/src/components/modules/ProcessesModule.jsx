@@ -21,6 +21,7 @@ const DialogTitle = DialogPrimitive.DialogTitle;
 
 const ProcessesModule = ({ initialViewState, onViewStateChange }) => {
   const { addToTrash, TRASH_TYPES } = useTrash();
+  const { register } = useItemActions();
   const [processes, setProcesses] = useState(null); // null = not loaded yet
   const [goals, setGoals] = useState([]);
   const [selectedProcess, setSelectedProcess] = useState(null);
