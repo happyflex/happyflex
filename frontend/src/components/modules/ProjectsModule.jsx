@@ -14,6 +14,7 @@ import { toast } from '../../hooks/use-toast';
 const ProjectsModule = ({ initialViewState, onViewStateChange }) => {
   const { projects, setProjects } = useWorkspace();
   const { addToTrash, TRASH_TYPES } = useTrash();
+  const { register } = useItemActions();
   const [selectedProject, setSelectedProject] = useState(null);
   const [currentNodePath, setCurrentNodePath] = useState(null); // Track current path from ProjectWorld
   const [showAddDialog, setShowAddDialog] = useState(false);
