@@ -63,12 +63,13 @@ function ProjectTree({ node, currentPath, onNavigate }) {
     setExpanded(prev => ({ ...prev, [nodeId]: !prev[nodeId] }));
   };
 
-  // Flatten tree to list with levels
-  const flattenTree = (n, level = 0) => {
-    const result = [{ node: n, level }];
+  // Flatten tree to list with levels and parent paths
+  const flattenTree = (n, level = 0, parentPath = []) => {
+    const result = [{ node: n, level, parentPath }];
     if (n.children && n.children.length > 0 && expanded[n.id]) {
+      const newParentPath = [...parentPath, n.id];
       n.children.forEach(child => {
-        result.push(...flattenTree(child, level + 1));
+        result.push(...flattenTree(child, level + 1, newParentPath));
       });
     }
     return result;
@@ -83,6 +84,7 @@ function ProjectTree({ node, currentPath, onNavigate }) {
           key={item.node.id || index}
           node={item.node}
           level={item.level}
+          parentPath={item.parentPath}
           currentPath={currentPath}
           onNavigate={onNavigate}
           expanded={expanded}
