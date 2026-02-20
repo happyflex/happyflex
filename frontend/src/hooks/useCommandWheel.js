@@ -1,9 +1,36 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useWorkspace } from '../context/WorkspaceContext';
 
-// Detect what's under the cursor
+/**
+ * Detect what's under the cursor
+ * Priority: item > module-content > window > canvas-block > canvas-area > empty
+ */
 const detectTarget = (element, modules, deferredModules) => {
   if (!element) return { type: 'empty', data: null };
+  
+  // === ITEM MODE: Check for item with data-steward-item attribute ===
+  const itemElement = element.closest('[data-steward-item]');
+  if (itemElement) {
+    const itemType = itemElement.dataset.stewardItem;
+    const itemId = itemElement.dataset.itemId;
+    const parentId = itemElement.dataset.parentId || null;
+    const moduleType = itemElement.dataset.moduleType || null;
+    
+    // Also get parent module for context
+    const moduleElement = itemElement.closest('[data-module-id]');
+    const moduleId = moduleElement?.dataset.moduleId;
+    const module = modules.find(m => m.id === moduleId);
+    
+    return {
+      type: 'item',
+      itemType,
+      itemId,
+      parentId,
+      moduleType: moduleType || module?.type,
+      moduleId,
+      data: module
+    };
+  }
   
   // Check if it's a canvas module (in RightSidebar)
   const canvasItem = element.closest('[data-canvas-module-id]');
@@ -48,6 +75,7 @@ export const useCommandWheel = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [target, setTarget] = useState({ type: 'empty', data: null });
   const altPressedRef = useRef(false);
+  const blockedItemRef = useRef(null); // Track item that should have drag blocked
   
   const { modules, deferredModules } = useWorkspace();
 
@@ -61,12 +89,17 @@ export const useCommandWheel = () => {
       // Close on Escape
       if (e.key === 'Escape' && isOpen) {
         setIsOpen(false);
+        blockedItemRef.current = null;
       }
     };
     
     const handleKeyUp = (e) => {
       if (e.key === 'Alt') {
         altPressedRef.current = false;
+        // Clear drag block when Alt is released
+        if (!isOpen) {
+          blockedItemRef.current = null;
+        }
       }
     };
     
@@ -92,6 +125,11 @@ export const useCommandWheel = () => {
         // Don't open for 'other' targets (like header, toolbar)
         if (detectedTarget.type === 'other') return;
         
+        // If item mode, block drag for this item
+        if (detectedTarget.type === 'item' && detectedTarget.itemId) {
+          blockedItemRef.current = detectedTarget.itemId;
+        }
+        
         setTarget(detectedTarget);
         setPosition({ x: e.clientX, y: e.clientY });
         setIsOpen(true);
@@ -101,26 +139,47 @@ export const useCommandWheel = () => {
       // Click outside to close
       if (isOpen && !e.target.closest('.command-wheel')) {
         setIsOpen(false);
+        blockedItemRef.current = null;
+      }
+    };
+    
+    // Block drag for specific item when Alt is pressed
+    const handleMouseDown = (e) => {
+      if (altPressedRef.current) {
+        const itemElement = e.target.closest('[data-steward-item]');
+        if (itemElement) {
+          // Prevent drag initiation on item when Alt is pressed
+          e.preventDefault();
+        }
       }
     };
     
     // Use capture phase to intercept clicks
     window.addEventListener('click', handleClick, true);
+    window.addEventListener('mousedown', handleMouseDown, true);
     
     return () => {
       window.removeEventListener('click', handleClick, true);
+      window.removeEventListener('mousedown', handleMouseDown, true);
     };
   }, [isOpen, modules, deferredModules]);
 
   const close = useCallback(() => {
     setIsOpen(false);
+    blockedItemRef.current = null;
+  }, []);
+
+  // Check if drag should be blocked for specific item
+  const isDragBlockedFor = useCallback((itemId) => {
+    return blockedItemRef.current === itemId;
   }, []);
 
   return {
     isOpen,
     position,
     target,
-    close
+    close,
+    isDragBlockedFor
   };
 };
 
