@@ -365,7 +365,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Item Ring Actions for Project Elements - Handler Registration Fix"
+    - "Subproject (projectNode) Drag Restore from Trash"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
