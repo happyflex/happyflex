@@ -485,6 +485,195 @@ const TrashModule = () => {
           });
         }
         break;
+      
+      // === NEW ENTITY TYPES RESTORE HANDLERS ===
+      
+      case TRASH_TYPES.PLAN_AREA:
+        // Restore plan area to Goals planner
+        try {
+          const { goalId, planId } = item.metadata || {};
+          if (!goalId || !planId) {
+            toast({
+              title: 'Chyba',
+              description: 'Chybí informace o cíli nebo plánu',
+              variant: 'destructive'
+            });
+            break;
+          }
+          
+          // Load goals from localStorage
+          const storedGoals = localStorage.getItem('steward_goals');
+          if (!storedGoals) {
+            toast({
+              title: 'Chyba',
+              description: 'Cíle nebyly nalezeny',
+              variant: 'destructive'
+            });
+            break;
+          }
+          
+          const goals = JSON.parse(storedGoals);
+          const goalIndex = goals.findIndex(g => g.id === goalId);
+          
+          if (goalIndex === -1) {
+            toast({
+              title: 'Chyba',
+              description: 'Cíl nebyl nalezen',
+              variant: 'destructive'
+            });
+            break;
+          }
+          
+          // Find plan within goal
+          const planIndex = goals[goalIndex].plans?.findIndex(p => p.id === planId);
+          if (planIndex === -1) {
+            toast({
+              title: 'Chyba', 
+              description: 'Plán nebyl nalezen',
+              variant: 'destructive'
+            });
+            break;
+          }
+          
+          // Restore area to plan
+          goals[goalIndex].plans[planIndex].areas = goals[goalIndex].plans[planIndex].areas || [];
+          const areaExists = goals[goalIndex].plans[planIndex].areas.some(a => a.id === item.originalData.id);
+          
+          if (!areaExists) {
+            // Insert at original index or at end
+            const insertIndex = item.metadata.index ?? goals[goalIndex].plans[planIndex].areas.length;
+            goals[goalIndex].plans[planIndex].areas.splice(insertIndex, 0, item.originalData);
+            
+            localStorage.setItem('steward_goals', JSON.stringify(goals));
+            window.dispatchEvent(new CustomEvent('steward-goals-updated'));
+            
+            toast({
+              title: 'Oblast plánu obnovena',
+              description: `${item.name} byla obnovena do plánu`
+            });
+          } else {
+            toast({
+              title: 'Oblast již existuje',
+              description: `${item.name} je již v plánu`,
+              variant: 'destructive'
+            });
+          }
+        } catch (e) {
+          console.error('Error restoring plan area:', e);
+          toast({
+            title: 'Chyba',
+            description: 'Nepodařilo se obnovit oblast plánu',
+            variant: 'destructive'
+          });
+        }
+        break;
+        
+      case TRASH_TYPES.PROCESS_STEP:
+        // Restore process step to ProcessCanvas
+        try {
+          const { processId, connections: stepConnections } = item.metadata || {};
+          if (!processId) {
+            toast({
+              title: 'Chyba',
+              description: 'Chybí informace o procesu',
+              variant: 'destructive'
+            });
+            break;
+          }
+          
+          // Load processes from localStorage
+          const storedProcs = localStorage.getItem('steward_processes');
+          if (!storedProcs) {
+            toast({
+              title: 'Chyba',
+              description: 'Procesy nebyly nalezeny',
+              variant: 'destructive'
+            });
+            break;
+          }
+          
+          const procs = JSON.parse(storedProcs);
+          const procIndex = procs.findIndex(p => p.id === processId);
+          
+          if (procIndex === -1) {
+            toast({
+              title: 'Chyba',
+              description: 'Proces nebyl nalezen',
+              variant: 'destructive'
+            });
+            break;
+          }
+          
+          // Restore step to process
+          procs[procIndex].steps = procs[procIndex].steps || [];
+          const stepExists = procs[procIndex].steps.some(s => s.id === item.originalData.id);
+          
+          if (!stepExists) {
+            procs[procIndex].steps.push(item.originalData);
+            
+            // Restore connections if available
+            if (stepConnections && stepConnections.length > 0) {
+              procs[procIndex].connections = procs[procIndex].connections || [];
+              procs[procIndex].connections.push(...stepConnections);
+            }
+            
+            localStorage.setItem('steward_processes', JSON.stringify(procs));
+            window.dispatchEvent(new CustomEvent('steward-processes-updated'));
+            
+            toast({
+              title: 'Krok procesu obnoven',
+              description: `${item.name} byl obnoven do procesu`
+            });
+          } else {
+            toast({
+              title: 'Krok již existuje',
+              description: `${item.name} je již v procesu`,
+              variant: 'destructive'
+            });
+          }
+        } catch (e) {
+          console.error('Error restoring process step:', e);
+          toast({
+            title: 'Chyba',
+            description: 'Nepodařilo se obnovit krok procesu',
+            variant: 'destructive'
+          });
+        }
+        break;
+        
+      case TRASH_TYPES.CALENDAR_EVENT:
+        // Restore calendar event
+        try {
+          const storedEvents = localStorage.getItem('steward_calendar_events');
+          const events = storedEvents ? JSON.parse(storedEvents) : [];
+          const eventExists = events.some(e => e.id === item.originalData.id);
+          
+          if (!eventExists) {
+            events.push(item.originalData);
+            localStorage.setItem('steward_calendar_events', JSON.stringify(events));
+            window.dispatchEvent(new CustomEvent('steward-calendar-updated'));
+            
+            toast({
+              title: 'Událost obnovena',
+              description: `${item.name} byla obnovena do kalendáře`
+            });
+          } else {
+            toast({
+              title: 'Událost již existuje',
+              description: `${item.name} je již v kalendáři`,
+              variant: 'destructive'
+            });
+          }
+        } catch (e) {
+          console.error('Error restoring calendar event:', e);
+          toast({
+            title: 'Chyba',
+            description: 'Nepodařilo se obnovit událost',
+            variant: 'destructive'
+          });
+        }
+        break;
+        
       default:
         break;
     }
