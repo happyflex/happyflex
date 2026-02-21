@@ -30,6 +30,7 @@ export const ITEM_ACTIONS = {
   DUPLICATE: 'duplicate',
   EDIT: 'edit',
   CONVERT_TO_TASK: 'convert_to_task',
+  CONVERT: 'convert', // New unified convert action
   CREATE_SUBPROJECT: 'create_subproject',
   OPEN_PLANNING: 'open_planning',
   OPEN_PROFILE: 'open_profile',
