@@ -97,7 +97,7 @@ const ProjectWorldModule = ({ project, onBack, initialPath, onPathChange }) => {
 
     loadProjectData();
 
-    // Listen for restore events
+    // Listen for restore events (project elements)
     const handleElementRestored = (event) => {
       if (event.detail?.projectId === project.id) {
         loadProjectData();
@@ -112,9 +112,18 @@ const ProjectWorldModule = ({ project, onBack, initialPath, onPathChange }) => {
       }
     };
 
+    // Listen for project world updates (subproject restore)
+    const handleProjectWorldUpdated = (event) => {
+      if (event.detail?.projectId === project.id) {
+        loadProjectData();
+      }
+    };
+
     window.addEventListener('steward-project-element-restored', handleElementRestored);
+    window.addEventListener('steward-project-world-updated', handleProjectWorldUpdated);
     return () => {
       window.removeEventListener('steward-project-element-restored', handleElementRestored);
+      window.removeEventListener('steward-project-world-updated', handleProjectWorldUpdated);
     };
   }, [project.id]); // Removed initialPath - it caused data reload on every path change
 
