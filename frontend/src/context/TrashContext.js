@@ -25,6 +25,10 @@ export const TRASH_TYPES = {
   MUSIC: 'music',
   CHART: 'chart',
   TIMER: 'timer',
+  // New entity types for unified Trash Contract
+  PLAN_AREA: 'plan_area', // Areas in Goals Planner
+  PROCESS_STEP: 'process_step', // Steps in ProcessCanvas
+  CALENDAR_EVENT: 'calendar_event', // Events in Calendar
   OTHER: 'other'
 };
 
