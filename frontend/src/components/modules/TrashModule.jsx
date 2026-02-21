@@ -52,6 +52,12 @@ const TYPE_CONFIG = {
     color: 'text-sky-400',
     bgColor: 'bg-sky-500/20'
   },
+  [TRASH_TYPES.SUBPROJECT]: { 
+    icon: Folder, 
+    label: 'Podprojekty', 
+    color: 'text-teal-400',
+    bgColor: 'bg-teal-500/20'
+  },
   [TRASH_TYPES.PERSON]: { 
     icon: Users, 
     label: 'Lidi', 
