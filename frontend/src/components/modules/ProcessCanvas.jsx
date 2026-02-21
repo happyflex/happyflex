@@ -144,6 +144,62 @@ const ProcessCanvas = ({ process, plan, goal, onClose, onUpdate }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [connectionStart]);
 
+  // === ITEM MODE: Register processStep handlers ===
+  useEffect(() => {
+    const unregister = register({
+      itemType: ITEM_TYPES.PROCESS_STEP,
+      moduleType: 'processes',
+      handlers: {
+        [ITEM_ACTIONS.DELETE]: ({ itemId }) => {
+          const currentSteps = stepsRef.current;
+          const stepToDelete = currentSteps.find(s => s.id === itemId);
+          
+          if (!stepToDelete) {
+            console.warn('[ProcessStep] Step not found for delete:', itemId);
+            return;
+          }
+          
+          setSteps(prev => prev.filter(s => s.id !== itemId));
+          setConnections(prev => prev.filter(c => c.from !== itemId && c.to !== itemId));
+          if (selectedStep?.id === itemId) setSelectedStep(null);
+          setHasUnsavedChanges(true);
+          toast({ title: 'Krok odstraněn', description: stepToDelete.name });
+        },
+        
+        [ITEM_ACTIONS.DUPLICATE]: ({ itemId }) => {
+          const currentSteps = stepsRef.current;
+          const stepToDuplicate = currentSteps.find(s => s.id === itemId);
+          
+          if (!stepToDuplicate) {
+            console.warn('[ProcessStep] Step not found for duplicate:', itemId);
+            return;
+          }
+          
+          const duplicatedStep = {
+            ...JSON.parse(JSON.stringify(stepToDuplicate)),
+            id: `step-${Date.now()}`,
+            name: `${stepToDuplicate.name} (kopie)`,
+            position: {
+              x: (stepToDuplicate.position?.x || 0) + 30,
+              y: (stepToDuplicate.position?.y || 0) + 30
+            }
+          };
+          
+          setSteps(prev => [...prev, duplicatedStep]);
+          setHasUnsavedChanges(true);
+          toast({ title: 'Krok duplikován', description: duplicatedStep.name });
+        },
+        
+        [ITEM_ACTIONS.EDIT]: ({ itemId }) => {
+          setEditingStep(itemId);
+          setSelectedStep(stepsRef.current.find(s => s.id === itemId) || null);
+        }
+      }
+    });
+    
+    return unregister;
+  }, [register, selectedStep]);
+
   return (
     <div 
       className="h-full flex flex-col bg-transparent"
