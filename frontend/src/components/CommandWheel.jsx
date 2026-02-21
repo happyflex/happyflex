@@ -215,7 +215,11 @@ const getMenuItems = (target, activeWorkzone, workspace, getAvailableActions = n
       'CheckCircle2': CheckCircle2,
       'Layout': Layout,
       'GitBranch': GitBranch,
-      'ExternalLink': ExternalLink
+      'ExternalLink': ExternalLink,
+      'Shuffle': Shuffle,
+      'Target': Target,
+      'FileText': FileText,
+      'Box': Box
     };
     
     // Get available actions from registry (filtered by what's supported)
@@ -223,9 +227,13 @@ const getMenuItems = (target, activeWorkzone, workspace, getAvailableActions = n
       ? getAvailableActions(itemType, moduleType) 
       : [];
     
+    // Check if this item type can be converted
+    const convertTargets = getConvertTargets(itemType);
+    const canConvert = convertTargets.length > 0;
+    
     // If no actions available, show minimal fallback
     if (itemActions.length === 0) {
-      return [
+      const fallbackItems = [
         {
           id: 'item-info',
           icon: Edit2,
@@ -234,9 +242,24 @@ const getMenuItems = (target, activeWorkzone, workspace, getAvailableActions = n
           params: { itemType, itemId, moduleType, parentContext }
         }
       ];
+      
+      // Add convert if available
+      if (canConvert) {
+        fallbackItems.push({
+          id: 'item-convert',
+          icon: Shuffle,
+          label: 'Převést',
+          action: 'convertItem',
+          hasSubmenu: true,
+          params: { itemType, itemId, moduleType, parentContext, convertTargets }
+        });
+      }
+      
+      return fallbackItems;
     }
     
-    return itemActions.map(action => ({
+    // Build menu items from registered actions
+    const menuItems = itemActions.map(action => ({
       id: `item-${action.id}`,
       icon: iconMap[action.icon] || Copy,
       label: action.label,
@@ -247,11 +270,32 @@ const getMenuItems = (target, activeWorkzone, workspace, getAvailableActions = n
         itemId,
         parentId,
         moduleType,
-        parentContext // Full hierarchy context
+        parentContext
       },
       danger: action.danger || false,
       recommended: action.id === ITEM_ACTIONS.DUPLICATE
     }));
+    
+    // Add Convert action if available (before DELETE)
+    if (canConvert) {
+      const deleteIndex = menuItems.findIndex(m => m.id === 'item-delete');
+      const convertAction = {
+        id: 'item-convert',
+        icon: Shuffle,
+        label: 'Převést',
+        action: 'convertItem',
+        hasSubmenu: true,
+        params: { itemType, itemId, moduleType, parentContext, convertTargets }
+      };
+      
+      if (deleteIndex !== -1) {
+        menuItems.splice(deleteIndex, 0, convertAction);
+      } else {
+        menuItems.push(convertAction);
+      }
+    }
+    
+    return menuItems.slice(0, 8); // Max 8 items
   }
   
   return [];
