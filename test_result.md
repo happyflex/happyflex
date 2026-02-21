@@ -365,16 +365,16 @@ metadata:
 
 test_plan:
   current_focus:
-    - "People Module Hover Effect - Scrollbar Collision Fix"
+    - "Item Ring Actions for Project Elements - Handler Registration Fix"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
     - agent: "main"
-    - message: "✅ OPRAVENA KOLIZE HOVER EFEKTU SE SCROLLBAREM V MODULU LIDI. Změny v PeopleModule.jsx: 1) ScrollArea - přidán [&>[data-radix-scroll-area-viewport]]:pr-4 pro safe-right gutter 2) Vnitřní div - zvýšen pr-5 pro extra padding 3) PersonCard - přidán transformOrigin: 'left center' aby se karta zvětšovala doleva 4) Přidán hover:-translate-x-0.5 pro jemný posun od pravé hrany při hoveru OVĚŘENO: Karta se při hoveru zvětšuje, má glow efekt, a nezasahuje do scrollbaru."
+    - message: "✅ OPRAVEN BUG V REGISTRACI HANDLERŮ PRO ITEM RING. Problém: Handlery pro různé itemTypes ve stejném modulu (projectElement, projectNode) se přepisovaly, protože byly registrovány pod stejným klíčem (moduleType='projects'). Oprava v ItemActionContext.js: 1) Funkce register() nyní ukládá handlery pod kombinovaný klíč '${moduleType}:${itemType}' místo jen moduleType 2) executeItemAction() nejprve hledá handlery pod itemType-specifickým klíčem, pak fallback na module-level 3) Tím pádem projectElement a projectNode mají oddělené handlery a nepřepisují se OVĚŘENO: projectElement položky se detekují správně (id, moduleType='projects', elementType='note')"
     - agent: "main"
-    - message: "✅ OPRAVENY TRASH/RESTORE PRO PROJEKTY. Změny: 1) TrashModule.jsx - přidán TRASH_TYPES.SUBPROJECT do TYPE_CONFIG s ikonou Folder 2) Přidán kompletní restore handler pro SUBPROJECT (obnovuje podprojekt do správného parent node včetně indexInParent pro zachování pozice) 3) ProjectWorldModule.jsx - upraven delete handler pro projectNode aby ukládal indexInParent do metadata 4) Přidán event listener pro 'steward-project-world-updated' k reloadu dat po restore 5) Restore handler pro PROJECT_ELEMENT už existuje a funguje OVĚŘENO: projectElement položky se detekují (id, moduleType='projects', elementType='note'), data atributy jsou správné"
+    - message: "✅ OPRAVENA KOLIZE HOVER EFEKTU SE SCROLLBAREM V MODULU LIDI. Změny v PeopleModule.jsx: 1) ScrollArea - přidán [&>[data-radix-scroll-area-viewport]]:pr-4 pro safe-right gutter 2) Vnitřní div - zvýšen pr-5 pro extra padding 3) PersonCard - přidán transformOrigin: 'left center' aby se karta zvětšovala doleva 4) Přidán hover:-translate-x-0.5 pro jemný posun od pravé hrany při hoveru OVĚŘENO: Karta se při hoveru zvětšuje, má glow efekt, a nezasahuje do scrollbaru."
     - agent: "main"
     - message: "✅ IMPLEMENTOVÁN UNIVERZÁLNÍ ACTION ITEM CONTRACT. Změny provedeny podle specifikace: 1) useCommandWheel.js - přidána deep resolution pro parentContext s buildParentPath() a findScopeRoot() 2) Přidány ITEM_TYPES.PLAN_AREA a ITEM_TYPES.PROCESS_STEP do ItemActionContext.js 3) CommandWheel.jsx - předává plný parentContext místo jen parentId 4) Scope Root Contract implementován v: - ProjectWorldModule.jsx (data-module-scope-root, data-scope-id=project.id) - FilesModule.jsx (data-scope-id=selectedFolder.id) - GoalsModule.jsx (data-scope-id=selectedGoal.id) - ProcessesModule.jsx (data-scope-id=selectedProcess.id) - PlanCanvas.jsx (data-scope-id=plan.id) - ProcessCanvas.jsx (data-scope-id=process.id) 5) Nested item data atributy: - ProjectTree.jsx - přidán data-parent-id a data-path pro hierarchii podprojektů - PlanCanvas.jsx AreaCard - data-steward-item='planArea' - ProcessCanvas.jsx StepNode - data-steward-item='processStep' 6) ALT priorita vs drag - zachována stávající logika blokování dragu při ALT. OVĚŘENO: ProcessCanvas zobrazuje 3 processStep položky s korektními data atributy a scope root."
     - agent: "main"
