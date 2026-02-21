@@ -288,6 +288,107 @@ const Canvas = () => {
         }
         // Return early - don't run the generic module opening code below
         return true;
+        
+      case 'subproject':
+        // Subproject (projectNode) - restore to project tree and open project module
+        const subprojectMeta = data.metadata || {};
+        const subProjectId = subprojectMeta.projectId;
+        const parentNodeId = subprojectMeta.parentNodeId;
+        const indexInParent = subprojectMeta.indexInParent;
+        
+        if (!subProjectId) {
+          console.warn('Missing projectId for subproject restore');
+          return false;
+        }
+        
+        try {
+          const subProjectWorldKey = `project_world_${subProjectId}`;
+          const storedSubProjectWorld = localStorage.getItem(subProjectWorldKey);
+          
+          if (!storedSubProjectWorld) {
+            console.warn('Project world not found:', subProjectId);
+            return false;
+          }
+          
+          const subProjectWorld = JSON.parse(storedSubProjectWorld);
+          
+          // Find parent node (or use root if parent doesn't exist anymore)
+          const findNode = (node, targetId) => {
+            if (node.id === targetId) return node;
+            if (node.children) {
+              for (const child of node.children) {
+                const found = findNode(child, targetId);
+                if (found) return found;
+              }
+            }
+            return null;
+          };
+          
+          let parentNode = parentNodeId 
+            ? findNode(subProjectWorld.structure?.root, parentNodeId) 
+            : subProjectWorld.structure?.root;
+          
+          // Fallback to root if parent not found
+          if (!parentNode) {
+            parentNode = subProjectWorld.structure?.root;
+          }
+          
+          // Ensure children array exists
+          parentNode.children = parentNode.children || [];
+          
+          // Insert at original position or at the end
+          const insertIdx = typeof indexInParent === 'number' && indexInParent <= parentNode.children.length
+            ? indexInParent
+            : parentNode.children.length;
+          
+          parentNode.children.splice(insertIdx, 0, originalData);
+          
+          // Save back to localStorage
+          localStorage.setItem(subProjectWorldKey, JSON.stringify(subProjectWorld));
+          
+          // CRITICAL: Open Projects module using standard openModule flow (not direct window manipulation)
+          const existingProjectsModuleSub = modules.find(m => m.type === 'projects');
+          if (!existingProjectsModuleSub) {
+            addModule('projects');
+          } else {
+            bringToFront(existingProjectsModuleSub.id);
+          }
+          
+          // Build the path to the restored subproject for navigation
+          // We need to find the path from root to the restored node
+          const findPathToNode = (node, targetId, currentPath = []) => {
+            const newPath = [...currentPath, node.id];
+            if (node.id === targetId) return newPath;
+            if (node.children) {
+              for (const child of node.children) {
+                const foundPath = findPathToNode(child, targetId, newPath);
+                if (foundPath) return foundPath;
+              }
+            }
+            return null;
+          };
+          
+          const restoredNodePath = findPathToNode(subProjectWorld.structure?.root, originalData.id, []);
+          
+          // Dispatch event to open correct project and navigate to restored subproject
+          // Use same event as project_element for consistent behavior
+          setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('steward-project-element-restored', {
+              detail: { 
+                projectId: subProjectId, 
+                nodePath: restoredNodePath || ['root'],
+                restoredSubprojectId: originalData.id
+              }
+            }));
+          }, 100); // Slightly longer delay to ensure module is mounted
+          
+        } catch (e) {
+          console.error('Error restoring subproject:', e);
+          return false;
+        }
+        
+        // Return early - don't run the generic module opening code below
+        return true;
     }
     
     // Open or focus the module
