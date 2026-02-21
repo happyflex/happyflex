@@ -365,7 +365,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Subproject (projectNode) Drag Restore from Trash"
+    - "Stark/JARVIS Mouse Ring Upgrades - Item Type Theme, Drag-to-Delete, Convert Submenu"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
