@@ -923,6 +923,11 @@ const ProjectItem = ({ item, isSelected, isConnecting, onSelect, onMove, onUpdat
   return (
     <div
       ref={itemRef}
+      // === ITEM MODE: Data attributes for Mouse Ring ===
+      data-steward-item="projectElement"
+      data-item-id={item.id}
+      data-module-type="projects"
+      data-element-type={item.type}
       className={`absolute bg-gradient-to-br ${getItemColor()} backdrop-blur-lg rounded-xl border-2 overflow-hidden transition-all ${
         isSelected ? 'ring-2 ring-cyan-400 shadow-lg shadow-cyan-500/50' : ''
       } ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
