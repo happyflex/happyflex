@@ -864,7 +864,18 @@ const CommandWheel = () => {
           const x = Math.cos(angle) * (radius + 38);
           const y = Math.sin(angle) * (radius + 38);
           const isHovered = hoveredItem === item.id;
+          const isDragActive = activeSegment === item.id; // STARK: Active during drag
+          const isDeleteSegment = item.action === 'itemAction' && item.params?.actionType === 'delete';
+          const isConvertSegment = item.action === 'convertItem';
           const Icon = item.icon;
+          
+          // Determine segment visual state
+          const isActiveHighlight = isHovered || isDragActive;
+          const segmentColor = isDragActive && isDeleteSegment 
+            ? { accent: '#ef4444', glow: 'rgba(239, 68, 68, 0.4)' }
+            : isDragActive && isConvertSegment
+              ? { accent: '#8b5cf6', glow: 'rgba(139, 92, 246, 0.4)' }
+              : workzoneColor;
           
           return (
             <div
@@ -873,9 +884,9 @@ const CommandWheel = () => {
               style={{
                 left: x,
                 top: y,
-                transform: `translate(-50%, -50%) scale(${isHovered ? 1.1 : 1}) translateX(${isHovered ? Math.cos(angle) * 8 : 0}px) translateY(${isHovered ? Math.sin(angle) * 8 : 0}px)`,
+                transform: `translate(-50%, -50%) scale(${isActiveHighlight ? 1.15 : 1}) translateX(${isActiveHighlight ? Math.cos(angle) * 10 : 0}px) translateY(${isActiveHighlight ? Math.sin(angle) * 10 : 0}px)`,
                 transition: 'all 150ms cubic-bezier(0.34, 1.56, 0.64, 1)',
-                zIndex: isHovered ? 10 : 1
+                zIndex: isActiveHighlight ? 10 : 1
               }}
               onMouseEnter={() => setHoveredItem(item.id)}
               onMouseLeave={() => setHoveredItem(null)}
@@ -889,14 +900,14 @@ const CommandWheel = () => {
                 <div
                   className="relative w-8 h-8 rounded-full flex items-center justify-center transition-all duration-150"
                   style={{
-                    background: isHovered 
-                      ? `linear-gradient(135deg, ${workzoneColor.accent}30 0%, ${workzoneColor.accent}10 100%)`
+                    background: isActiveHighlight 
+                      ? `linear-gradient(135deg, ${segmentColor.accent}30 0%, ${segmentColor.accent}10 100%)`
                       : item.recommended
                         ? `linear-gradient(135deg, ${workzoneColor.accent}20 0%, transparent 100%)`
                         : 'rgba(15, 29, 53, 0.9)',
-                    border: `1px solid ${isHovered ? workzoneColor.accent : item.recommended ? workzoneColor.ring : 'rgba(34, 211, 238, 0.25)'}`,
-                    boxShadow: isHovered
-                      ? `0 0 12px ${workzoneColor.glow}, 0 0 24px ${workzoneColor.glow}`
+                    border: `1px solid ${isActiveHighlight ? segmentColor.accent : item.recommended ? workzoneColor.ring : 'rgba(34, 211, 238, 0.25)'}`,
+                    boxShadow: isActiveHighlight
+                      ? `0 0 12px ${segmentColor.glow}, 0 0 24px ${segmentColor.glow}`
                       : item.recommended
                         ? `0 0 10px ${workzoneColor.glow}`
                         : 'none',
@@ -905,14 +916,32 @@ const CommandWheel = () => {
                 >
                   <Icon 
                     className="w-3.5 h-3.5 transition-colors duration-150"
-                    style={{ color: item.danger ? '#f87171' : item.active ? '#c084fc' : isHovered || item.recommended ? workzoneColor.accent : '#22d3ee' }}
+                    style={{ 
+                      color: item.danger || (isDragActive && isDeleteSegment) 
+                        ? '#f87171' 
+                        : item.active 
+                          ? '#c084fc' 
+                          : isConvertSegment
+                            ? '#8b5cf6'
+                            : isActiveHighlight || item.recommended 
+                              ? segmentColor.accent 
+                              : '#22d3ee' 
+                    }}
                   />
                   
                   {/* Recommended indicator */}
-                  {item.recommended && !isHovered && (
+                  {item.recommended && !isActiveHighlight && (
                     <div
                       className="absolute -top-1 -right-1 w-2 h-2 rounded-full"
                       style={{ backgroundColor: workzoneColor.accent }}
+                    />
+                  )}
+                  
+                  {/* STARK: Convert has submenu indicator */}
+                  {item.hasSubmenu && (
+                    <div
+                      className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 rounded-full"
+                      style={{ backgroundColor: '#8b5cf6' }}
                     />
                   )}
                 </div>
