@@ -9,6 +9,7 @@ import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Badge } from '../ui/badge';
 import { toast } from '../../hooks/use-toast';
+import { useItemActions, ITEM_TYPES, ITEM_ACTIONS } from '../../context/ItemActionContext';
 
 // Step types
 const STEP_TYPES = {
@@ -19,6 +20,7 @@ const STEP_TYPES = {
 };
 
 const ProcessCanvas = ({ process, plan, goal, onClose, onUpdate }) => {
+  const { register } = useItemActions();
   const [steps, setSteps] = useState(process?.steps || []);
   const [connections, setConnections] = useState(process?.connections || []);
   const [selectedStep, setSelectedStep] = useState(null);
@@ -28,6 +30,14 @@ const ProcessCanvas = ({ process, plan, goal, onClose, onUpdate }) => {
   const [draggedStep, setDraggedStep] = useState(null);
   const [connectionStart, setConnectionStart] = useState(null);
   const canvasRef = useRef(null);
+  
+  // Ref to avoid stale closures in handlers
+  const stepsRef = useRef(steps);
+  const connectionsRef = useRef(connections);
+  useEffect(() => {
+    stepsRef.current = steps;
+    connectionsRef.current = connections;
+  }, [steps, connections]);
 
   const handleSave = () => {
     onUpdate({ 
