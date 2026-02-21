@@ -22,6 +22,7 @@ const STEP_TYPES = {
 
 const ProcessCanvas = ({ process, plan, goal, onClose, onUpdate }) => {
   const { register } = useItemActions();
+  const { addToTrash, TRASH_TYPES } = useTrash();
   const [steps, setSteps] = useState(process?.steps || []);
   const [connections, setConnections] = useState(process?.connections || []);
   const [selectedStep, setSelectedStep] = useState(null);
