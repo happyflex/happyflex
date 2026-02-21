@@ -365,15 +365,15 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Item Mode Scan - Nested Items Fix"
-    - "Item Ring Actions - Nested Scope Fix"
-    - "ProcessCanvas Layout Shift Fix"
+    - "ProjectTree Node Ring Actions"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
     - agent: "main"
+    - message: "✅ OPRAVENY ITEM RING AKCE PRO PROJECTTREE NODES (podprojekty v levém stromu). Změny: 1) ProjectWorldModule.jsx - přidán Scope Root Contract na tree sidebar (data-module-scope-root='true', data-scope-id={project.id}, data-scope-type='project-tree') 2) Registrovány handlery pro PROJECT_NODE: OPEN_DETAIL (navigace do podprojektu), DELETE (smazání přes Trash pipeline včetně subtree), DUPLICATE (deep clone s novými ID), CREATE_SUBPROJECT 3) TrashContext.js - přidán TRASH_TYPES.SUBPROJECT pro podprojekty 4) Handlery používají structureRef/currentPathRef pro zamezení stale closures OVĚŘENO: projectNode položky se detekují (root + Marketing podprojekt), scope roots správně nastaveny (project, project-tree, project-canvas)"
+    - agent: "main"  
     - message: "✅ OPRAVENY 3 KRITICKÉ PROBLÉMY ITEM MODE: 1) PODPROJEKTY ELEMENTY - Přidány data-steward-item='projectElement' atributy na ProjectItem v ProjectWorldModule.jsx, registrovány handlery pro delete/duplicate 2) NESTED AKCE - Přidány handlery pro processStep v ProcessCanvas.jsx a planArea v PlanCanvas.jsx, debug logging pro chybějící scopeId 3) PROCESSCANVAS LAYOUT SHIFT - Opraveno CSS v App.css: odstraněno 'position: relative' které způsobovalo layout shift, nahrazeno outline-based highlightem bez změny box-modelu. OVĚŘENO: projectElement položky se detekují v ProjectWorldModule, scope roots jsou správně nastaveny."
     - agent: "main"
     - message: "✅ IMPLEMENTOVÁN UNIVERZÁLNÍ ACTION ITEM CONTRACT. Změny provedeny podle specifikace: 1) useCommandWheel.js - přidána deep resolution pro parentContext s buildParentPath() a findScopeRoot() 2) Přidány ITEM_TYPES.PLAN_AREA a ITEM_TYPES.PROCESS_STEP do ItemActionContext.js 3) CommandWheel.jsx - předává plný parentContext místo jen parentId 4) Scope Root Contract implementován v: - ProjectWorldModule.jsx (data-module-scope-root, data-scope-id=project.id) - FilesModule.jsx (data-scope-id=selectedFolder.id) - GoalsModule.jsx (data-scope-id=selectedGoal.id) - ProcessesModule.jsx (data-scope-id=selectedProcess.id) - PlanCanvas.jsx (data-scope-id=plan.id) - ProcessCanvas.jsx (data-scope-id=process.id) 5) Nested item data atributy: - ProjectTree.jsx - přidán data-parent-id a data-path pro hierarchii podprojektů - PlanCanvas.jsx AreaCard - data-steward-item='planArea' - ProcessCanvas.jsx StepNode - data-steward-item='processStep' 6) ALT priorita vs drag - zachována stávající logika blokování dragu při ALT. OVĚŘENO: ProcessCanvas zobrazuje 3 processStep položky s korektními data atributy a scope root."
