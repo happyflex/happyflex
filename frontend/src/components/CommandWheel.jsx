@@ -756,10 +756,32 @@ const CommandWheel = () => {
             boxShadow: `
               0 0 12px ${workzoneColor.glow},
               0 0 24px ${workzoneColor.glow}
+              ${deleteFlash ? `, 0 0 40px rgba(239, 68, 68, 0.8), 0 0 60px rgba(239, 68, 68, 0.5)` : ''}
             `,
-            animation: 'ringBreathe 4s ease-in-out infinite'
+            animation: deleteFlash ? 'deleteFlash 300ms ease-out' : 'ringBreathe 4s ease-in-out infinite',
+            transition: 'box-shadow 150ms ease'
           }}
         />
+        
+        {/* === STARK UPGRADE: Item Type Theme Overlay Ring === */}
+        {itemTypeTheme && (
+          <div
+            className="absolute rounded-full pointer-events-none"
+            style={{
+              width: (radius + 3) * 2,
+              height: (radius + 3) * 2,
+              left: -(radius + 3),
+              top: -(radius + 3),
+              border: `1px solid ${itemTypeTheme.accentColor}`,
+              boxShadow: `
+                0 0 8px ${itemTypeTheme.glowColor},
+                inset 0 0 6px ${itemTypeTheme.glowColor}
+              `,
+              opacity: 0.6,
+              animation: 'itemTypeGlow 2s ease-in-out infinite'
+            }}
+          />
+        )}
         
         {/* Layer 3: Inner Technical Ring (thin, no glow) */}
         <div
