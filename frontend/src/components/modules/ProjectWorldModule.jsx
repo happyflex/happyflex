@@ -14,6 +14,7 @@ import RelationshipTypeDialog from './RelationshipTypeDialog';
 
 const ProjectWorldModule = ({ project, onBack, initialPath, onPathChange }) => {
   const { addToTrash, TRASH_TYPES } = useTrash();
+  const { register } = useItemActions();
   const [structure, setStructure] = useState({ 
     root: { 
       id: 'root', 
@@ -33,6 +34,14 @@ const ProjectWorldModule = ({ project, onBack, initialPath, onPathChange }) => {
   const [showAddSubproject, setShowAddSubproject] = useState(false);
   const [newSubprojectName, setNewSubprojectName] = useState('');
   const canvasRef = useRef(null);
+  
+  // Ref to store structure for callbacks (to avoid stale closures)
+  const structureRef = useRef(structure);
+  const currentPathRef = useRef(currentPath);
+  useEffect(() => {
+    structureRef.current = structure;
+    currentPathRef.current = currentPath;
+  }, [structure, currentPath]);
   
   // Track if initial path was applied (for layout restore)
   const didApplyInitialPath = useRef(false);
