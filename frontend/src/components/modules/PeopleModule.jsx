@@ -465,8 +465,8 @@ const PeopleModule = ({ initialViewState, onViewStateChange }) => {
         <div className="flex-1 flex gap-3 overflow-hidden">
           {/* List */}
           <div className={`${selectedPerson ? 'w-1/2' : 'w-full'} transition-all`}>
-            <ScrollArea className="h-full">
-              <div className="py-2 px-3">
+            <ScrollArea className="h-full [&>[data-radix-scroll-area-viewport]]:pr-4">
+              <div className="py-2 px-3 pr-5">
                 <div className="space-y-3">
                   {Object.entries(groupedPeople).map(([type, typePersons]) => {
                     if (typePersons.length === 0) return null;
