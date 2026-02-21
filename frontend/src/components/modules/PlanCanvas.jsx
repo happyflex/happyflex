@@ -10,6 +10,7 @@ import { ScrollArea } from '../ui/scroll-area';
 import { Badge } from '../ui/badge';
 import { toast } from '../../hooks/use-toast';
 import { useItemActions, ITEM_TYPES, ITEM_ACTIONS } from '../../context/ItemActionContext';
+import { useTrash, TRASH_TYPES } from '../../context/TrashContext';
 
 // Predefined area colors
 const AREA_COLORS = [
