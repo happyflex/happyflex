@@ -389,6 +389,147 @@ const Canvas = () => {
         
         // Return early - don't run the generic module opening code below
         return true;
+        
+      case 'plan_area':
+        // Plan Area - restore to Goals planner
+        const planAreaMeta = data.metadata || {};
+        const paGoalId = planAreaMeta.goalId;
+        const paPlanId = planAreaMeta.planId;
+        
+        if (!paGoalId || !paPlanId) {
+          console.warn('Missing goalId or planId for plan_area restore');
+          return false;
+        }
+        
+        try {
+          const storedGoals = localStorage.getItem('steward_goals');
+          if (!storedGoals) return false;
+          
+          const goals = JSON.parse(storedGoals);
+          const goalIndex = goals.findIndex(g => g.id === paGoalId);
+          if (goalIndex === -1) return false;
+          
+          const planIndex = goals[goalIndex].plans?.findIndex(p => p.id === paPlanId);
+          if (planIndex === -1) return false;
+          
+          // Restore area
+          goals[goalIndex].plans[planIndex].areas = goals[goalIndex].plans[planIndex].areas || [];
+          const areaExists = goals[goalIndex].plans[planIndex].areas.some(a => a.id === originalData.id);
+          
+          if (!areaExists) {
+            const insertIndex = planAreaMeta.index ?? goals[goalIndex].plans[planIndex].areas.length;
+            goals[goalIndex].plans[planIndex].areas.splice(insertIndex, 0, originalData);
+            localStorage.setItem('steward_goals', JSON.stringify(goals));
+          }
+          
+          // Open Goals module
+          const existingGoalsModule = modules.find(m => m.type === 'goals');
+          if (!existingGoalsModule) {
+            addModule('goals');
+          } else {
+            bringToFront(existingGoalsModule.id);
+          }
+          
+          // Dispatch event to navigate to goal and plan
+          setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('steward-goals-updated'));
+            window.dispatchEvent(new CustomEvent('steward-plan-area-restored', {
+              detail: { goalId: paGoalId, planId: paPlanId, areaId: originalData.id }
+            }));
+          }, 100);
+          
+        } catch (e) {
+          console.error('Error restoring plan_area:', e);
+          return false;
+        }
+        return true;
+        
+      case 'process_step':
+        // Process Step - restore to ProcessCanvas
+        const processStepMeta = data.metadata || {};
+        const psProcessId = processStepMeta.processId;
+        
+        if (!psProcessId) {
+          console.warn('Missing processId for process_step restore');
+          return false;
+        }
+        
+        try {
+          const storedProcs = localStorage.getItem('steward_processes');
+          if (!storedProcs) return false;
+          
+          const procs = JSON.parse(storedProcs);
+          const procIndex = procs.findIndex(p => p.id === psProcessId);
+          if (procIndex === -1) return false;
+          
+          // Restore step
+          procs[procIndex].steps = procs[procIndex].steps || [];
+          const stepExists = procs[procIndex].steps.some(s => s.id === originalData.id);
+          
+          if (!stepExists) {
+            procs[procIndex].steps.push(originalData);
+            
+            // Restore connections if available
+            if (processStepMeta.connections?.length > 0) {
+              procs[procIndex].connections = procs[procIndex].connections || [];
+              procs[procIndex].connections.push(...processStepMeta.connections);
+            }
+            
+            localStorage.setItem('steward_processes', JSON.stringify(procs));
+          }
+          
+          // Open Processes module
+          const existingProcessesModule = modules.find(m => m.type === 'processes');
+          if (!existingProcessesModule) {
+            addModule('processes');
+          } else {
+            bringToFront(existingProcessesModule.id);
+          }
+          
+          // Dispatch event to navigate to process
+          setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('steward-processes-updated'));
+            window.dispatchEvent(new CustomEvent('steward-process-step-restored', {
+              detail: { processId: psProcessId, stepId: originalData.id }
+            }));
+          }, 100);
+          
+        } catch (e) {
+          console.error('Error restoring process_step:', e);
+          return false;
+        }
+        return true;
+        
+      case 'calendar_event':
+        // Calendar Event - restore to Calendar
+        try {
+          const storedEvents = localStorage.getItem('steward_calendar_events');
+          const events = storedEvents ? JSON.parse(storedEvents) : [];
+          const eventExists = events.some(e => e.id === originalData.id);
+          
+          if (!eventExists) {
+            events.push(originalData);
+            localStorage.setItem('steward_calendar_events', JSON.stringify(events));
+          }
+          
+          // Open Calendar module
+          const existingCalendarModule = modules.find(m => m.type === 'calendar');
+          if (!existingCalendarModule) {
+            addModule('calendar');
+          } else {
+            bringToFront(existingCalendarModule.id);
+          }
+          
+          // Dispatch event to update calendar
+          setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('steward-calendar-updated'));
+          }, 100);
+          
+        } catch (e) {
+          console.error('Error restoring calendar_event:', e);
+          return false;
+        }
+        return true;
     }
     
     // Open or focus the module
