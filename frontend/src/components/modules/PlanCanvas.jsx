@@ -26,6 +26,7 @@ const AREA_COLORS = [
 
 const PlanCanvas = ({ goal, plan, onClose, onUpdate }) => {
   const { register } = useItemActions();
+  const { addToTrash, TRASH_TYPES } = useTrash();
   const [editingArea, setEditingArea] = useState(null);
   const [showAddArea, setShowAddArea] = useState(false);
   const [planDescription, setPlanDescription] = useState(plan?.description || '');
