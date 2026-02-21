@@ -363,7 +363,22 @@ const CommandWheel = () => {
   const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
   const wheelRef = useRef(null);
   
-  // Get workzone color
+  // === STARK UPGRADE STATE ===
+  const [isDragging, setIsDragging] = useState(false); // Drag-to-delete tracking
+  const [activeSegment, setActiveSegment] = useState(null); // Currently hovered segment during drag
+  const [showConvertSubmenu, setShowConvertSubmenu] = useState(false); // Convert submenu visibility
+  const [deleteFlash, setDeleteFlash] = useState(false); // Red pulse after delete
+  
+  // === ITEM TYPE THEME LAYER ===
+  // Compute theme based on item type (only for item mode)
+  const itemTypeTheme = useMemo(() => {
+    if (target.type !== 'item' || !target.itemType) {
+      return null;
+    }
+    return ITEM_TYPE_THEMES[target.itemType] || null;
+  }, [target]);
+  
+  // Get workzone color (with item type overlay when in item mode)
   const workzoneColor = useMemo(() => {
     switch (activeWorkzone?.color) {
       case 'purple': return { ring: 'rgba(168, 85, 247, 0.6)', glow: 'rgba(168, 85, 247, 0.3)', accent: '#a855f7' };
