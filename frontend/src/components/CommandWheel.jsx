@@ -544,24 +544,98 @@ const CommandWheel = () => {
       case 'switchWorkzone':
         setShowSubmenu(!showSubmenu);
         return; // Don't close
+      // === STARK UPGRADE: Convert submenu ===
+      case 'convertItem':
+        setShowConvertSubmenu(!showConvertSubmenu);
+        return; // Don't close - show submenu
+      // === STARK UPGRADE: Execute convert action from submenu ===
+      case 'executeConvert':
+        {
+          const { sourceType, sourceId, targetType, moduleType: srcModuleType, parentContext: srcContext } = params;
+          
+          // Validate scope safety
+          if (!srcModuleType) {
+            console.warn('[CommandWheel] Convert blocked - missing moduleType');
+            toast({ 
+              title: 'Convert zablokován', 
+              description: 'Chybí kontext modulu',
+              variant: 'destructive'
+            });
+            break;
+          }
+          
+          // Execute convert via service
+          const result = executeConvert({
+            sourceType,
+            sourceId,
+            targetType,
+            moduleType: srcModuleType,
+            parentContext: srcContext,
+            source: 'mouseRing'
+          });
+          
+          if (result.success) {
+            const targetLabel = CONVERT_TARGET_LABELS[targetType]?.label || targetType;
+            toast({ 
+              title: 'Převedeno', 
+              description: `Vytvořen nový ${targetLabel} s propojením na původní objekt`
+            });
+          } else {
+            toast({ 
+              title: 'Chyba převodu', 
+              description: result.error || 'Nepodařilo se převést objekt',
+              variant: 'destructive'
+            });
+          }
+          
+          setShowConvertSubmenu(false);
+        }
+        break;
       // === ITEM MODE: Execute item actions via adapter ===
       case 'itemAction':
-        const { actionType, itemType, itemId, parentId, moduleType, parentContext } = params;
-        executeItemAction({
-          scope: 'item',
-          itemType,
-          itemId,
-          parentContext: parentContext || { parentId }, // Full context or fallback
-          moduleType,
-          action: actionType,
-          source: 'mouseRing'
-        });
+        {
+          const { actionType, itemType, itemId, parentId, moduleType, parentContext } = params;
+          
+          // Trigger delete flash for delete action
+          if (actionType === 'delete') {
+            setDeleteFlash(true);
+            setTimeout(() => setDeleteFlash(false), 300);
+          }
+          
+          executeItemAction({
+            scope: 'item',
+            itemType,
+            itemId,
+            parentContext: parentContext || { parentId }, // Full context or fallback
+            moduleType,
+            action: actionType,
+            source: 'mouseRing'
+          });
+        }
         break;
       default:
         toast({ title: item.label, description: 'Funkce bude brzy dostupná' });
     }
     
+    setShowConvertSubmenu(false); // Reset convert submenu
     close();
+  };
+  
+  // === STARK UPGRADE: Handle convert target selection ===
+  const executeConvertTarget = (targetType) => {
+    const params = menuItems.find(m => m.id === 'item-convert')?.params;
+    if (!params) return;
+    
+    executeAction({
+      action: 'executeConvert',
+      params: {
+        sourceType: params.itemType,
+        sourceId: params.itemId,
+        targetType,
+        moduleType: params.moduleType,
+        parentContext: params.parentContext
+      }
+    });
   };
   
   // Handle workzone selection
@@ -595,6 +669,10 @@ const CommandWheel = () => {
   if (position.x > window.innerWidth - margin) adjustedX = window.innerWidth - margin;
   if (position.y < margin) adjustedY = margin;
   if (position.y > window.innerHeight - margin) adjustedY = window.innerHeight - margin;
+  
+  // === STARK UPGRADE: Get convert targets for submenu ===
+  const convertParams = menuItems.find(m => m.id === 'item-convert')?.params;
+  const convertTargets = convertParams?.convertTargets || [];
   
   return (
     <div
