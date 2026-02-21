@@ -277,6 +277,90 @@ const TrashModule = () => {
           });
         }
         break;
+      case TRASH_TYPES.SUBPROJECT:
+        // Restore subproject node to project tree
+        try {
+          const { projectId, parentNodeId, indexInParent } = item.metadata || {};
+          if (!projectId) {
+            toast({
+              title: 'Chyba',
+              description: 'Chybí informace o projektu',
+              variant: 'destructive'
+            });
+            break;
+          }
+
+          // Load project world data from localStorage
+          const projectWorldKey = `project_world_${projectId}`;
+          const storedProjectWorld = localStorage.getItem(projectWorldKey);
+          
+          if (!storedProjectWorld) {
+            toast({
+              title: 'Chyba',
+              description: 'Projekt nebyl nalezen',
+              variant: 'destructive'
+            });
+            break;
+          }
+
+          const projectWorld = JSON.parse(storedProjectWorld);
+          
+          // Find parent node (or use root if parent doesn't exist anymore)
+          const findNode = (node, targetId) => {
+            if (node.id === targetId) return node;
+            if (node.children) {
+              for (const child of node.children) {
+                const found = findNode(child, targetId);
+                if (found) return found;
+              }
+            }
+            return null;
+          };
+
+          let parentNode = parentNodeId 
+            ? findNode(projectWorld.structure?.root, parentNodeId) 
+            : projectWorld.structure?.root;
+          
+          // Fallback to root if parent not found
+          if (!parentNode) {
+            parentNode = projectWorld.structure?.root;
+            toast({
+              title: 'Upozornění',
+              description: 'Původní umístění neexistuje, podprojekt obnoven do hlavního projektu'
+            });
+          }
+
+          // Ensure children array exists
+          parentNode.children = parentNode.children || [];
+          
+          // Insert at original position or at the end
+          const insertIndex = typeof indexInParent === 'number' && indexInParent <= parentNode.children.length
+            ? indexInParent
+            : parentNode.children.length;
+          
+          parentNode.children.splice(insertIndex, 0, item.originalData);
+          
+          // Save back to localStorage
+          localStorage.setItem(projectWorldKey, JSON.stringify(projectWorld));
+          
+          // Dispatch event to notify ProjectWorldModule to reload
+          window.dispatchEvent(new CustomEvent('steward-project-world-updated', { 
+            detail: { projectId } 
+          }));
+          
+          toast({
+            title: 'Podprojekt obnoven',
+            description: `${item.name} byl obnoven v projektu ${item.metadata?.projectName || 'Projekt'}`
+          });
+        } catch (e) {
+          console.error('Error restoring subproject:', e);
+          toast({
+            title: 'Chyba',
+            description: 'Nepodařilo se obnovit podprojekt',
+            variant: 'destructive'
+          });
+        }
+        break;
       case TRASH_TYPES.PERSON:
         // Restore person - use localStorage directly since PeopleModule uses its own state
         try {
