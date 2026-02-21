@@ -263,6 +263,238 @@ const ProjectWorldModule = ({ project, onBack, initialPath, onPathChange }) => {
     return unregister;
   }, [register, addToTrash, TRASH_TYPES, project.id, project.name]);
 
+  // === ITEM MODE: Register projectNode handlers (tree nodes / subprojects) ===
+  useEffect(() => {
+    const unregister = register({
+      itemType: ITEM_TYPES.PROJECT_NODE,
+      moduleType: 'projects',
+      handlers: {
+        // Open: Navigate to this node (same as clicking in tree)
+        [ITEM_ACTIONS.OPEN_DETAIL]: ({ itemId }) => {
+          if (itemId === 'root') {
+            setCurrentPath(['root']);
+          } else {
+            // Find path to this node
+            const findNodePath = (node, targetId, path = ['root']) => {
+              if (node.id === targetId) return path;
+              if (node.children) {
+                for (const child of node.children) {
+                  const result = findNodePath(child, targetId, [...path, child.id]);
+                  if (result) return result;
+                }
+              }
+              return null;
+            };
+            const currentStructure = structureRef.current;
+            const newPath = findNodePath(currentStructure.root, itemId);
+            if (newPath) {
+              setCurrentPath(newPath);
+              toast({ title: 'Navigováno', description: 'Podprojekt otevřen' });
+            } else {
+              console.warn('[ProjectNode] Node not found for open:', itemId);
+            }
+          }
+        },
+        
+        // Delete: Move subproject to trash
+        [ITEM_ACTIONS.DELETE]: ({ itemId, parentContext }) => {
+          // Cannot delete root
+          if (itemId === 'root') {
+            toast({ 
+              title: 'Nelze odstranit', 
+              description: 'Hlavní projekt nelze odstranit',
+              variant: 'destructive'
+            });
+            return;
+          }
+          
+          const currentStructure = structureRef.current;
+          
+          // Find the node and its parent
+          const findNodeWithParent = (node, targetId, parent = null) => {
+            if (node.id === targetId) return { node, parent };
+            if (node.children) {
+              for (const child of node.children) {
+                const result = findNodeWithParent(child, targetId, node);
+                if (result) return result;
+              }
+            }
+            return null;
+          };
+          
+          const result = findNodeWithParent(currentStructure.root, itemId);
+          if (!result || !result.parent) {
+            console.warn('[ProjectNode] Node or parent not found for delete:', itemId);
+            return;
+          }
+          
+          const { node: nodeToDelete, parent: parentNode } = result;
+          
+          // Add to Trash
+          addToTrash({
+            type: TRASH_TYPES.SUBPROJECT,
+            name: nodeToDelete.name,
+            data: nodeToDelete,
+            sourceModule: 'Projekty',
+            metadata: {
+              projectId: project.id,
+              projectName: project.name,
+              parentNodeId: parentNode.id,
+              hasChildren: nodeToDelete.children?.length > 0,
+              itemCount: nodeToDelete.items?.length || 0
+            }
+          });
+          
+          // Remove from structure
+          setStructure(prev => {
+            const updated = JSON.parse(JSON.stringify(prev));
+            
+            // Find parent and remove the node
+            const removeFromParent = (node, targetId) => {
+              if (node.children) {
+                const idx = node.children.findIndex(c => c.id === targetId);
+                if (idx !== -1) {
+                  node.children.splice(idx, 1);
+                  return true;
+                }
+                for (const child of node.children) {
+                  if (removeFromParent(child, targetId)) return true;
+                }
+              }
+              return false;
+            };
+            
+            removeFromParent(updated.root, itemId);
+            
+            // If we were viewing the deleted node, go to parent
+            if (currentPathRef.current.includes(itemId)) {
+              const newPath = currentPathRef.current.slice(0, currentPathRef.current.indexOf(itemId));
+              if (newPath.length === 0) newPath.push('root');
+              setCurrentPath(newPath);
+            }
+            
+            // Save immediately
+            localStorage.setItem(`project_world_${project.id}`, JSON.stringify({ structure: updated }));
+            return updated;
+          });
+          
+          toast({
+            title: 'Přesunuto do koše',
+            description: `Podprojekt "${nodeToDelete.name}" byl přesunut do koše`
+          });
+        },
+        
+        // Duplicate: Create copy of subproject
+        [ITEM_ACTIONS.DUPLICATE]: ({ itemId, parentContext }) => {
+          // Cannot duplicate root
+          if (itemId === 'root') {
+            toast({ 
+              title: 'Nelze duplikovat', 
+              description: 'Hlavní projekt nelze duplikovat',
+              variant: 'destructive'
+            });
+            return;
+          }
+          
+          const currentStructure = structureRef.current;
+          
+          // Find the node and its parent
+          const findNodeWithParent = (node, targetId, parent = null) => {
+            if (node.id === targetId) return { node, parent };
+            if (node.children) {
+              for (const child of node.children) {
+                const result = findNodeWithParent(child, targetId, node);
+                if (result) return result;
+              }
+            }
+            return null;
+          };
+          
+          const result = findNodeWithParent(currentStructure.root, itemId);
+          if (!result || !result.parent) {
+            console.warn('[ProjectNode] Node or parent not found for duplicate:', itemId);
+            return;
+          }
+          
+          const { node: nodeToDuplicate, parent: parentNode } = result;
+          
+          // Deep clone with new IDs
+          const cloneWithNewIds = (node) => {
+            const newId = `subproject-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            return {
+              ...JSON.parse(JSON.stringify(node)),
+              id: newId,
+              name: `${node.name} (kopie)`,
+              children: node.children?.map(child => cloneWithNewIds(child)) || [],
+              items: node.items?.map(item => ({
+                ...item,
+                id: `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+              })) || []
+            };
+          };
+          
+          const duplicatedNode = cloneWithNewIds(nodeToDuplicate);
+          
+          // Add to structure under same parent
+          setStructure(prev => {
+            const updated = JSON.parse(JSON.stringify(prev));
+            
+            // Find parent and add the duplicate
+            const addToParent = (node, parentId, newChild) => {
+              if (node.id === parentId) {
+                node.children = node.children || [];
+                node.children.push(newChild);
+                return true;
+              }
+              if (node.children) {
+                for (const child of node.children) {
+                  if (addToParent(child, parentId, newChild)) return true;
+                }
+              }
+              return false;
+            };
+            
+            addToParent(updated.root, parentNode.id, duplicatedNode);
+            
+            // Save immediately
+            localStorage.setItem(`project_world_${project.id}`, JSON.stringify({ structure: updated }));
+            return updated;
+          });
+          
+          toast({
+            title: 'Duplikováno',
+            description: `Podprojekt "${nodeToDuplicate.name}" byl zduplikován`
+          });
+        },
+        
+        // Create subproject under this node
+        [ITEM_ACTIONS.CREATE_SUBPROJECT]: ({ itemId }) => {
+          // Set current path to this node and show add dialog
+          if (itemId !== 'root') {
+            const findNodePath = (node, targetId, path = ['root']) => {
+              if (node.id === targetId) return path;
+              if (node.children) {
+                for (const child of node.children) {
+                  const result = findNodePath(child, targetId, [...path, child.id]);
+                  if (result) return result;
+                }
+              }
+              return null;
+            };
+            const currentStructure = structureRef.current;
+            const newPath = findNodePath(currentStructure.root, itemId);
+            if (newPath) {
+              setCurrentPath(newPath);
+            }
+          }
+          setShowAddSubproject(true);
+        }
+      }
+    });
+    
+    return unregister;
+  }, [register, addToTrash, TRASH_TYPES, project.id, project.name]);
+
   // Get current node based on path
   const getCurrentNode = () => {
     let node = structure.root;
