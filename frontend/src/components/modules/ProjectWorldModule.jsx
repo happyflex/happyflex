@@ -7,6 +7,7 @@ import { ScrollArea } from '../ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { toast } from '../../hooks/use-toast';
 import { useTrash } from '../../context/TrashContext';
+import { useItemActions, ITEM_TYPES, ITEM_ACTIONS } from '../../context/ItemActionContext';
 import ProjectTree from './ProjectTree';
 import ItemDetailPanel from './ItemDetailPanel';
 import RelationshipTypeDialog from './RelationshipTypeDialog';
