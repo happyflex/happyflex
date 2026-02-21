@@ -573,7 +573,14 @@ const ProjectWorldModule = ({ project, onBack, initialPath, onPathChange }) => {
 
       <div className="flex-1 flex overflow-hidden">
         {/* Left Sidebar - Tree View */}
-        <div className="w-72 bg-[#0f1d35] border-r border-cyan-500/30 flex flex-col">
+        <div 
+          className="w-72 bg-[#0f1d35] border-r border-cyan-500/30 flex flex-col"
+          // === SCOPE ROOT CONTRACT: Project tree sidebar ===
+          data-module-scope-root="true"
+          data-module-type="projects"
+          data-scope-id={project.id}
+          data-scope-type="project-tree"
+        >
           <div className="p-4 border-b border-cyan-500/20">
             <h3 className="text-sm font-semibold text-cyan-400 mb-3">Struktura projektu</h3>
             <Button
