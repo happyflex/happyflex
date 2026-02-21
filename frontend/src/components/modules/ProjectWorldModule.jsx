@@ -464,6 +464,11 @@ const ProjectWorldModule = ({ project, onBack, initialPath, onPathChange }) => {
           <div
             ref={canvasRef}
             className="absolute inset-0 bg-gradient-to-br from-[#0a1628] via-[#0d1b3a] to-[#1a1f3a]"
+            // === SCOPE ROOT CONTRACT: Project/Subproject canvas view ===
+            data-module-scope-root="true"
+            data-module-type="projects"
+            data-scope-id={currentPath[currentPath.length - 1]}
+            data-scope-type="project-canvas"
             style={{
               backgroundImage: `
                 linear-gradient(rgba(6, 182, 212, 0.1) 1px, transparent 1px),
