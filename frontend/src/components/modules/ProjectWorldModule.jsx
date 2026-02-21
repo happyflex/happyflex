@@ -136,6 +136,133 @@ const ProjectWorldModule = ({ project, onBack, initialPath, onPathChange }) => {
     });
   };
 
+  // === ITEM MODE: Register projectElement handlers ===
+  useEffect(() => {
+    const unregister = register({
+      itemType: ITEM_TYPES.PROJECT_ELEMENT,
+      moduleType: 'projects',
+      handlers: {
+        [ITEM_ACTIONS.DELETE]: ({ itemId, parentContext }) => {
+          // Get current structure and path from refs (avoid stale closure)
+          const currentStructure = structureRef.current;
+          const path = currentPathRef.current;
+          
+          // Navigate to the correct node using scopeId or current path
+          let node = currentStructure.root;
+          for (let i = 1; i < path.length; i++) {
+            const child = node.children?.find(c => c.id === path[i]);
+            if (child) node = child;
+          }
+          
+          const itemToDelete = node.items?.find(item => item.id === itemId);
+          if (!itemToDelete) {
+            console.warn('[ProjectElement] Item not found for delete:', itemId);
+            return;
+          }
+          
+          // Get item type label for toast
+          const typeLabels = {
+            note: 'Poznámka',
+            task: 'Úkol',
+            contact: 'Kontakt',
+            milestone: 'Milestone',
+            media: 'Media',
+            flow: 'Flow Diagram'
+          };
+          
+          // Add to Trash
+          addToTrash({
+            type: TRASH_TYPES.PROJECT_ELEMENT,
+            name: itemToDelete.data?.title || typeLabels[itemToDelete.type] || 'Element',
+            data: itemToDelete,
+            sourceModule: 'Projekty',
+            metadata: {
+              projectId: project.id,
+              projectName: project.name,
+              itemType: itemToDelete.type,
+              nodePath: [...path],
+              connections: node.connections?.filter(conn => conn.from === itemId || conn.to === itemId) || []
+            }
+          });
+          
+          // Remove from structure
+          setStructure(prev => {
+            const updated = JSON.parse(JSON.stringify(prev));
+            let targetNode = updated.root;
+            for (let i = 1; i < path.length; i++) {
+              targetNode = targetNode.children?.find(c => c.id === path[i]) || targetNode;
+            }
+            targetNode.items = targetNode.items?.filter(item => item.id !== itemId) || [];
+            targetNode.connections = targetNode.connections?.filter(conn => conn.from !== itemId && conn.to !== itemId) || [];
+            
+            // Save immediately
+            localStorage.setItem(`project_world_${project.id}`, JSON.stringify({ structure: updated }));
+            return updated;
+          });
+          
+          setSelectedItem(null);
+          toast({
+            title: 'Přesunuto do koše',
+            description: `${typeLabels[itemToDelete.type] || 'Element'} byl přesunut do koše`
+          });
+        },
+        
+        [ITEM_ACTIONS.DUPLICATE]: ({ itemId, parentContext }) => {
+          const currentStructure = structureRef.current;
+          const path = currentPathRef.current;
+          
+          // Navigate to the correct node
+          let node = currentStructure.root;
+          for (let i = 1; i < path.length; i++) {
+            const child = node.children?.find(c => c.id === path[i]);
+            if (child) node = child;
+          }
+          
+          const itemToDuplicate = node.items?.find(item => item.id === itemId);
+          if (!itemToDuplicate) {
+            console.warn('[ProjectElement] Item not found for duplicate:', itemId);
+            return;
+          }
+          
+          // Create duplicate
+          const duplicatedItem = {
+            ...JSON.parse(JSON.stringify(itemToDuplicate)),
+            id: `item-${Date.now()}`,
+            position: {
+              x: (itemToDuplicate.position?.x || 0) + 30,
+              y: (itemToDuplicate.position?.y || 0) + 30
+            },
+            data: {
+              ...itemToDuplicate.data,
+              title: `${itemToDuplicate.data?.title || 'Element'} (kopie)`
+            }
+          };
+          
+          // Add to structure
+          setStructure(prev => {
+            const updated = JSON.parse(JSON.stringify(prev));
+            let targetNode = updated.root;
+            for (let i = 1; i < path.length; i++) {
+              targetNode = targetNode.children?.find(c => c.id === path[i]) || targetNode;
+            }
+            targetNode.items = [...(targetNode.items || []), duplicatedItem];
+            
+            // Save immediately
+            localStorage.setItem(`project_world_${project.id}`, JSON.stringify({ structure: updated }));
+            return updated;
+          });
+          
+          toast({
+            title: 'Duplikováno',
+            description: 'Element byl zduplikován'
+          });
+        }
+      }
+    });
+    
+    return unregister;
+  }, [register, addToTrash, TRASH_TYPES, project.id, project.name]);
+
   // Get current node based on path
   const getCurrentNode = () => {
     let node = structure.root;
