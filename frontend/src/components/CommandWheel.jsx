@@ -35,7 +35,11 @@ import {
   Edit2,
   CheckCircle2,
   FolderPlus,
-  Layout
+  Layout,
+  Shuffle,
+  Target,
+  Box,
+  ArrowRight
 } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { useCommandWheel } from '../hooks/useCommandWheel';
