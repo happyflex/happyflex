@@ -147,6 +147,11 @@ const DEFAULT_ITEM_ACTIONS = {
     { id: ITEM_ACTIONS.OPEN_DETAIL, label: 'Otevřít', icon: 'ExternalLink' }
   ],
   
+  // Project elements (items inside projects/subprojects: notes, tasks, contacts, milestones, etc.)
+  [ITEM_TYPES.PROJECT_ELEMENT]: [
+    { id: ITEM_ACTIONS.EDIT, label: 'Upravit', icon: 'Edit2' }
+  ],
+  
   [ITEM_TYPES.TIMER_SESSION]: []
 };
 
