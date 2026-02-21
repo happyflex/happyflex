@@ -301,6 +301,17 @@ export const ItemActionProvider = ({ children }) => {
       return false;
     }
     
+    // Debug log for scope resolution issues (only in dev)
+    if (process.env.NODE_ENV !== 'production') {
+      const scopeId = parentContext?.scopeId;
+      if (!scopeId && parentContext) {
+        console.debug(
+          `[ItemActionContext] Action "${action}" on ${itemType}:${itemId} - no scopeId in parentContext`,
+          { moduleType, parentContext }
+        );
+      }
+    }
+    
     // Resolve moduleType from registry if not provided
     const resolvedModuleType = moduleType || itemRegistryRef.current.get(itemType)?.moduleType;
     
