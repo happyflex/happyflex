@@ -380,13 +380,27 @@ const CommandWheel = () => {
   
   // Get workzone color (with item type overlay when in item mode)
   const workzoneColor = useMemo(() => {
+    // Base workzone color
+    let base;
     switch (activeWorkzone?.color) {
-      case 'purple': return { ring: 'rgba(168, 85, 247, 0.6)', glow: 'rgba(168, 85, 247, 0.3)', accent: '#a855f7' };
-      case 'yellow': return { ring: 'rgba(250, 204, 21, 0.6)', glow: 'rgba(250, 204, 21, 0.3)', accent: '#facc15' };
-      case 'green': return { ring: 'rgba(74, 222, 128, 0.6)', glow: 'rgba(74, 222, 128, 0.3)', accent: '#4ade80' };
-      default: return { ring: 'rgba(34, 211, 238, 0.6)', glow: 'rgba(34, 211, 238, 0.3)', accent: '#22d3ee' };
+      case 'purple': base = { ring: 'rgba(168, 85, 247, 0.6)', glow: 'rgba(168, 85, 247, 0.3)', accent: '#a855f7' }; break;
+      case 'yellow': base = { ring: 'rgba(250, 204, 21, 0.6)', glow: 'rgba(250, 204, 21, 0.3)', accent: '#facc15' }; break;
+      case 'green': base = { ring: 'rgba(74, 222, 128, 0.6)', glow: 'rgba(74, 222, 128, 0.3)', accent: '#4ade80' }; break;
+      default: base = { ring: 'rgba(34, 211, 238, 0.6)', glow: 'rgba(34, 211, 238, 0.3)', accent: '#22d3ee' };
     }
-  }, [activeWorkzone]);
+    
+    // Apply item type theme overlay for item mode
+    if (itemTypeTheme) {
+      return {
+        ...base,
+        itemAccent: itemTypeTheme.accentColor,
+        itemGlow: itemTypeTheme.glowColor,
+        itemLabel: itemTypeTheme.label
+      };
+    }
+    
+    return base;
+  }, [activeWorkzone, itemTypeTheme]);
   
   // Menu items based on context (pass getAvailableActions for item mode)
   const menuItems = useMemo(() => {
