@@ -222,7 +222,7 @@ const ProcessCanvas = ({ process, plan, goal, onClose, onUpdate }) => {
     });
     
     return unregister;
-  }, [register, selectedStep]);
+  }, [register, selectedStep, addToTrash, TRASH_TYPES, process, goal, plan]);
 
   return (
     <div 
