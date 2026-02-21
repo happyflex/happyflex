@@ -80,6 +80,60 @@ const PlanCanvas = ({ goal, plan, onClose, onUpdate }) => {
     setHasUnsavedChanges(true);
   };
 
+  // === ITEM MODE: Register planArea handlers ===
+  useEffect(() => {
+    const unregister = register({
+      itemType: ITEM_TYPES.PLAN_AREA,
+      moduleType: 'goals',
+      handlers: {
+        [ITEM_ACTIONS.DELETE]: ({ itemId }) => {
+          const currentAreas = areasRef.current;
+          const areaToDelete = currentAreas.find(a => a.id === itemId);
+          
+          if (!areaToDelete) {
+            console.warn('[PlanArea] Area not found for delete:', itemId);
+            return;
+          }
+          
+          const updatedAreas = currentAreas.filter(a => a.id !== itemId);
+          onUpdate({ areas: updatedAreas });
+          setHasUnsavedChanges(false);
+          toast({ title: 'Oblast odstraněna', description: areaToDelete.name });
+        },
+        
+        [ITEM_ACTIONS.DUPLICATE]: ({ itemId }) => {
+          const currentAreas = areasRef.current;
+          const areaToDuplicate = currentAreas.find(a => a.id === itemId);
+          
+          if (!areaToDuplicate) {
+            console.warn('[PlanArea] Area not found for duplicate:', itemId);
+            return;
+          }
+          
+          const duplicatedArea = {
+            ...JSON.parse(JSON.stringify(areaToDuplicate)),
+            id: `area-${Date.now()}`,
+            name: `${areaToDuplicate.name} (kopie)`
+          };
+          
+          const updatedAreas = [...currentAreas, duplicatedArea];
+          onUpdate({ areas: updatedAreas });
+          setHasUnsavedChanges(false);
+          toast({ title: 'Oblast duplikována', description: duplicatedArea.name });
+        },
+        
+        [ITEM_ACTIONS.EDIT]: ({ itemId }) => {
+          const area = areasRef.current.find(a => a.id === itemId);
+          if (area) {
+            setEditingArea({ id: itemId, name: area.name, notes: area.notes, color: area.color });
+          }
+        }
+      }
+    });
+    
+    return unregister;
+  }, [register, onUpdate]);
+
   return (
     <div 
       className="h-full flex flex-col bg-transparent"
