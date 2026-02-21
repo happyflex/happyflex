@@ -17,6 +17,7 @@ export const TRASH_TYPES = {
   NOTE: 'note',
   PROJECT: 'project',
   PROJECT_ELEMENT: 'project_element', // Elements inside projects (notes, tasks, milestones etc.)
+  SUBPROJECT: 'subproject', // Subproject nodes in project tree
   PERSON: 'person',
   TASK: 'task',
   GOAL: 'goal',
