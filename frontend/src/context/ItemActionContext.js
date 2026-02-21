@@ -251,6 +251,7 @@ export const ItemActionProvider = ({ children }) => {
   
   /**
    * Quick registration: itemType + moduleType + handlers in one call
+   * Handlers are stored per itemType to avoid conflicts between different item types in the same module
    */
   const register = useCallback((config) => {
     const { itemType, moduleType, handlers = {}, supports, customActions } = config;
@@ -266,13 +267,14 @@ export const ItemActionProvider = ({ children }) => {
       customActions
     });
     
-    // Register handlers
-    const existingHandlers = handlersRef.current.get(moduleType) || {};
-    handlersRef.current.set(moduleType, { ...existingHandlers, ...handlers });
+    // Register handlers under itemType (not moduleType) to avoid conflicts
+    // Multiple item types in the same module (e.g., projectElement, projectNode) need separate handlers
+    const handlerKey = `${moduleType}:${itemType}`;
+    handlersRef.current.set(handlerKey, handlers);
     
     return () => {
       unregisterType();
-      // Note: We don't fully remove handlers as other item types might use same module
+      handlersRef.current.delete(handlerKey);
     };
   }, [registerItemType]);
 
