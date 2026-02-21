@@ -108,6 +108,21 @@ const CalendarModule = ({ initialViewState, onViewStateChange }) => {
     localStorage.setItem('steward_calendar_events', JSON.stringify(events));
   }, [events]);
 
+  // Listen for external updates (e.g., restore from trash)
+  useEffect(() => {
+    const handleCalendarUpdated = () => {
+      const stored = localStorage.getItem('steward_calendar_events');
+      if (stored) {
+        setEvents(JSON.parse(stored));
+      }
+    };
+    
+    window.addEventListener('steward-calendar-updated', handleCalendarUpdated);
+    return () => {
+      window.removeEventListener('steward-calendar-updated', handleCalendarUpdated);
+    };
+  }, []);
+
   const [formData, setFormData] = useState({
     title: '',
     date: '',
