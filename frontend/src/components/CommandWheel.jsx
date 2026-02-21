@@ -990,6 +990,124 @@ const CommandWheel = () => {
             </div>
           );
         })}
+        
+        {/* === STARK UPGRADE: Convert Submenu Ring === */}
+        {showConvertSubmenu && convertTargets.length > 0 && (
+          <div
+            className="absolute pointer-events-auto"
+            style={{
+              width: (radius + 100) * 2,
+              height: (radius + 100) * 2,
+              left: -(radius + 100),
+              top: -(radius + 100),
+              animation: 'submenuOpen 200ms cubic-bezier(0.34, 1.56, 0.64, 1)'
+            }}
+          >
+            {/* Submenu backdrop ring */}
+            <div
+              className="absolute rounded-full"
+              style={{
+                width: '100%',
+                height: '100%',
+                border: '1px solid rgba(139, 92, 246, 0.3)',
+                boxShadow: '0 0 20px rgba(139, 92, 246, 0.2), inset 0 0 40px rgba(139, 92, 246, 0.1)'
+              }}
+            />
+            
+            {/* Submenu items */}
+            {convertTargets.map((target, index) => {
+              const totalTargets = convertTargets.length;
+              const subAngle = (2 * Math.PI / totalTargets) * index - Math.PI / 2;
+              const subX = Math.cos(subAngle) * (radius + 85);
+              const subY = Math.sin(subAngle) * (radius + 85);
+              
+              // Icon mapping for convert targets
+              const targetIconMap = {
+                task: ListChecks,
+                goal: Target,
+                note: FileText,
+                projectElement: Box
+              };
+              const TargetIcon = targetIconMap[target.type] || Box;
+              
+              return (
+                <div
+                  key={target.type}
+                  className="absolute cursor-pointer transition-all duration-150 hover:scale-110"
+                  style={{
+                    left: subX + radius + 100,
+                    top: subY + radius + 100,
+                    transform: 'translate(-50%, -50%)'
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    executeConvertTarget(target.type);
+                  }}
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <div
+                      className="w-9 h-9 rounded-full flex items-center justify-center"
+                      style={{
+                        background: 'rgba(139, 92, 246, 0.15)',
+                        border: '1px solid rgba(139, 92, 246, 0.4)',
+                        boxShadow: '0 0 10px rgba(139, 92, 246, 0.3)',
+                        backdropFilter: 'blur(8px)'
+                      }}
+                    >
+                      <TargetIcon className="w-4 h-4 text-violet-400" />
+                    </div>
+                    <span
+                      className="text-[9px] font-medium whitespace-nowrap px-1.5 py-0.5 rounded"
+                      style={{
+                        background: 'rgba(0, 0, 0, 0.6)',
+                        color: '#a78bfa'
+                      }}
+                    >
+                      {target.label}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+            
+            {/* Close submenu button */}
+            <div
+              className="absolute cursor-pointer"
+              style={{
+                left: '50%',
+                bottom: 15,
+                transform: 'translateX(-50%)'
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowConvertSubmenu(false);
+              }}
+            >
+              <div
+                className="w-6 h-6 rounded-full flex items-center justify-center bg-gray-800/80 border border-gray-600 hover:border-gray-500 transition-colors"
+              >
+                <X className="w-3 h-3 text-gray-400" />
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* === STARK UPGRADE: Item Type Label in Center === */}
+        {itemTypeTheme && workzoneColor.itemLabel && (
+          <div
+            className="absolute text-[8px] font-medium tracking-wider uppercase"
+            style={{
+              left: '50%',
+              bottom: -(radius + 55),
+              transform: 'translateX(-50%)',
+              color: itemTypeTheme.accentColor,
+              textShadow: `0 0 10px ${itemTypeTheme.glowColor}`,
+              opacity: 0.8
+            }}
+          >
+            {workzoneColor.itemLabel}
+          </div>
+        )}
       </div>
       
       {/* CSS Animations */}
@@ -1002,6 +1120,38 @@ const CommandWheel = () => {
           to {
             opacity: 1;
             transform: translate(-50%, -50%) scale(1);
+          }
+        }
+        
+        @keyframes submenuOpen {
+          from {
+            opacity: 0;
+            transform: scale(0.8);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        
+        @keyframes deleteFlash {
+          0% {
+            box-shadow: 0 0 12px rgba(34, 211, 238, 0.3), 0 0 24px rgba(34, 211, 238, 0.3);
+          }
+          50% {
+            box-shadow: 0 0 40px rgba(239, 68, 68, 0.8), 0 0 60px rgba(239, 68, 68, 0.5);
+          }
+          100% {
+            box-shadow: 0 0 12px rgba(34, 211, 238, 0.3), 0 0 24px rgba(34, 211, 238, 0.3);
+          }
+        }
+        
+        @keyframes itemTypeGlow {
+          0%, 100% {
+            opacity: 0.5;
+          }
+          50% {
+            opacity: 0.7;
           }
         }
         
