@@ -52,6 +52,7 @@ export const ITEM_TYPES = {
   PROCESS_STEP: 'processStep',
   PROJECT: 'project',
   PROJECT_NODE: 'projectNode',
+  PROJECT_ELEMENT: 'projectElement', // Elements inside projects (notes, tasks, contacts, milestones, etc.)
   SUBPROJECT: 'subproject',
   CALENDAR_EVENT: 'calendar_event',
   MUSIC_TRACK: 'music_track',
