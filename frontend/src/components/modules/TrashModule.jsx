@@ -622,7 +622,11 @@ const TrashModule = () => {
     { key: TRASH_TYPES.PROCESS, label: 'Procesy', icon: GitBranch, count: stats.processes },
     { key: TRASH_TYPES.CHART, label: 'Grafy', icon: BarChart3, count: stats.charts },
     { key: TRASH_TYPES.TIMER, label: 'Časy', icon: Timer, count: stats.timers },
-    { key: TRASH_TYPES.MUSIC, label: 'Hudba', icon: Music, count: stats.music }
+    { key: TRASH_TYPES.MUSIC, label: 'Hudba', icon: Music, count: stats.music },
+    // New entity type filters
+    { key: TRASH_TYPES.PLAN_AREA, label: 'Oblasti plánu', icon: Target, count: stats.planAreas },
+    { key: TRASH_TYPES.PROCESS_STEP, label: 'Kroky procesu', icon: GitBranch, count: stats.processSteps },
+    { key: TRASH_TYPES.CALENDAR_EVENT, label: 'Události', icon: Calendar, count: stats.calendarEvents }
   ];
 
   // Get icon config for window item based on moduleType
