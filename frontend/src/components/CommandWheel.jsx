@@ -41,6 +41,7 @@ import { useWorkspace } from '../context/WorkspaceContext';
 import { useCommandWheel } from '../hooks/useCommandWheel';
 import { useItemActions, ITEM_ACTIONS, ITEM_TYPES } from '../context/ItemActionContext';
 import { toast } from '../hooks/use-toast';
+import { executeConvert, getConvertTargets, CONVERT_TARGET_LABELS } from '../services/ConvertService';
 
 // Workzones for switch action
 const WORKZONES = [
@@ -48,6 +49,67 @@ const WORKZONES = [
   { id: 'planning', name: 'Plánovací', color: 'yellow' },
   { id: 'executive', name: 'Exekutivní', color: 'green' }
 ];
+
+// ============================================================================
+// ITEM TYPE THEME LAYER - Visual variants based on item type
+// ============================================================================
+const ITEM_TYPE_THEMES = {
+  note: {
+    accentColor: 'rgba(34, 211, 238, 0.7)', // cyan
+    glowColor: 'rgba(34, 211, 238, 0.3)',
+    label: 'Poznámka'
+  },
+  project: {
+    accentColor: 'rgba(99, 102, 241, 0.7)', // indigo
+    glowColor: 'rgba(99, 102, 241, 0.3)',
+    label: 'Projekt'
+  },
+  projectNode: {
+    accentColor: 'rgba(99, 102, 241, 0.7)', // indigo
+    glowColor: 'rgba(99, 102, 241, 0.3)',
+    label: 'Podprojekt'
+  },
+  subproject: {
+    accentColor: 'rgba(99, 102, 241, 0.7)', // indigo
+    glowColor: 'rgba(99, 102, 241, 0.3)',
+    label: 'Podprojekt'
+  },
+  person: {
+    accentColor: 'rgba(59, 130, 246, 0.7)', // blue
+    glowColor: 'rgba(59, 130, 246, 0.3)',
+    label: 'Kontakt'
+  },
+  goal: {
+    accentColor: 'rgba(16, 185, 129, 0.7)', // emerald
+    glowColor: 'rgba(16, 185, 129, 0.3)',
+    label: 'Cíl'
+  },
+  process: {
+    accentColor: 'rgba(139, 92, 246, 0.7)', // violet
+    glowColor: 'rgba(139, 92, 246, 0.3)',
+    label: 'Proces'
+  },
+  processStep: {
+    accentColor: 'rgba(139, 92, 246, 0.7)', // violet
+    glowColor: 'rgba(139, 92, 246, 0.3)',
+    label: 'Krok procesu'
+  },
+  task: {
+    accentColor: 'rgba(236, 72, 153, 0.7)', // pink
+    glowColor: 'rgba(236, 72, 153, 0.3)',
+    label: 'Úkol'
+  },
+  calendar_event: {
+    accentColor: 'rgba(244, 63, 94, 0.7)', // rose
+    glowColor: 'rgba(244, 63, 94, 0.3)',
+    label: 'Událost'
+  },
+  planArea: {
+    accentColor: 'rgba(132, 204, 22, 0.7)', // lime
+    glowColor: 'rgba(132, 204, 22, 0.3)',
+    label: 'Oblast plánu'
+  }
+};
 
 // Get menu items based on context
 const getMenuItems = (target, activeWorkzone, workspace, getAvailableActions = null) => {
