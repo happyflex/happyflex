@@ -76,50 +76,38 @@ div:hover > .resize-handle {
    Activated when ALT key is held - highlights valid Mouse Ring targets
    ============================================================================ */
 
-/* Base: Items with data-steward-item need relative positioning for pseudo-element */
-.steward-alt-target-visible [data-steward-item] {
-  position: relative;
-}
+/* 
+ * LAYOUT-SAFE HIGHLIGHT IMPLEMENTATION
+ * Uses outline instead of border to avoid layout shifts.
+ * Does NOT change position property to avoid breaking absolutely positioned elements.
+ * Uses box-shadow for glow effect (doesn't affect layout).
+ */
 
-/* Target highlight - subtle Stark-style outline */
-.steward-alt-target-visible [data-steward-item]::after {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border: 1px solid rgba(34, 211, 238, 0.25);
-  border-radius: inherit;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 100ms ease-out, border-color 100ms ease-out;
-  z-index: 1;
+/* Target highlight - uses outline (no layout change) and box-shadow for glow */
+.steward-alt-target-visible [data-steward-item] {
+  /* NO position: relative here - it causes layout shift for absolute elements */
+  outline: 1px solid rgba(34, 211, 238, 0.25);
+  outline-offset: 2px;
   box-shadow: 
     inset 0 0 8px rgba(34, 211, 238, 0.05),
     0 0 4px rgba(34, 211, 238, 0.1);
-}
-
-/* Animate in when ALT mode active */
-.steward-alt-target-visible [data-steward-item]::after {
-  opacity: 1;
+  transition: outline-color 100ms ease-out, box-shadow 100ms ease-out;
 }
 
 /* Hover enhancement - slightly stronger glow on direct hover */
-.steward-alt-target-visible [data-steward-item]:hover::after {
-  border-color: rgba(34, 211, 238, 0.5);
+.steward-alt-target-visible [data-steward-item]:hover {
+  outline-color: rgba(34, 211, 238, 0.5);
   box-shadow: 
     inset 0 0 12px rgba(34, 211, 238, 0.1),
     0 0 8px rgba(34, 211, 238, 0.2);
 }
 
 /* Exclude UI controls from highlighting (safety guard) */
-.steward-alt-target-visible [data-steward-item][data-ui-control="true"]::after,
-.steward-alt-target-visible button[data-steward-item]::after,
-.steward-alt-target-visible input[data-steward-item]::after {
-  display: none;
-}
-
-/* Ensure nested items also get highlighted properly */
-.steward-alt-target-visible [data-steward-item] [data-steward-item]::after {
-  z-index: 2;
+.steward-alt-target-visible [data-steward-item][data-ui-control="true"],
+.steward-alt-target-visible button[data-steward-item],
+.steward-alt-target-visible input[data-steward-item] {
+  outline: none;
+  box-shadow: none;
 }
 
 
