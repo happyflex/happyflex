@@ -330,17 +330,22 @@ const ProjectWorldModule = ({ project, onBack, initialPath, onPathChange }) => {
           
           const { node: nodeToDelete, parent: parentNode } = result;
           
-          // Add to Trash
+          // Find index of node in parent's children (for restore position)
+          const indexInParent = parentNode.children?.findIndex(c => c.id === itemId) ?? -1;
+          
+          // Add to Trash with complete restore metadata
           addToTrash({
             type: TRASH_TYPES.SUBPROJECT,
             name: nodeToDelete.name,
-            data: nodeToDelete,
+            data: nodeToDelete,  // This is the subtreeSnapshot - includes all children and items
             sourceModule: 'Projekty',
             metadata: {
               projectId: project.id,
               projectName: project.name,
               parentNodeId: parentNode.id,
+              indexInParent: indexInParent,  // For restoring at original position
               hasChildren: nodeToDelete.children?.length > 0,
+              childCount: nodeToDelete.children?.length || 0,
               itemCount: nodeToDelete.items?.length || 0
             }
           });
