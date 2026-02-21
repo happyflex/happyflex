@@ -222,6 +222,10 @@ export const TrashProvider = ({ children }) => {
       charts: trashItems.filter(i => i.type === TRASH_TYPES.CHART).length,
       timers: trashItems.filter(i => i.type === TRASH_TYPES.TIMER).length,
       music: trashItems.filter(i => i.type === TRASH_TYPES.MUSIC).length,
+      // New entity types stats
+      planAreas: trashItems.filter(i => i.type === TRASH_TYPES.PLAN_AREA).length,
+      processSteps: trashItems.filter(i => i.type === TRASH_TYPES.PROCESS_STEP).length,
+      calendarEvents: trashItems.filter(i => i.type === TRASH_TYPES.CALENDAR_EVENT).length,
       other: trashItems.filter(i => i.type === TRASH_TYPES.OTHER).length
     };
   }, [trashItems]);
