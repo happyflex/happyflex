@@ -263,6 +263,11 @@ const TrashModule = () => {
             // Save back to localStorage
             localStorage.setItem(projectWorldKey, JSON.stringify(projectWorld));
             
+            // Dispatch event to notify ProjectWorldModule to reload
+            window.dispatchEvent(new CustomEvent('steward-project-element-restored', { 
+              detail: { projectId, nodePath: path } 
+            }));
+            
             toast({
               title: 'Element obnoven',
               description: `${item.name} byl obnoven v projektu ${item.metadata?.projectName || 'Projekt'}`
