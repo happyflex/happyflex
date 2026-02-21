@@ -429,11 +429,59 @@ const CommandWheel = () => {
       const dx = (e.clientX - position.x) / 50;
       const dy = (e.clientY - position.y) / 50;
       setMouseOffset({ x: Math.max(-5, Math.min(5, dx)), y: Math.max(-5, Math.min(5, dy)) });
+      
+      // === STARK UPGRADE: Drag-to-delete segment tracking ===
+      if (wheelRef.current) {
+        const wheelRect = wheelRef.current.getBoundingClientRect();
+        const centerX = wheelRect.left + wheelRect.width / 2;
+        const centerY = wheelRect.top + wheelRect.height / 2;
+        
+        // Calculate angle from center to mouse
+        const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+        const normalizedAngle = ((angle * 180 / Math.PI) + 90 + 360) % 360; // 0 is top
+        
+        // Calculate distance from center
+        const distance = Math.sqrt(
+          Math.pow(e.clientX - centerX, 2) + Math.pow(e.clientY - centerY, 2)
+        );
+        
+        // Only track if mouse is in segment area (between 60 and 120 pixels from center)
+        if (distance > 60 && distance < 140 && menuItems.length > 0) {
+          const segmentAngle = 360 / menuItems.length;
+          const segmentIndex = Math.floor(normalizedAngle / segmentAngle);
+          setActiveSegment(menuItems[segmentIndex % menuItems.length]?.id || null);
+        } else {
+          setActiveSegment(null);
+        }
+      }
+    };
+    
+    // === STARK UPGRADE: Drag-to-delete - Execute on mouse up if on delete segment ===
+    const handleMouseUp = (e) => {
+      if (!e.altKey) return; // Only when ALT is still held
+      
+      // Check if we're on a delete segment
+      if (activeSegment) {
+        const activeItem = menuItems.find(m => m.id === activeSegment);
+        if (activeItem && (activeItem.action === 'itemAction' && activeItem.params?.actionType === 'delete')) {
+          // Trigger delete flash
+          setDeleteFlash(true);
+          setTimeout(() => setDeleteFlash(false), 300);
+          
+          // Execute delete action
+          executeAction(activeItem);
+          close();
+        }
+      }
     };
     
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [isOpen, position]);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isOpen, position, menuItems, activeSegment, close]);
   
   // Execute action
   const executeAction = (item) => {
