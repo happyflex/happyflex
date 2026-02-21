@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   ArrowLeft, Plus, Trash2, Edit2, GripVertical,
   FileText, Target, Lightbulb, Save, MoreVertical
@@ -9,6 +9,7 @@ import { Textarea } from '../ui/textarea';
 import { ScrollArea } from '../ui/scroll-area';
 import { Badge } from '../ui/badge';
 import { toast } from '../../hooks/use-toast';
+import { useItemActions, ITEM_TYPES, ITEM_ACTIONS } from '../../context/ItemActionContext';
 
 // Predefined area colors
 const AREA_COLORS = [
@@ -23,10 +24,17 @@ const AREA_COLORS = [
 ];
 
 const PlanCanvas = ({ goal, plan, onClose, onUpdate }) => {
+  const { register } = useItemActions();
   const [editingArea, setEditingArea] = useState(null);
   const [showAddArea, setShowAddArea] = useState(false);
   const [planDescription, setPlanDescription] = useState(plan?.description || '');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  
+  // Ref for areas to avoid stale closures
+  const areasRef = useRef(plan?.areas || []);
+  useEffect(() => {
+    areasRef.current = plan?.areas || [];
+  }, [plan?.areas]);
 
   const handleSave = () => {
     onUpdate({ 
