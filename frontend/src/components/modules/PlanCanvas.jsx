@@ -153,7 +153,7 @@ const PlanCanvas = ({ goal, plan, onClose, onUpdate }) => {
     });
     
     return unregister;
-  }, [register, onUpdate]);
+  }, [register, onUpdate, addToTrash, TRASH_TYPES, goal, plan]);
 
   return (
     <div 
