@@ -154,6 +154,7 @@ const ProcessCanvas = ({ process, plan, goal, onClose, onUpdate }) => {
       handlers: {
         [ITEM_ACTIONS.DELETE]: ({ itemId }) => {
           const currentSteps = stepsRef.current;
+          const currentConnections = connectionsRef.current;
           const stepToDelete = currentSteps.find(s => s.id === itemId);
           
           if (!stepToDelete) {
@@ -161,11 +162,32 @@ const ProcessCanvas = ({ process, plan, goal, onClose, onUpdate }) => {
             return;
           }
           
+          // Get connections related to this step (for restore)
+          const relatedConnections = currentConnections.filter(
+            c => c.from === itemId || c.to === itemId
+          );
+          
+          // Add to Trash with complete restore context
+          addToTrash({
+            type: TRASH_TYPES.PROCESS_STEP,
+            name: stepToDelete.name || 'Krok bez názvu',
+            data: stepToDelete,
+            sourceModule: 'Procesy',
+            metadata: {
+              processId: process?.id,
+              processName: process?.name,
+              goalId: goal?.id,
+              planId: plan?.id,
+              connections: relatedConnections
+            }
+          });
+          
+          // Then remove from state
           setSteps(prev => prev.filter(s => s.id !== itemId));
           setConnections(prev => prev.filter(c => c.from !== itemId && c.to !== itemId));
           if (selectedStep?.id === itemId) setSelectedStep(null);
           setHasUnsavedChanges(true);
-          toast({ title: 'Krok odstraněn', description: stepToDelete.name });
+          toast({ title: 'Krok přesunut do koše', description: stepToDelete.name });
         },
         
         [ITEM_ACTIONS.DUPLICATE]: ({ itemId }) => {
