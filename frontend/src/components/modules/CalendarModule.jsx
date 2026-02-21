@@ -5,6 +5,7 @@ import { Input } from '../ui/input';
 import * as DialogPrimitive from '../ui/dialog';
 import ModuleHeader from './ModuleHeader';
 import { useItemActions, ITEM_ACTIONS, ITEM_TYPES } from '../../context/ItemActionContext';
+import { useTrash, TRASH_TYPES } from '../../context/TrashContext';
 import { toast } from '../../hooks/use-toast';
 
 const Dialog = DialogPrimitive.Dialog;
