@@ -10,6 +10,7 @@ import { Textarea } from '../ui/textarea';
 import { Badge } from '../ui/badge';
 import { toast } from '../../hooks/use-toast';
 import { useItemActions, ITEM_TYPES, ITEM_ACTIONS } from '../../context/ItemActionContext';
+import { useTrash, TRASH_TYPES } from '../../context/TrashContext';
 
 // Step types
 const STEP_TYPES = {
