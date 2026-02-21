@@ -318,17 +318,44 @@ export const ItemActionProvider = ({ children }) => {
     const resolvedModuleType = moduleType || itemRegistryRef.current.get(itemType)?.moduleType;
     
     // Try to find handler in this order:
-    // 1. Module-specific handler
-    // 2. Item type API from registry
-    // 3. Graceful degradation (show toast, don't crash)
+    // 1. Item-specific handler (moduleType:itemType key)
+    // 2. Module-level handler (legacy/fallback)
+    // 3. Item type API from registry
+    // 4. Graceful degradation (show toast, don't crash)
     
-    const handlers = handlersRef.current.get(resolvedModuleType);
+    // First try itemType-specific handlers (new format)
+    const handlerKey = `${resolvedModuleType}:${itemType}`;
+    const itemHandlers = handlersRef.current.get(handlerKey);
+    
+    if (itemHandlers && typeof itemHandlers[action] === 'function') {
+      try {
+        itemHandlers[action]({
+          itemType,
+          itemId,
+          parentContext,
+          moduleType: resolvedModuleType,
+          source
+        });
+        return true;
+      } catch (error) {
+        console.error('ItemActionContext: Handler error', error);
+        toast({
+          title: 'Chyba',
+          description: 'Nepodařilo se provést akci',
+          variant: 'destructive'
+        });
+        return false;
+      }
+    }
+    
+    // Fallback: Try module-level handlers (legacy format)
+    const moduleHandlers = handlersRef.current.get(resolvedModuleType);
     const registryEntry = itemRegistryRef.current.get(itemType);
     
-    // Try module handler first
-    if (handlers && typeof handlers[action] === 'function') {
+    // Try module handler
+    if (moduleHandlers && typeof moduleHandlers[action] === 'function') {
       try {
-        handlers[action]({
+        moduleHandlers[action]({
           itemType,
           itemId,
           parentContext,
