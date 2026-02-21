@@ -100,6 +100,25 @@ const TYPE_CONFIG = {
     color: 'text-green-400',
     bgColor: 'bg-green-500/20'
   },
+  // New entity types configuration
+  [TRASH_TYPES.PLAN_AREA]: { 
+    icon: Target, 
+    label: 'Oblasti plánu', 
+    color: 'text-lime-400',
+    bgColor: 'bg-lime-500/20'
+  },
+  [TRASH_TYPES.PROCESS_STEP]: { 
+    icon: GitBranch, 
+    label: 'Kroky procesu', 
+    color: 'text-violet-400',
+    bgColor: 'bg-violet-500/20'
+  },
+  [TRASH_TYPES.CALENDAR_EVENT]: { 
+    icon: Calendar, 
+    label: 'Události', 
+    color: 'text-rose-400',
+    bgColor: 'bg-rose-500/20'
+  },
   [TRASH_TYPES.OTHER]: { 
     icon: Trash2, 
     label: 'Ostatní', 
