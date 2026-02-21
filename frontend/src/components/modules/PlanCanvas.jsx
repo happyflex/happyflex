@@ -97,10 +97,29 @@ const PlanCanvas = ({ goal, plan, onClose, onUpdate }) => {
             return;
           }
           
+          // Find the index for restore context
+          const areaIndex = currentAreas.findIndex(a => a.id === itemId);
+          
+          // Add to Trash with complete restore context
+          addToTrash({
+            type: TRASH_TYPES.PLAN_AREA,
+            name: areaToDelete.name || 'Oblast bez názvu',
+            data: areaToDelete,
+            sourceModule: 'Cíle - Plánovač',
+            metadata: {
+              goalId: goal?.id,
+              goalName: goal?.name,
+              planId: plan?.id,
+              planName: plan?.name,
+              index: areaIndex
+            }
+          });
+          
+          // Then remove from state
           const updatedAreas = currentAreas.filter(a => a.id !== itemId);
           onUpdate({ areas: updatedAreas });
           setHasUnsavedChanges(false);
-          toast({ title: 'Oblast odstraněna', description: areaToDelete.name });
+          toast({ title: 'Oblast přesunuta do koše', description: areaToDelete.name });
         },
         
         [ITEM_ACTIONS.DUPLICATE]: ({ itemId }) => {
