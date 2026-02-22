@@ -104,10 +104,41 @@ const GoalsModule = ({ initialViewState, onViewStateChange }) => {
         }
       }
     };
+    
+    // Listen for plan area restore - navigate to the restored area's plan
+    const handlePlanAreaRestored = (event) => {
+      const { goalId, planId, areaId, viewStateHint } = event.detail || {};
+      
+      // Reload goals first to ensure fresh data
+      handleExternalUpdate();
+      
+      // Apply navigation: select goal and open PlanCanvas
+      if (goalId && planId) {
+        // Use setTimeout to ensure state is updated after handleExternalUpdate
+        setTimeout(() => {
+          // Get fresh goals from localStorage
+          const freshGoals = JSON.parse(localStorage.getItem('steward_goals') || '[]');
+          const targetGoal = freshGoals.find(g => g.id === goalId);
+          
+          if (targetGoal) {
+            setSelectedGoal(targetGoal);
+            // Open PlanCanvas for the restored area's plan
+            setShowPlanCanvas({ goalId, planId });
+            toast({ 
+              title: 'Oblast obnovena', 
+              description: `Navigováno do plánu v cíli "${targetGoal.name}"` 
+            });
+          }
+        }, 100);
+      }
+    };
+    
     window.addEventListener('steward-goals-updated', handleExternalUpdate);
+    window.addEventListener('steward-plan-area-restored', handlePlanAreaRestored);
     
     return () => {
       window.removeEventListener('steward-goals-updated', handleExternalUpdate);
+      window.removeEventListener('steward-plan-area-restored', handlePlanAreaRestored);
     };
   }, []);
 
