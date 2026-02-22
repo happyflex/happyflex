@@ -41,6 +41,25 @@ const ProcessCanvas = ({ process, plan, goal, onClose, onUpdate }) => {
     connectionsRef.current = connections;
   }, [steps, connections]);
 
+  // Sync with process prop changes (e.g., after trash restore)
+  // Only sync if process data changed AND we don't have unsaved local changes
+  useEffect(() => {
+    if (!process) return;
+    
+    const processSteps = process.steps || [];
+    const processConnections = process.connections || [];
+    
+    // Check if process data is different from local state
+    const processStepsIds = processSteps.map(s => s.id).sort().join(',');
+    const localStepsIds = steps.map(s => s.id).sort().join(',');
+    
+    // If steps changed externally (restore added a step), sync
+    if (processStepsIds !== localStepsIds && !hasUnsavedChanges) {
+      setSteps(processSteps);
+      setConnections(processConnections);
+    }
+  }, [process, process?.steps?.length, hasUnsavedChanges]);
+
   const handleSave = () => {
     onUpdate({ 
       steps,
