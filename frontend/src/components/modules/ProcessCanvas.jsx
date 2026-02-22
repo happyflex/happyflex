@@ -73,12 +73,48 @@ const ProcessCanvas = ({ process, plan, goal, onClose, onUpdate }) => {
     setHasUnsavedChanges(true);
   };
 
+  // === UNIFIED DELETE: UI button + Item Ring use same Trash pipeline ===
   const deleteStep = (stepId) => {
+    const currentSteps = stepsRef.current;
+    const currentConnections = connectionsRef.current;
+    const stepToDelete = currentSteps.find(s => s.id === stepId);
+    
+    if (!stepToDelete) {
+      console.warn('[ProcessStep] Step not found for delete:', stepId);
+      return;
+    }
+    
+    // Get connections related to this step (for restore)
+    const relatedConnections = currentConnections.filter(
+      c => c.from === stepId || c.to === stepId
+    );
+    
+    // Add to Trash with complete restore context + viewStateHint
+    addToTrash({
+      type: TRASH_TYPES.PROCESS_STEP,
+      name: stepToDelete.name || 'Krok bez názvu',
+      data: stepToDelete,
+      sourceModule: 'Procesy',
+      metadata: {
+        processId: process?.id,
+        processName: process?.name,
+        goalId: goal?.id,
+        planId: plan?.id,
+        connections: relatedConnections,
+        // viewStateHint for restore to open correct context
+        viewStateHint: {
+          selectedProcessId: process?.id,
+          openCanvasId: process?.id
+        }
+      }
+    });
+    
+    // Then remove from state
     setSteps(prev => prev.filter(s => s.id !== stepId));
     setConnections(prev => prev.filter(c => c.from !== stepId && c.to !== stepId));
     if (selectedStep?.id === stepId) setSelectedStep(null);
     setHasUnsavedChanges(true);
-    toast({ title: 'Krok odstraněn' });
+    toast({ title: 'Krok přesunut do koše', description: stepToDelete.name });
   };
 
   const startConnection = (stepId) => {
