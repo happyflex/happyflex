@@ -1,150 +1,168 @@
 <analysis>**original_problem_statement:**
-The user's initial request was to fix several issues related to the Koš (Trash) functionality in the S.T.E.W.A.R.D. Workspace Dashboard application.
+The user wants to work on a project named S.T.E.W.A.R.D., which is a futuristic Workspace Dashboard application.
 
-PRODUCT REQUIREMENTS:
-1.  **Fix Drag-and-Drop Restore:** When an item (window or content) is dragged from the Trash to the Workspace, it must be removed from the Trash.
-2.  **Fix Truncated Titles:** Item titles in the Trash list should display fully and not be truncated.
-3.  **Fix Content Restore:** When deleted content (like a note or task) is restored from the Trash, it must immediately reappear in its parent module without requiring a page refresh.
-4.  **Fix Hover Effect Clipping:** In the Lidi (People) module, the contact cards get visually clipped when they scale up on hover. This needs to be fixed so the entire card is visible.
-5.  **Unify Delete Actions:** Add a consistent trash can icon for direct deletion on item cards in the Cíle (Goals), Procesy (Processes), Lidi (People), and Projekty (Projects) modules, and replace the existing 'X' icon in the Úkoly (Tasks) module. The behavior should match the existing delete icon in the Poznámky (Notes) module.
-6.  **Fix Projects Module Crash:** The Projekty (Projects) module crashes with a Cannot read properties of null error after a project is restored from the Trash.
-7.  **Fix Project Restore UI Update:** After a project is restored from the Trash, it is correctly removed from the Trash, but it does not reappear in the Projects module UI. This needs to be fixed.
+The primary goals of this session were to address several bugs and add new features:
+1.  **Fix Subproject Restore:** Correct a bug where restoring a subproject () from the Trash creates a ghost window entry without properly opening the module, leading to a de-sync between the Workspace and the Window Manager.
+2.  **Unify Trash Pipeline:** Ensure that deleting specific items ( in Goals, , and ) from the UI sends them to the Trash, making them restorable. Currently, UI delete buttons remove items directly from the state, bypassing the Trash.
+3.  **Stark/JARVIS Ring Upgrades:** Enhance the item mode Command Wheel (mouse ring) with three upgrades:
+    *   Visual theming based on the item type.
+    *   A fast drag-to-delete gesture.
+    *   A Convert action with a submenu to transform items (e.g., Note to Task) while creating a bidirectional link between the original and new items.
+4.  **Fix Restore Navigation:** The final and pending request is to fix the restore flow for , , and . While they are now correctly restored to the data state and the parent module opens, the UI does not automatically navigate to or highlight the specific restored item. The module opens in its default view.
 
-**User's preferred language**: Czech. The next agent MUST respond in Czech.
+**User's preferred language**: Czech
 
 **what currently exists?**
-A full-stack application, S.T.E.W.A.R.D. Workspace, with a React frontend. The application features a modular dashboard where users can manage notes, tasks, projects, people, etc. State is managed via a combination of React Context (, ),  for persistence, and custom DOM events for cross-component updates. The backend was not involved in this session.
+The project is a complex, frontend-only React application called S.T.E.W.A.R.D. It simulates a futuristic, modular workspace dashboard. All data persistence is handled through the browser's . The application features a drag-and-drop canvas, a window manager, and various modules like Notes, Projects, Goals, etc. It also includes an advanced Command Wheel (mouse ring) for context-sensitive actions.
+
+Key functionalities completed in this session include:
+- A fix for the subproject restore flow.
+- Integration of , , and  into the Trash pipeline, allowing them to be deleted and restored.
+- Major upgrades to the Command Wheel, including item-based theming, drag-to-delete logic, and a new Convert feature with a submenu and data linking.
 
 **Last working item**:
--   **Last item agent was working**: The agent was fixing a bug where restoring a project from the Trash via drag-and-drop removes it from the Trash UI but fails to add it back to the Projects module's UI. The agent attempted a fix by modifying  to remove a potentially stale state check before calling the context's  function.
--   **Status**: IN PROGRESS
--   **Agent Testing Done**: Y (The last test confirmed the fix was not successful).
--   **Which testing method agent to use?**: Frontend testing agent
--   **User Testing Done**: Y (The user reported the issue).
+- **Last item agent was working:** The agent was about to begin implementing a Restore Navigation Intent mechanism. The goal is to ensure that when a , , or  is restored from the Trash, the application not only opens the correct module but also automatically navigates the UI to the specific view of the restored item (e.g., scrolls to the specific calendar day, opens the correct project plan).
+- **Status:** NOT STARTED
+- **Agent Testing Done:** N
+- **Which testing method agent to use?** Frontend testing agent. Final validation should use a screenshot test to verify that the UI navigates correctly to the restored item within the module.
+- **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
--   Issue 1: Project does not reappear in the module UI after being restored from Trash (P0)
--   Issue 2: Module close button ('x') is not functional (P1)
-
-**Issues Detail**:
--   **Issue 1: Project does not reappear in the module UI after being restored from Trash**
-    -   **Attempted fixes**: The agent modified  to remove a client-side check () before calling the  update function from . The hypothesis was that a stale closure was preventing the update. However, the final test showed the project was still not appearing in the module after being restored.
-    -   **Next debug checklist**:
-        1.  ****: Verify the  logic again. Compare it with the working  logic to spot any differences.
-        2.  ****: In the  and  functions, add logging to inspect the  and  objects for the 'project' type to ensure they are correct and complete.
-        3.  ****: Check if the component is correctly re-rendering when the  array in  is updated. A  or similar optimization might be causing stale UI.
-    -   **Why fix this issue and what will be achieved with the fix?**: This is a critical bug that breaks the project restore functionality, a core feature of the application.
-    -   **Status**: IN PROGRESS
-    -   **Is recurring issue?**: Y
-    -   **Should Test frontend/backend/both after fix?**: Frontend
-    -   **Blocked on other issue**: None
-
--   **Issue 2: Module close button ('x') is not functional**
-    -   **Attempted fixes**: At the beginning of the session, the agent tried to test closing the Notes module and found that clicking the 'x' icon did nothing. The agent tried different selectors and coordinate-based clicks, which all failed. The task was then abandoned when the user provided a new set of priorities.
-    -   **Next debug checklist**:
-        1.  Identify the component that renders the module frame/header.
-        2.  Inspect the  handler attached to the close button ( icon).
-        3.  Verify that the handler function is correctly being called and that it dispatches the action to remove the module from the active canvas state (likely managed in ).
-    -   **Why fix this issue and what will be achieved with the fix?**: This is a fundamental UI bug. Users cannot close modules, rendering the workspace unusable.
-    -   **Status**: NOT STARTED
-    -   **Is recurring issue?**: N
-    -   **Should Test frontend/backend/both after fix?**: Frontend
-    -   **Blocked on other issue**: None
+- **Issue 1: Restore does not navigate to the specific item's view (P0)**
+  - **Description:** When , , or  items are restored from the Trash via drag-and-drop, the parent module opens, but it remains in its default or last-known state. The UI does not automatically deep link or navigate to show the newly restored item.
+  - **Attempted fixes:** None. The previous task only ensured the data was restored and the module opened. This is the next logical step.
+  - **Next debug checklist:**
+    1.  Implement a one-shot navigation intent system, as requested by the user, likely using  and a .
+    2.  In , when handling the restore drop for these item types, after opening the module, store the navigation intent () in .
+    3.  Dispatch a global  event.
+    4.  In each of the three affected modules (, , ), add a  hook that listens for this event and also checks for the intent in  on mount.
+    5.  The handler should use the intent data to update the module's internal view state (e.g., set the selected date, active process, or scroll to the item).
+    6.  Ensure the intent is consumed (deleted from ) after being used to prevent it from firing again.
+    7.  Add retry logic with a short delay in case the item's data hasn't populated the state by the time the intent is processed.
+  - **Why fix this issue and what will be achieved with the fix?** This will complete the restore user experience, making it seamless. Users will be taken directly to the item they restored instead of having to manually navigate to it.
+  - **Status:** NOT STARTED
+  - **Is recurring issue?** N
+  - **Should Test frontend/backend/both after fix?** frontend
+  - **Blocked on other issue:** None
 
 **In progress Task List**:
-There are no in-progress tasks, only bug fixes.
+There are no partially completed tasks. The last task was in the planning phase.
 
 **Upcoming and Future Tasks**
-There are no upcoming or future tasks.
+- **Implement Restore Navigation Intent (P0):** This is the immediate and highest-priority task, detailed in the Pending Issue list above.
 
 **Completed work in this session**
--   **Trash/Restore Logic**:
-    -   Items are now correctly removed from the Trash UI after being restored ().
-    -   Restored content (Notes, Tasks) now appears immediately in modules without a page refresh ().
--   **UI/UX Enhancements**:
-    -   Item titles in the Trash module are no longer truncated ().
-    -   The visual clipping issue on contact card hover in the People module has been resolved by adding more padding ().
-    -   Added a consistent trash can icon for quick deletion to item cards in the Goals, Processes, People, Projects, and Tasks modules for a unified UX.
--   **Crash Fix**:
-    -   Fixed a runtime crash in the Projects module caused by  items in the project list after a restore operation by adding defensive filtering (, ).
+- **Subproject Restore Flow Fix:** Corrected the restore logic for subprojects () to prevent ghost windows and ensure proper module opening.
+  - 
+- **Unified Trash Pipeline for 3 Entities:** Ensured , , and  are sent to the Trash when deleted via UI buttons, not just the Item Ring.
+  - 
+  - 
+  - 
+  - 
+- **Stark/JARVIS Command Wheel Upgrades:** Implemented three major enhancements to the item-mode ring.
+  - **Item-Type Theming:** The ring now has visual accents based on item type.
+  - **Drag-to-Delete Gesture:** Logic for quick deletion by dragging to the delete segment.
+  - **Convert Submenu & Linking:** Added a Convert action that creates a new, linked item from an existing one, preserving the original. A new  component shows this link.
+  -  (major changes)
+  -  (new file)
+  -  (new file)
+  - 
 
 **Earlier issues found/mentioned but not fixed**
--   **Issue 1: Module close button not working**
-    -   **Debug checklist**:
-        1.  The agent was unable to close the Poznámky (Notes) module via the UI at the start of the session.
-        2.  The task was abandoned in favor of other user requests.
-        3.  The  handler on the close icon in the module wrapper component needs to be investigated.
-    -   **Why to solve this issue and what will be achieved with this?**: It is a critical UI bug preventing users from managing their workspace.
-    -   **Should Test frontend/backend/both after fix**: Frontend
-    -   **Is recurring issue?**: N
+None. All identified issues were either addressed or are part of the current pending task list.
 
 **Known issue recurrence from previous fork**
--   None.
+- **Issue recurrence in previous fork:** The user noted that the bug with restoring a  (subproject) had been addressed and fixed in the past, indicating it was a recurring problem.
+- **Recurrence count:** At least 1.
+- **Status:** RESOLVED (for the  issue).
 
 **Code Architecture**
+The project is a frontend React application.
 
 
 **Key Technical Concepts**
--   **Frontend**: React, Tailwind CSS, Radix UI.
--   **State Management**: A hybrid system using React Context for shared state,  for data persistence, and custom DOM events for triggering updates in decoupled components.
--   **Drag and Drop**: Native HTML Drag and Drop API for restoring items from the Trash.
+- **Frontend:** React (with extensive use of Hooks: , , , ).
+- **State Management:** React Context API () is used for global state like trash items and available actions. Module-level state is managed locally with .
+- **Persistence:** Browser  is the sole method of data storage.
+- **Inter-component Communication:** A combination of props drilling and a custom event system () is used for communication between disconnected components.
+- **UI:** Custom CSS with a strong Stark/JARVIS aesthetic, featuring glows, complex animations, and custom components like the .
 
 **key DB schema**
--   N/A (Data is persisted in browser ).
+No database is used. Data is persisted in  under various keys, such as:
+- : Stores the project tree structure.
+- : An array of deleted items, each with metadata for restoration.
+- : Stores all notes.
+- , , : Store data for their respective modules.
+- : Stores the position and state of open module windows.
 
 **changes in tech stack**
--   None.
+None. The stack remains React with .
 
 **All files of reference**
--   : Manages drag-and-drop logic and content restoration.
--   : Manages state for notes, tasks, projects, etc.
--   : Manages the state of the trash can.
--   : UI for the Projects module; was fixed to prevent crashes and is related to the current pending issue.
--   : UI for the People module; CSS was fixed.
--   , , : UIs for various modules; modified to add delete icons.
--   , , : Card components modified to include delete icons.
+*   **Modified/Created Files:**
+    *   : Added restore handlers for , , , and .
+    *   : Added new types (, , ).
+    *   : Updated config to recognize and render new trash types.
+    *   : Unified delete logic to use .
+    *   : Unified delete logic to use .
+    *   : Unified delete logic to use .
+    *   : Heavily modified to implement theming, drag-to-delete, and the convert submenu.
+    *   : Added  action and ensured  actions are universally available.
+    *   : New file to handle the logic for converting items.
+    *   : New UI component to show an item's converted status.
+*   **Key Important Files:**
+    *   : Defines the contract for what can be trashed and restored.
+    *   : Contains the central drop handler () for restoring items from the Trash.
 
 **Areas that need refactoring**:
--   The state management system is fragile. The mix of React Context, direct  manipulation, and custom DOM events for updates has led to several bugs related to UI not updating correctly. Centralizing all state mutations through context provider functions would make the application more robust and easier to debug.
+The reliance on  and a manual event bus for state synchronization across modules is brittle. A more robust state management solution (like Zustand or Redux Toolkit) would centralize logic and reduce bugs related to timing and state inconsistency, especially for complex flows like item restoration. The user, however, has consistently requested to avoid major refactors.
 
 **key api endpoints**
--   N/A.
+N/A. This is a frontend-only application.
 
 **Critical Info for New Agent**
--   You must respond to the user in **Czech**.
--   The current state management is complex. Debugging UI update issues often requires checking , , and whether the relevant component is listening for the correct custom DOM event.
--   The main pending issue is that restored projects don't appear in the . The logic for restoring other content types (like notes) is working correctly and can be used as a reference.
--   An earlier, unresolved bug prevents users from closing modules using the 'x' button. This is a high-priority issue to address after the current one.
+- **Restore Pattern:** The standard pattern for actions that affect other modules is: 1) Update the data in . 2) Dispatch a . 3) The relevant module listens for this event and updates its UI. Do not attempt to manipulate another module's state directly.
+- **Pending Task:** The immediate task is to implement the Restore Navigation Intent. Follow the user's specification: use  for a one-shot intent payload and a  to trigger the navigation inside the listening module.
+- **State Wipes:** Be aware that  may be cleared between test runs, which can disrupt multi-step testing flows (e.g., delete an item, then run a new test to restore it). Design tests to be as self-contained as possible.
 
 **documents and test reports created in this job**
--   None.
+-  was updated multiple times, but its final content is not available in the history.
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User:** When I restore a project from the trash, it disappears from the trash but doesn't reappear in the Projects module. (PENDING)
-2.  **User:** Deleting and restoring a project causes a crash in the Projects module. (FIXED)
-3.  **User:** Add delete icons to all module item cards for consistency. (DONE)
-4.  **User:** The hover effect on People cards is still slightly clipped on the sides. Please fix it. (FIXED)
-5.  **User:** Fix the visual clipping of contact cards on hover in the People module. (DONE)
-6.  **User:** Restoring content from the trash requires a page refresh to see the change. (FIXED)
-7.  **User:** A list of three bugs with the Trash functionality (item not removed, title truncated, content restore fails). (DONE)
-8.  **User:** Test opening and closing the Notes module. (STARTED, revealed a bug, then abandoned).
-9.  **User:** Can you see my steward-6.0 GitHub branch? (ANSWERED)
-10. **(Initial):** Asks about the steward-6.0 GitHub branch. (ANSWERED)
+1.  **Request:** Implement a Restore Navigation Intent system to fix deep-linking for restored items.
+    - **Status:** Pending (this is the current 
+wtmp begins Sat Feb 21 18:20:49 2026).
+2.  **Request:** Unify delete actions and fix restore view state for 3 entities (Plan Area, ProcessCanvas, Calendar Event).
+    - **Status:** Partially Completed (Delete unified, view state fix pending).
+3.  **Summary:** Agent provides a summary of work done.
+    - **Status:** Completed.
+4.  **Request:** Implement 3 Stark/JARVIS upgrades for the item-mode ring (theming, drag-to-delete, convert submenu).
+    - **Status:** Completed.
+5.  **Summary:** Agent provides a summary of work done.
+    - **Status:** Completed.
+6.  **Request:** Unify the Trash pipeline for 3 entities (Plan Areas, ProcessCanvas, Calendar Events).
+    - **Status:** Completed.
+7.  **Summary:** Agent provides a summary of work done and completes the task.
+    - **Status:** Completed.
+8.  **Request:** Fix the restore flow for subprojects () to prevent ghost windows.
+    - **Status:** Completed.
+9.  **Request:** Perform a safe system check by adding a comment to a layout file if it doesn't exist.
+    - **Status:** Completed (comment already existed).
+10. **Question:** Asks if the agent can see the steward-11.0 GitHub branch.
+    - **Status:** Completed (agent explained it cannot access external GitHub).
 
 **Project Health Check:**
--   **Broken**: The restore project functionality is broken. The UI for closing modules is also broken.
+- **Broken:** The testing workflow is hampered by the application's reliance on , which is not persistent across separate test agent runs. This requires tests to be self-contained (e.g., create, delete, and restore an item all in one go), which is not always practical.
+- **Mocked:** No components or APIs are mocked.
 
 **3rd Party Integrations**
--   None.
+None.
 
 **Testing status**
--   **Testing agent used after significant changes**: YES
--   **Troubleshoot agent used after agent stuck in loop**: NO
--   **Test files created**: None.
--   **Known regressions**: The project restore functionality is not working as intended.
+- **Testing agent used after significant changes:** YES. The screenshot tool was used for UI validation.
+- **Troubleshoot agent used after agent stuck in loop:** NO.
+- **Test files created:** None.
+- **Known regressions:** None identified.
 
 **Credentials to test flow:**
--   N/A
-
-**What agent forgot to execute**
--   The agent did not fix the bug with the module close button ('x' icon) not working. This issue was identified early in the session but was deprioritized based on subsequent user requests and never revisited.</analysis>
+N/A.</analysis>
