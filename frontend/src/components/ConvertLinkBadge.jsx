@@ -166,14 +166,6 @@ const ConvertLinkBadge = ({
   }, [item?.id, itemType, convertedTo, convertedFrom, triggerNavigationTrace, onNavigate]);
   
   if (!hasConvertLinks) return null;
-      moduleType: `${itemType}s`
-    });
-    
-    // Navigate to linked item
-    if (onNavigate) {
-      onNavigate(linkedId, linkedType);
-    }
-  }, [item, itemType, convertedTo, convertedFrom, triggerNavigationTrace, onNavigate]);
   
   // Render single link badge
   const renderLinkBadge = (linkData, direction) => {
