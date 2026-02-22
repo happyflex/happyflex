@@ -92,10 +92,40 @@ const ProcessesModule = ({ initialViewState, onViewStateChange }) => {
         }
       }
     };
+    
+    // Listen for process step restore - navigate to the restored step's process canvas
+    const handleProcessStepRestored = (event) => {
+      const { processId, stepId, viewStateHint } = event.detail || {};
+      
+      // Reload processes first to ensure fresh data
+      handleExternalUpdate();
+      
+      // Apply navigation: open ProcessCanvas for the restored step's process
+      if (processId) {
+        // Use setTimeout to ensure state is updated after handleExternalUpdate
+        setTimeout(() => {
+          // Get fresh processes from localStorage
+          const freshProcesses = JSON.parse(localStorage.getItem('steward_processes') || '[]');
+          const targetProcess = freshProcesses.find(p => p.id === processId);
+          
+          if (targetProcess) {
+            // Open ProcessCanvas for the restored step's process
+            setShowProcessCanvas(processId);
+            toast({ 
+              title: 'Krok obnoven', 
+              description: `Navigováno do procesu "${targetProcess.name}"` 
+            });
+          }
+        }, 100);
+      }
+    };
+    
     window.addEventListener('steward-processes-updated', handleExternalUpdate);
+    window.addEventListener('steward-process-step-restored', handleProcessStepRestored);
     
     return () => {
       window.removeEventListener('steward-processes-updated', handleExternalUpdate);
+      window.removeEventListener('steward-process-step-restored', handleProcessStepRestored);
     };
   }, []);
 
