@@ -514,7 +514,10 @@ const Canvas = () => {
         return true;
         
       case 'calendar_event':
-        // Calendar Event - restore to Calendar
+        // Calendar Event - restore to Calendar with viewStateHint
+        const calEventMeta = data.metadata || {};
+        const calViewStateHint = calEventMeta.viewStateHint || {};
+        
         try {
           const storedEvents = localStorage.getItem('steward_calendar_events');
           const events = storedEvents ? JSON.parse(storedEvents) : [];
@@ -525,7 +528,7 @@ const Canvas = () => {
             localStorage.setItem('steward_calendar_events', JSON.stringify(events));
           }
           
-          // Open Calendar module
+          // Anti-ghost guard: Check if Calendar module already exists
           const existingCalendarModule = modules.find(m => m.type === 'calendar');
           if (!existingCalendarModule) {
             addModule('calendar');
@@ -533,10 +536,18 @@ const Canvas = () => {
             bringToFront(existingCalendarModule.id);
           }
           
-          // Dispatch event to update calendar
+          // Apply viewStateHint after module mounts - navigate to event's date
           setTimeout(() => {
             window.dispatchEvent(new CustomEvent('steward-calendar-updated'));
-          }, 100);
+            // Dispatch event with viewStateHint to navigate to restored event's date
+            window.dispatchEvent(new CustomEvent('steward-calendar-event-restored', {
+              detail: { 
+                eventId: originalData.id,
+                date: originalData.date,
+                viewStateHint: calViewStateHint
+              }
+            }));
+          }, 150);
           
         } catch (e) {
           console.error('Error restoring calendar_event:', e);
