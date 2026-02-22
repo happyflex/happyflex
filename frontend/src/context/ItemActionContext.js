@@ -161,19 +161,31 @@ const DEFAULT_ITEM_ACTIONS = {
  * Get available actions for an item type
  * Merges type-specific actions with universal actions
  * Returns only universal actions if type is unknown
+ * Deduplicates by action.id - first occurrence wins (type-specific before universal)
  */
 export const getItemActions = (itemType, registeredActions = null) => {
   const universalActions = DEFAULT_ITEM_ACTIONS._universal;
   
+  let combinedActions;
+  
   // If custom actions registered for this type, use them
   if (registeredActions && registeredActions.length > 0) {
-    return [...registeredActions, ...universalActions];
+    combinedActions = [...registeredActions, ...universalActions];
+  } else {
+    // Get type-specific actions
+    const typeActions = DEFAULT_ITEM_ACTIONS[itemType] || [];
+    combinedActions = [...typeActions, ...universalActions];
   }
   
-  // Get type-specific actions
-  const typeActions = DEFAULT_ITEM_ACTIONS[itemType] || [];
-  
-  return [...typeActions, ...universalActions];
+  // Deduplicate by action.id - first occurrence wins
+  const seenIds = new Set();
+  return combinedActions.filter(action => {
+    if (seenIds.has(action.id)) {
+      return false;
+    }
+    seenIds.add(action.id);
+    return true;
+  });
 };
 
 // ============================================================================
