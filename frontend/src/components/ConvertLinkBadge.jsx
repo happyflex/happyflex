@@ -133,9 +133,7 @@ const ConvertLinkBadge = ({
   
   const hasConvertLinks = convertedTo.length > 0 || convertedFrom;
   
-  if (!hasConvertLinks) return null;
-  
-  // Handle click on linked item
+  // Handle click on linked item - must be before conditional return
   const handleLinkClick = useCallback((linkedId, linkedType, e) => {
     e?.stopPropagation();
     
@@ -154,10 +152,20 @@ const ConvertLinkBadge = ({
     
     // Trigger navigation trace effect
     triggerNavigationTrace({
-      itemId: item.id,
+      itemId: item?.id,
       itemType,
       convertedTo,
       convertedFrom,
+      moduleType: `${itemType}s`
+    });
+    
+    // Navigate to linked item
+    if (onNavigate) {
+      onNavigate(linkedId, linkedType);
+    }
+  }, [item?.id, itemType, convertedTo, convertedFrom, triggerNavigationTrace, onNavigate]);
+  
+  if (!hasConvertLinks) return null;
       moduleType: `${itemType}s`
     });
     
