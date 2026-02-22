@@ -452,9 +452,10 @@ const Canvas = () => {
         return true;
         
       case 'process_step':
-        // Process Step - restore to ProcessCanvas
+        // Process Step - restore to ProcessCanvas with viewStateHint
         const processStepMeta = data.metadata || {};
         const psProcessId = processStepMeta.processId;
+        const psViewStateHint = processStepMeta.viewStateHint || {};
         
         if (!psProcessId) {
           console.warn('Missing processId for process_step restore');
@@ -485,7 +486,7 @@ const Canvas = () => {
             localStorage.setItem('steward_processes', JSON.stringify(procs));
           }
           
-          // Open Processes module
+          // Anti-ghost guard: Check if Processes module already exists
           const existingProcessesModule = modules.find(m => m.type === 'processes');
           if (!existingProcessesModule) {
             addModule('processes');
@@ -493,13 +494,18 @@ const Canvas = () => {
             bringToFront(existingProcessesModule.id);
           }
           
-          // Dispatch event to navigate to process
+          // Apply viewStateHint after module mounts
           setTimeout(() => {
             window.dispatchEvent(new CustomEvent('steward-processes-updated'));
+            // Dispatch event with viewStateHint to navigate to restored process step
             window.dispatchEvent(new CustomEvent('steward-process-step-restored', {
-              detail: { processId: psProcessId, stepId: originalData.id }
+              detail: { 
+                processId: psProcessId, 
+                stepId: originalData.id,
+                viewStateHint: psViewStateHint
+              }
             }));
-          }, 100);
+          }, 150);
           
         } catch (e) {
           console.error('Error restoring process_step:', e);
