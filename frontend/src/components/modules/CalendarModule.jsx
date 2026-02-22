@@ -243,27 +243,9 @@ const CalendarModule = ({ initialViewState, onViewStateChange }) => {
       itemType: ITEM_TYPES.CALENDAR_EVENT,
       moduleType: 'calendar',
       handlers: {
+        // DELETE uses unified handleDeleteEvent function (same as UI button)
         [ITEM_ACTIONS.DELETE]: (payload) => {
-          const event = events.find(e => e.id === payload.itemId);
-          if (event) {
-            // Add to Trash with complete restore context
-            addToTrash({
-              type: TRASH_TYPES.CALENDAR_EVENT,
-              name: event.title || 'Událost bez názvu',
-              data: event,
-              sourceModule: 'Kalendář',
-              metadata: {
-                date: event.date,
-                startTime: event.startTime,
-                endTime: event.endTime,
-                eventType: event.type
-              }
-            });
-            
-            // Then remove from state
-            setEvents(prev => prev.filter(e => e.id !== payload.itemId));
-            toast({ title: 'Událost přesunuta do koše', description: event.title });
-          }
+          handleDeleteEvent(payload.itemId);
         },
         [ITEM_ACTIONS.DUPLICATE]: (payload) => {
           const event = events.find(e => e.id === payload.itemId);
