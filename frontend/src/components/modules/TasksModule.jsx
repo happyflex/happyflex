@@ -8,6 +8,7 @@ import { Input } from '../ui/input';
 import { ScrollArea } from '../ui/scroll-area';
 import { Checkbox } from '../ui/checkbox';
 import ModuleHeader from './ModuleHeader';
+import ConvertLinkBadge from '../ConvertLinkBadge';
 import { toast } from '../../hooks/use-toast';
 
 const TasksModule = () => {
