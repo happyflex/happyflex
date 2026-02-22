@@ -569,9 +569,9 @@ const TrashModule = () => {
         break;
         
       case TRASH_TYPES.PROCESS_STEP:
-        // Restore process step to ProcessCanvas
+        // Restore process step to ProcessCanvas (unified with drag restore logic)
         try {
-          const { processId, connections: stepConnections } = item.metadata || {};
+          const { processId, connections: stepConnections, viewStateHint } = item.metadata || {};
           if (!processId) {
             toast({
               title: 'Chyba',
@@ -618,19 +618,33 @@ const TrashModule = () => {
             }
             
             localStorage.setItem('steward_processes', JSON.stringify(procs));
-            window.dispatchEvent(new CustomEvent('steward-processes-updated'));
-            
-            toast({
-              title: 'Krok procesu obnoven',
-              description: `${item.name} byl obnoven do procesu`
-            });
-          } else {
-            toast({
-              title: 'Krok již existuje',
-              description: `${item.name} je již v procesu`,
-              variant: 'destructive'
-            });
           }
+          
+          // Open/focus Processes module (same as drag restore)
+          const existingProcessesModule = modules.find(m => m.type === 'processes');
+          if (!existingProcessesModule) {
+            addModule('processes');
+          } else {
+            bringToFront(existingProcessesModule.id);
+          }
+          
+          // Dispatch events to navigate to restored step (same as drag restore)
+          setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('steward-processes-updated'));
+            window.dispatchEvent(new CustomEvent('steward-process-step-restored', {
+              detail: { 
+                processId: processId, 
+                stepId: item.originalData.id,
+                viewStateHint: viewStateHint || {}
+              }
+            }));
+          }, 150);
+          
+          toast({
+            title: 'Krok procesu obnoven',
+            description: `${item.name} byl obnoven do procesu`
+          });
+          
         } catch (e) {
           console.error('Error restoring process step:', e);
           toast({
