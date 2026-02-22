@@ -178,7 +178,13 @@ export const TrashProvider = ({ children }) => {
       sourceModule: 'tasks',
       metadata: {
         completed: task.completed,
-        priority: task.priority
+        priority: task.priority,
+        // Preserve convert links for restore
+        convertedTo: task.convertedTo,
+        convertedFromId: task.convertedFromId,
+        convertedFromType: task.convertedFromType,
+        convertedAt: task.convertedAt,
+        isConverted: task.isConverted
       }
     });
   }, [addToTrash]);
