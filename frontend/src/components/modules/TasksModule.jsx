@@ -197,7 +197,21 @@ const TasksModule = () => {
                               {new Date(task.dueDate).toLocaleDateString('cs-CZ')}
                             </span>
                           )}
+                          {/* Compact convert badge */}
+                          {(task.convertedFromId || task.convertedTo?.length > 0) && (
+                            <ConvertLinkBadge item={task} itemType="task" compact />
+                          )}
                         </div>
+                        {/* Full convert link section */}
+                        <ConvertLinkBadge 
+                          item={task} 
+                          itemType="task"
+                          onNavigate={(linkedId, linkedType) => {
+                            window.dispatchEvent(new CustomEvent('steward-navigate-to-item', {
+                              detail: { itemId: linkedId, itemType: linkedType }
+                            }));
+                          }}
+                        />
                       </div>
                       <Button
                         size="icon"
