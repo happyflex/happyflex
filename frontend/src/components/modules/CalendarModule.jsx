@@ -117,9 +117,27 @@ const CalendarModule = ({ initialViewState, onViewStateChange }) => {
       }
     };
     
+    // Handle restored event - navigate to its date
+    const handleEventRestored = (event) => {
+      const { date, viewStateHint } = event.detail || {};
+      
+      // Reload events first
+      handleCalendarUpdated();
+      
+      // Apply viewStateHint - navigate to the restored event's date
+      if (date) {
+        setCurrentDate(new Date(date));
+      }
+      if (viewStateHint?.view) {
+        setView(viewStateHint.view);
+      }
+    };
+    
     window.addEventListener('steward-calendar-updated', handleCalendarUpdated);
+    window.addEventListener('steward-calendar-event-restored', handleEventRestored);
     return () => {
       window.removeEventListener('steward-calendar-updated', handleCalendarUpdated);
+      window.removeEventListener('steward-calendar-event-restored', handleEventRestored);
     };
   }, []);
 
