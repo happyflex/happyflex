@@ -235,7 +235,22 @@ const NotesModule = () => {
                   <span className="text-xs text-gray-500">
                     {new Date(note.createdAt).toLocaleDateString('cs-CZ')}
                   </span>
+                  {/* Compact convert badge inline */}
+                  {(note.convertedTo?.length > 0 || note.convertedFromId) && (
+                    <ConvertLinkBadge item={note} itemType="note" compact />
+                  )}
                 </div>
+                {/* Full convert link section (expanded) */}
+                <ConvertLinkBadge 
+                  item={note} 
+                  itemType="note"
+                  onNavigate={(linkedId, linkedType) => {
+                    // Dispatch navigation event
+                    window.dispatchEvent(new CustomEvent('steward-navigate-to-item', {
+                      detail: { itemId: linkedId, itemType: linkedType }
+                    }));
+                  }}
+                />
               </div>
             ))}
           </div>
