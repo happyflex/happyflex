@@ -278,7 +278,7 @@ const CalendarModule = ({ initialViewState, onViewStateChange }) => {
     });
     
     return unregister;
-  }, [events, register, addToTrash, TRASH_TYPES]);
+  }, [events, register, addToTrash, TRASH_TYPES, view, handleDeleteEvent]);
 
   const handleDragStart = (event, e) => {
     setDraggedEvent(event);
