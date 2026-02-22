@@ -124,8 +124,8 @@ const DEFAULT_ITEM_ACTIONS = {
   ],
   
   [ITEM_TYPES.CALENDAR_EVENT]: [
-    { id: ITEM_ACTIONS.EDIT, label: 'Upravit', icon: 'Edit2' },
-    { id: ITEM_ACTIONS.DELETE, label: 'Smazat', icon: 'Trash2' }
+    { id: ITEM_ACTIONS.EDIT, label: 'Upravit', icon: 'Edit2' }
+    // DELETE inherited from _universal ("Odstranit")
   ],
   
   [ITEM_TYPES.MUSIC_TRACK]: [
