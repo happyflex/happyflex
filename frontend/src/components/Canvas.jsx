@@ -391,10 +391,11 @@ const Canvas = () => {
         return true;
         
       case 'plan_area':
-        // Plan Area - restore to Goals planner
+        // Plan Area - restore to Goals planner with viewStateHint
         const planAreaMeta = data.metadata || {};
         const paGoalId = planAreaMeta.goalId;
         const paPlanId = planAreaMeta.planId;
+        const paViewStateHint = planAreaMeta.viewStateHint || {};
         
         if (!paGoalId || !paPlanId) {
           console.warn('Missing goalId or planId for plan_area restore');
@@ -422,7 +423,7 @@ const Canvas = () => {
             localStorage.setItem('steward_goals', JSON.stringify(goals));
           }
           
-          // Open Goals module
+          // Anti-ghost guard: Check if Goals module already exists
           const existingGoalsModule = modules.find(m => m.type === 'goals');
           if (!existingGoalsModule) {
             addModule('goals');
@@ -430,13 +431,19 @@ const Canvas = () => {
             bringToFront(existingGoalsModule.id);
           }
           
-          // Dispatch event to navigate to goal and plan
+          // Apply viewStateHint after module mounts
           setTimeout(() => {
             window.dispatchEvent(new CustomEvent('steward-goals-updated'));
+            // Dispatch event with viewStateHint to navigate to restored plan area
             window.dispatchEvent(new CustomEvent('steward-plan-area-restored', {
-              detail: { goalId: paGoalId, planId: paPlanId, areaId: originalData.id }
+              detail: { 
+                goalId: paGoalId, 
+                planId: paPlanId, 
+                areaId: originalData.id,
+                viewStateHint: paViewStateHint
+              }
             }));
-          }, 100);
+          }, 150);
           
         } catch (e) {
           console.error('Error restoring plan_area:', e);
