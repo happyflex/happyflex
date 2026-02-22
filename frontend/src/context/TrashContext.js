@@ -130,7 +130,13 @@ export const TrashProvider = ({ children }) => {
       data: note,
       sourceModule: 'notes',
       metadata: {
-        content: note.content?.substring(0, 100) + '...'
+        content: note.content?.substring(0, 100) + '...',
+        // Preserve convert links for restore
+        convertedTo: note.convertedTo,
+        convertedFromId: note.convertedFromId,
+        convertedFromType: note.convertedFromType,
+        convertedAt: note.convertedAt,
+        isConverted: note.isConverted
       }
     });
   }, [addToTrash]);
