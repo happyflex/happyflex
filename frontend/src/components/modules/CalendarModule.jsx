@@ -199,12 +199,42 @@ const CalendarModule = ({ initialViewState, onViewStateChange }) => {
     setEditingEvent(null);
   };
 
-  const handleDeleteEvent = () => {
-    if (editingEvent) {
-      setEvents(prev => prev.filter(e => e.id !== editingEvent.id));
-      setShowEventForm(false);
-      setEditingEvent(null);
+  // === UNIFIED DELETE: UI button + Item Ring use same Trash pipeline ===
+  const handleDeleteEvent = (eventId = null) => {
+    // Support both UI button (uses editingEvent) and direct call with eventId
+    const targetId = eventId || editingEvent?.id;
+    if (!targetId) return;
+    
+    const event = events.find(e => e.id === targetId);
+    if (!event) {
+      console.warn('[Calendar] Event not found for delete:', targetId);
+      return;
     }
+    
+    // Add to Trash with complete restore context + viewStateHint
+    addToTrash({
+      type: TRASH_TYPES.CALENDAR_EVENT,
+      name: event.title || 'Událost bez názvu',
+      data: event,
+      sourceModule: 'Kalendář',
+      metadata: {
+        date: event.date,
+        startTime: event.startTime,
+        endTime: event.endTime,
+        eventType: event.type,
+        // viewStateHint for restore to navigate to correct date
+        viewStateHint: {
+          selectedDate: event.date,
+          view: view // current view mode (week/day/month)
+        }
+      }
+    });
+    
+    // Then remove from state
+    setEvents(prev => prev.filter(e => e.id !== targetId));
+    setShowEventForm(false);
+    setEditingEvent(null);
+    toast({ title: 'Událost přesunuta do koše', description: event.title });
   };
 
   // === ITEM MODE: Register in central registry ===
