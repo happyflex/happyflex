@@ -3,17 +3,20 @@ import { Plus, Trash2, Edit3 } from 'lucide-react';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import { useTrash } from '../../context/TrashContext';
 import { useItemActions, ITEM_ACTIONS, ITEM_TYPES } from '../../context/ItemActionContext';
+import { useConvertTrace } from '../../context/ConvertTraceContext';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { Input } from '../ui/input';
 import { ScrollArea } from '../ui/scroll-area';
 import ModuleHeader from './ModuleHeader';
+import ConvertLinkBadge from '../ConvertLinkBadge';
 import { toast } from '../../hooks/use-toast';
 
 const NotesModule = () => {
-  const { notes, addNote, updateNote, deleteNote, tasks, addTask } = useWorkspace();
+  const { notes, addNote, updateNote, deleteNote, tasks, addTask, setNotes } = useWorkspace();
   const { addNoteToTrash } = useTrash();
   const { register } = useItemActions();
+  const { triggerMorphTrace } = useConvertTrace();
   const [isAdding, setIsAdding] = useState(false);
   const [newNote, setNewNote] = useState({ title: '', content: '', color: '#0ea5e9' });
   const [editingId, setEditingId] = useState(null);
@@ -49,14 +52,53 @@ const NotesModule = () => {
         [ITEM_ACTIONS.CONVERT_TO_TASK]: (payload) => {
           const note = notes.find(n => n.id === payload.itemId);
           if (note && addTask) {
+            const convertedAt = new Date().toISOString();
+            const newTaskId = Date.now().toString();
+            
+            // Create new task with convert link back to note
             const newTask = {
+              id: newTaskId,
               title: note.title || 'Úkol z poznámky',
               description: note.content,
               priority: 'medium',
               dueDate: null,
-              completed: false
+              completed: false,
+              // Convert link metadata
+              convertedFromId: note.id,
+              convertedFromType: 'note',
+              convertedAt
             };
+            
+            // Update original note with multi-convert array
+            const updatedNote = {
+              ...note,
+              isConverted: true,
+              convertedTo: [
+                ...(note.convertedTo || []),
+                {
+                  targetId: newTaskId,
+                  targetType: 'task',
+                  convertedAt
+                }
+              ]
+            };
+            
+            // Save updated note
+            setNotes(prev => prev.map(n => n.id === note.id ? updatedNote : n));
+            
+            // Add new task
             addTask(newTask);
+            
+            // Trigger Morph Trace effect
+            triggerMorphTrace({
+              originId: note.id,
+              originType: 'note',
+              targetId: newTaskId,
+              targetType: 'task',
+              originModuleType: 'notes',
+              targetModuleType: 'tasks'
+            });
+            
             toast({ title: 'Převedeno na úkol', description: note.title });
           }
         },
@@ -67,7 +109,7 @@ const NotesModule = () => {
     });
     
     return unregister;
-  }, [notes, addNote, deleteNote, addNoteToTrash, addTask, register]);
+  }, [notes, addNote, deleteNote, addNoteToTrash, addTask, setNotes, register, triggerMorphTrace]);
 
   const handleAddNote = () => {
     if (newNote.title.trim() || newNote.content.trim()) {
