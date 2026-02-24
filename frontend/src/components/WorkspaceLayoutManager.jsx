@@ -40,6 +40,7 @@ const getUniqueModules = (layout) => {
 
 const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
   const workspace = useWorkspace();
+  const { push: pushUndo } = useUndo();
   const [layouts, setLayouts] = useState([]);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [layoutName, setLayoutName] = useState('');
