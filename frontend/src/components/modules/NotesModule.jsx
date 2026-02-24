@@ -25,6 +25,17 @@ const NotesModule = () => {
 
   const colors = ['#0ea5e9', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
 
+  // Stable refs for handlers to avoid stale closures
+  const notesRef = React.useRef(notes);
+  const pushUndoRef = React.useRef(pushUndo);
+  const setNotesRef = React.useRef(setNotes);
+  
+  React.useEffect(() => {
+    notesRef.current = notes;
+    pushUndoRef.current = pushUndo;
+    setNotesRef.current = setNotes;
+  }, [notes, pushUndo, setNotes]);
+
   // Register item type and handlers in central registry
   useEffect(() => {
     const unregister = register({
@@ -32,7 +43,8 @@ const NotesModule = () => {
       moduleType: 'notes',
       handlers: {
         [ITEM_ACTIONS.DELETE]: (payload) => {
-          const note = notes.find(n => n.id === payload.itemId);
+          const currentNotes = notesRef.current;
+          const note = currentNotes.find(n => n.id === payload.itemId);
           if (note) {
             // Snapshot for undo
             const deletedNote = { ...note };
@@ -40,12 +52,12 @@ const NotesModule = () => {
             addNoteToTrash(note);
             deleteNote(note.id);
             
-            // Push undo entry
-            pushUndo({
+            // Push undo entry using ref
+            pushUndoRef.current({
               label: `Smazat poznámku "${note.title || 'Bez názvu'}"`,
               undo: () => {
                 // Restore note back to notes array
-                setNotes(prev => {
+                setNotesRef.current(prev => {
                   if (prev.some(n => n.id === deletedNote.id)) return prev;
                   return [...prev, deletedNote];
                 });
@@ -56,7 +68,8 @@ const NotesModule = () => {
           }
         },
         [ITEM_ACTIONS.DUPLICATE]: (payload) => {
-          const note = notes.find(n => n.id === payload.itemId);
+          const currentNotes = notesRef.current;
+          const note = currentNotes.find(n => n.id === payload.itemId);
           if (note) {
             const duplicated = {
               title: `${note.title} (kopie)`,
@@ -68,7 +81,8 @@ const NotesModule = () => {
           }
         },
         [ITEM_ACTIONS.CONVERT_TO_TASK]: (payload) => {
-          const note = notes.find(n => n.id === payload.itemId);
+          const currentNotes = notesRef.current;
+          const note = currentNotes.find(n => n.id === payload.itemId);
           if (note && addTask) {
             const convertedAt = new Date().toISOString();
             const newTaskId = Date.now().toString();
@@ -102,7 +116,7 @@ const NotesModule = () => {
             };
             
             // Save updated note
-            setNotes(prev => prev.map(n => n.id === note.id ? updatedNote : n));
+            setNotesRef.current(prev => prev.map(n => n.id === note.id ? updatedNote : n));
             
             // Add new task
             addTask(newTask);
