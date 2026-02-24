@@ -259,6 +259,118 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
     });
   };
 
+  // === RENAME FUNCTIONALITY ===
+  
+  const startRename = (layout) => {
+    setEditingLayoutId(layout.id);
+    setEditingName(layout.name);
+    setRenameError('');
+  };
+  
+  const cancelRename = () => {
+    setEditingLayoutId(null);
+    setEditingName('');
+    setRenameError('');
+  };
+  
+  const generateUniqueName = (baseName, currentLayoutId) => {
+    // Check for duplicates (case-insensitive)
+    const normalizedBase = baseName.toLowerCase().trim();
+    const existingNames = layouts
+      .filter(l => l.id !== currentLayoutId)
+      .map(l => l.name.toLowerCase());
+    
+    if (!existingNames.includes(normalizedBase)) {
+      return baseName.trim();
+    }
+    
+    // Generate unique suffix
+    let suffix = 2;
+    let uniqueName = `${baseName.trim()} (${suffix})`;
+    while (existingNames.includes(uniqueName.toLowerCase())) {
+      suffix++;
+      uniqueName = `${baseName.trim()} (${suffix})`;
+    }
+    return uniqueName;
+  };
+  
+  const saveRename = () => {
+    // Defensive guard: check if layout exists
+    const layoutIndex = layouts.findIndex(l => l.id === editingLayoutId);
+    if (layoutIndex === -1) {
+      toast({
+        title: 'Chyba',
+        description: 'Layout nebyl nalezen',
+        variant: 'destructive'
+      });
+      cancelRename();
+      return;
+    }
+    
+    // Trim and validate
+    const trimmedName = editingName.trim();
+    
+    // Empty name validation
+    if (!trimmedName) {
+      setRenameError('Název nesmí být prázdný');
+      return;
+    }
+    
+    // Max length validation (40 chars)
+    if (trimmedName.length > 40) {
+      setRenameError('Název může mít max. 40 znaků');
+      return;
+    }
+    
+    // Generate unique name if duplicate
+    const finalName = generateUniqueName(trimmedName, editingLayoutId);
+    
+    // Update layout (preserve all other fields)
+    const updatedLayouts = layouts.map(l => 
+      l.id === editingLayoutId 
+        ? { ...l, name: finalName }
+        : l
+    );
+    
+    // Save to localStorage
+    try {
+      localStorage.setItem(STORAGE_KEYS.SAVED_LAYOUTS, JSON.stringify(updatedLayouts));
+      setLayouts(updatedLayouts);
+      
+      // Show toast if name was auto-modified for uniqueness
+      if (finalName !== trimmedName) {
+        toast({
+          title: 'Layout přejmenován',
+          description: `Název změněn na "${finalName}" (duplicitní název upraven)`
+        });
+      } else {
+        toast({
+          title: 'Layout přejmenován',
+          description: `Layout byl přejmenován na "${finalName}"`
+        });
+      }
+    } catch (error) {
+      console.error('Error saving renamed layout:', error);
+      toast({
+        title: 'Chyba',
+        description: 'Nepodařilo se uložit nový název',
+        variant: 'destructive'
+      });
+    }
+    
+    cancelRename();
+  };
+  
+  const handleRenameKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      saveRename();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      cancelRename();
+    }
+  };
+
   return (
     <>
       {/* Holographic scan animation styles */}
