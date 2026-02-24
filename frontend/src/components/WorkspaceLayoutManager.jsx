@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Save, FolderOpen, Trash2, X,
+  Save, FolderOpen, Trash2, X, Edit2, Check,
   FileText, ListChecks, Users, Layout, Target, GitBranch, 
   BarChart3, Timer, Calendar, Music, Trash2 as TrashIcon
 } from 'lucide-react';
