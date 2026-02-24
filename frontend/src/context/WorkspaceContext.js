@@ -356,7 +356,7 @@ export const WorkspaceProvider = ({ children }) => {
     const safeZone = getSafeZone();
     if (!safeZone.isValid) return {};
     
-    // Snap gap constant (30px between left/right snap windows)
+    // Snap gap constant (30px between snap windows)
     const SNAP_GAP = 30;
     
     // Use floor/ceil to avoid 1px drift when splitting
@@ -382,22 +382,52 @@ export const WorkspaceProvider = ({ children }) => {
       rightSnapX = safeZone.left + Math.ceil(safeZone.width / 2);
     }
     
+    // === CORNER SNAP with 30px gap between quadrants ===
+    // Usable dimensions = total - gap (gap is in the middle)
+    const cornerUsableWidth = safeZone.width - SNAP_GAP;
+    const cornerUsableHeight = safeZone.height - SNAP_GAP;
+    
+    // Corner snap dimensions with pixel-perfect split
+    let cornerLeftW, cornerRightW, cornerTopH, cornerBottomH;
+    let cornerRightX, cornerBottomY;
+    
+    if (cornerUsableWidth > 0 && cornerUsableHeight > 0) {
+      // Split usable width/height equally
+      cornerLeftW = Math.floor(cornerUsableWidth / 2);
+      cornerRightW = cornerUsableWidth - cornerLeftW; // No 1px drift
+      
+      cornerTopH = Math.floor(cornerUsableHeight / 2);
+      cornerBottomH = cornerUsableHeight - cornerTopH; // No 1px drift
+      
+      // Positions with gap
+      cornerRightX = safeZone.left + cornerLeftW + SNAP_GAP;
+      cornerBottomY = safeZone.top + cornerTopH + SNAP_GAP;
+    } else {
+      // Fallback: use original half calculation (no gap)
+      cornerLeftW = halfWidth;
+      cornerRightW = halfWidth;
+      cornerTopH = halfHeight;
+      cornerBottomH = halfHeight;
+      cornerRightX = safeZone.left + Math.ceil(safeZone.width / 2);
+      cornerBottomY = safeZone.top + Math.ceil(safeZone.height / 2);
+    }
+    
     return {
       'top-left': {
         position: { x: safeZone.left, y: safeZone.top },
-        size: { width: halfWidth, height: halfHeight }
+        size: { width: cornerLeftW, height: cornerTopH }
       },
       'top-right': {
-        position: { x: safeZone.left + Math.ceil(safeZone.width / 2), y: safeZone.top },
-        size: { width: halfWidth, height: halfHeight }
+        position: { x: cornerRightX, y: safeZone.top },
+        size: { width: cornerRightW, height: cornerTopH }
       },
       'bottom-left': {
-        position: { x: safeZone.left, y: safeZone.top + Math.ceil(safeZone.height / 2) },
-        size: { width: halfWidth, height: halfHeight }
+        position: { x: safeZone.left, y: cornerBottomY },
+        size: { width: cornerLeftW, height: cornerBottomH }
       },
       'bottom-right': {
-        position: { x: safeZone.left + Math.ceil(safeZone.width / 2), y: safeZone.top + Math.ceil(safeZone.height / 2) },
-        size: { width: halfWidth, height: halfHeight }
+        position: { x: cornerRightX, y: cornerBottomY },
+        size: { width: cornerRightW, height: cornerBottomH }
       },
       'left-half': {
         position: { x: safeZone.left, y: safeZone.top },
