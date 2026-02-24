@@ -141,7 +141,7 @@ const NotesModule = () => {
     });
     
     return unregister;
-  }, [notes, addNote, deleteNote, addNoteToTrash, addTask, setNotes, register, triggerMorphTrace]);
+  }, [addNote, deleteNote, addNoteToTrash, addTask, register, triggerMorphTrace]);
 
   const handleAddNote = () => {
     if (newNote.title.trim() || newNote.content.trim()) {
@@ -152,9 +152,23 @@ const NotesModule = () => {
   };
 
   const handleDeleteNote = (note) => {
+    // Snapshot for undo
+    const deletedNote = { ...note };
+    
     // Add to trash before deleting
     addNoteToTrash(note);
     deleteNote(note.id);
+    
+    // Push undo
+    pushUndo({
+      label: `Smazat poznámku "${note.title || 'Bez názvu'}"`,
+      undo: () => {
+        setNotes(prev => {
+          if (prev.some(n => n.id === deletedNote.id)) return prev;
+          return [...prev, deletedNote];
+        });
+      }
+    });
   };
 
   return (
