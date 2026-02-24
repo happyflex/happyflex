@@ -251,9 +251,31 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
 
   const deleteLayout = (id) => {
     const layout = layouts.find(l => l.id === id);
+    if (!layout) return;
+    
+    // Snapshot for undo
+    const deletedLayout = { ...layout };
+    
     const updatedLayouts = layouts.filter(l => l.id !== id);
     localStorage.setItem(STORAGE_KEYS.SAVED_LAYOUTS, JSON.stringify(updatedLayouts));
     setLayouts(updatedLayouts);
+    
+    // Push undo entry
+    pushUndo({
+      label: `Smazat layout "${layout.name}"`,
+      undo: () => {
+        // Restore layout back to list
+        try {
+          const currentLayouts = JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_LAYOUTS) || '[]');
+          if (currentLayouts.some(l => l.id === deletedLayout.id)) return;
+          const restoredLayouts = [...currentLayouts, deletedLayout];
+          localStorage.setItem(STORAGE_KEYS.SAVED_LAYOUTS, JSON.stringify(restoredLayouts));
+          setLayouts(restoredLayouts);
+        } catch (e) {
+          console.error('Undo layout delete failed:', e);
+        }
+      }
+    });
 
     toast({
       title: 'Layout smazán',
