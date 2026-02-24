@@ -432,6 +432,7 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
                       const maxVisibleChips = 5;
                       const visibleModules = uniqueModules.slice(0, maxVisibleChips);
                       const hiddenCount = uniqueModules.length - maxVisibleChips;
+                      const isEditing = editingLayoutId === layout.id;
                       
                       return (
                         <div
@@ -440,7 +441,47 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
-                              <h4 className="font-semibold text-white mb-1">{layout.name}</h4>
+                              {/* Inline edit mode */}
+                              {isEditing ? (
+                                <div className="mb-1">
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      ref={renameInputRef}
+                                      value={editingName}
+                                      onChange={(e) => {
+                                        setEditingName(e.target.value);
+                                        setRenameError('');
+                                      }}
+                                      onKeyDown={handleRenameKeyDown}
+                                      className="h-8 bg-[#0f1d35] border-cyan-500/50 text-white text-sm font-semibold flex-1"
+                                      maxLength={40}
+                                    />
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={saveRename}
+                                      className="h-8 w-8 p-0 text-green-400 hover:text-green-300 hover:bg-green-500/10"
+                                      title="Uložit"
+                                    >
+                                      <Check className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={cancelRename}
+                                      className="h-8 w-8 p-0 text-gray-400 hover:text-gray-300 hover:bg-gray-500/10"
+                                      title="Zrušit"
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                  {renameError && (
+                                    <p className="text-xs text-red-400 mt-1">{renameError}</p>
+                                  )}
+                                </div>
+                              ) : (
+                                <h4 className="font-semibold text-white mb-1">{layout.name}</h4>
+                              )}
                               <p className="text-xs text-gray-500">
                                 Vytvořeno: {new Date(layout.createdAt || layout.timestamp).toLocaleString('cs-CZ')}
                               </p>
@@ -491,13 +532,15 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
                               </div>
                             </div>
                             <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                onClick={() => loadLayout(layout)}
-                                className="bg-cyan-500 hover:bg-cyan-400 text-white"
-                              >
-                                <FolderOpen className="h-4 w-4 mr-1" />
-                                Načíst
+                              {!isEditing && (
+                                <>
+                                  <Button
+                                    size="sm"
+                                    onClick={() => loadLayout(layout)}
+                                    className="bg-cyan-500 hover:bg-cyan-400 text-white"
+                                  >
+                                    <FolderOpen className="h-4 w-4 mr-1" />
+                                    Načíst
                               </Button>
                               <Button
                                 size="sm"
