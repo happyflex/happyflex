@@ -3,6 +3,7 @@ import { Plus, Check, ListChecks, Trash2 } from 'lucide-react';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import { useTrash } from '../../context/TrashContext';
 import { useItemActions, ITEM_ACTIONS, ITEM_TYPES } from '../../context/ItemActionContext';
+import { useUndo } from '../../context/UndoContext';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { ScrollArea } from '../ui/scroll-area';
@@ -12,9 +13,10 @@ import ConvertLinkBadge from '../ConvertLinkBadge';
 import { toast } from '../../hooks/use-toast';
 
 const TasksModule = () => {
-  const { tasks, addTask, toggleTask, deleteTask } = useWorkspace();
+  const { tasks, addTask, toggleTask, deleteTask, setTasks } = useWorkspace();
   const { addTaskToTrash } = useTrash();
   const { register } = useItemActions();
+  const { push: pushUndo } = useUndo();
   const [isAdding, setIsAdding] = useState(false);
   const [newTask, setNewTask] = useState({ title: '', priority: 'medium', dueDate: '' });
 
@@ -27,8 +29,22 @@ const TasksModule = () => {
         [ITEM_ACTIONS.DELETE]: (payload) => {
           const task = tasks.find(t => t.id === payload.itemId);
           if (task) {
+            const deletedTask = { ...task };
+            
             addTaskToTrash(task);
             deleteTask(task.id);
+            
+            // Push undo
+            pushUndo({
+              label: `Smazat úkol "${task.title || 'Bez názvu'}"`,
+              undo: () => {
+                setTasks(prev => {
+                  if (prev.some(t => t.id === deletedTask.id)) return prev;
+                  return [...prev, deletedTask];
+                });
+              }
+            });
+            
             toast({ title: 'Úkol smazán', description: task.title });
           }
         },
