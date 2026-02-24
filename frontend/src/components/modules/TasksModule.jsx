@@ -89,7 +89,7 @@ const TasksModule = () => {
     });
     
     return unregister;
-  }, [tasks, addTask, toggleTask, deleteTask, addTaskToTrash, register]);
+  }, [addTask, toggleTask, deleteTask, addTaskToTrash, register]);
 
   const handleAddTask = () => {
     if (newTask.title.trim()) {
@@ -100,9 +100,23 @@ const TasksModule = () => {
   };
 
   const handleDeleteTask = (task) => {
+    // Snapshot for undo
+    const deletedTask = { ...task };
+    
     // Add to trash before deleting
     addTaskToTrash(task);
     deleteTask(task.id);
+    
+    // Push undo
+    pushUndo({
+      label: `Smazat úkol "${task.title || 'Bez názvu'}"`,
+      undo: () => {
+        setTasks(prev => {
+          if (prev.some(t => t.id === deletedTask.id)) return prev;
+          return [...prev, deletedTask];
+        });
+      }
+    });
   };
 
   const priorityColors = {
