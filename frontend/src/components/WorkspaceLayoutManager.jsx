@@ -541,18 +541,30 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
                                   >
                                     <FolderOpen className="h-4 w-4 mr-1" />
                                     Načíst
-                              </Button>
-                              <Button
-                                size="sm"
-                              variant="ghost"
-                              onClick={() => deleteLayout(layout.id)}
-                              className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => startRename(layout)}
+                                    className="text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10"
+                                    title="Přejmenovat"
+                                  >
+                                    <Edit2 className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => deleteLayout(layout.id)}
+                                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                                    title="Smazat"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
                       );
                     })}
                   </div>
