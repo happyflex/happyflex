@@ -42,10 +42,24 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
   const [layouts, setLayouts] = useState([]);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [layoutName, setLayoutName] = useState('');
+  
+  // Rename state
+  const [editingLayoutId, setEditingLayoutId] = useState(null);
+  const [editingName, setEditingName] = useState('');
+  const [renameError, setRenameError] = useState('');
+  const renameInputRef = useRef(null);
 
   useEffect(() => {
     loadLayouts();
   }, []);
+  
+  // Focus and select text when entering edit mode
+  useEffect(() => {
+    if (editingLayoutId && renameInputRef.current) {
+      renameInputRef.current.focus();
+      renameInputRef.current.select();
+    }
+  }, [editingLayoutId]);
 
   const loadLayouts = () => {
     try {
