@@ -331,6 +331,9 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
       return;
     }
     
+    // Snapshot previous name for undo
+    const prevName = layouts[layoutIndex].name;
+    
     // Trim and validate
     const trimmedName = editingName.trim();
     
@@ -360,6 +363,24 @@ const WorkspaceLayoutManager = ({ isOpen, onClose }) => {
     try {
       localStorage.setItem(STORAGE_KEYS.SAVED_LAYOUTS, JSON.stringify(updatedLayouts));
       setLayouts(updatedLayouts);
+      
+      // Push undo entry for rename
+      const layoutId = editingLayoutId;
+      pushUndo({
+        label: `Přejmenovat layout "${prevName}" → "${finalName}"`,
+        undo: () => {
+          try {
+            const currentLayouts = JSON.parse(localStorage.getItem(STORAGE_KEYS.SAVED_LAYOUTS) || '[]');
+            const revertedLayouts = currentLayouts.map(l => 
+              l.id === layoutId ? { ...l, name: prevName } : l
+            );
+            localStorage.setItem(STORAGE_KEYS.SAVED_LAYOUTS, JSON.stringify(revertedLayouts));
+            setLayouts(revertedLayouts);
+          } catch (e) {
+            console.error('Undo rename failed:', e);
+          }
+        }
+      });
       
       // Show toast if name was auto-modified for uniqueness
       if (finalName !== trimmedName) {
