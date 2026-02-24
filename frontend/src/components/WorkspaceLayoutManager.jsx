@@ -5,6 +5,7 @@ import {
   BarChart3, Timer, Calendar, Music, Trash2 as TrashIcon
 } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
+import { useUndo } from '../context/UndoContext';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
