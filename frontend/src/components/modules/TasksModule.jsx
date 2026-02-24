@@ -20,6 +20,17 @@ const TasksModule = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [newTask, setNewTask] = useState({ title: '', priority: 'medium', dueDate: '' });
 
+  // Stable refs to avoid stale closures in handlers
+  const tasksRef = React.useRef(tasks);
+  const pushUndoRef = React.useRef(pushUndo);
+  const setTasksRef = React.useRef(setTasks);
+  
+  React.useEffect(() => {
+    tasksRef.current = tasks;
+    pushUndoRef.current = pushUndo;
+    setTasksRef.current = setTasks;
+  }, [tasks, pushUndo, setTasks]);
+
   // === ITEM MODE: Register in central registry ===
   useEffect(() => {
     const unregister = register({
@@ -27,18 +38,19 @@ const TasksModule = () => {
       moduleType: 'tasks',
       handlers: {
         [ITEM_ACTIONS.DELETE]: (payload) => {
-          const task = tasks.find(t => t.id === payload.itemId);
+          const currentTasks = tasksRef.current;
+          const task = currentTasks.find(t => t.id === payload.itemId);
           if (task) {
             const deletedTask = { ...task };
             
             addTaskToTrash(task);
             deleteTask(task.id);
             
-            // Push undo
-            pushUndo({
+            // Push undo using ref
+            pushUndoRef.current({
               label: `Smazat úkol "${task.title || 'Bez názvu'}"`,
               undo: () => {
-                setTasks(prev => {
+                setTasksRef.current(prev => {
                   if (prev.some(t => t.id === deletedTask.id)) return prev;
                   return [...prev, deletedTask];
                 });
@@ -49,7 +61,8 @@ const TasksModule = () => {
           }
         },
         [ITEM_ACTIONS.DUPLICATE]: (payload) => {
-          const task = tasks.find(t => t.id === payload.itemId);
+          const currentTasks = tasksRef.current;
+          const task = currentTasks.find(t => t.id === payload.itemId);
           if (task) {
             const duplicated = {
               title: `${task.title} (kopie)`,
@@ -62,7 +75,8 @@ const TasksModule = () => {
           }
         },
         [ITEM_ACTIONS.TOGGLE_COMPLETE]: (payload) => {
-          const task = tasks.find(t => t.id === payload.itemId);
+          const currentTasks = tasksRef.current;
+          const task = currentTasks.find(t => t.id === payload.itemId);
           if (task) {
             toggleTask(task.id);
             toast({ 
