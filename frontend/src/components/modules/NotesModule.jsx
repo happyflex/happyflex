@@ -4,6 +4,7 @@ import { useWorkspace } from '../../context/WorkspaceContext';
 import { useTrash } from '../../context/TrashContext';
 import { useItemActions, ITEM_ACTIONS, ITEM_TYPES } from '../../context/ItemActionContext';
 import { useConvertTrace } from '../../context/ConvertTraceContext';
+import { useUndo } from '../../context/UndoContext';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { Input } from '../ui/input';
@@ -17,6 +18,7 @@ const NotesModule = () => {
   const { addNoteToTrash } = useTrash();
   const { register } = useItemActions();
   const { triggerMorphTrace } = useConvertTrace();
+  const { push: pushUndo } = useUndo();
   const [isAdding, setIsAdding] = useState(false);
   const [newNote, setNewNote] = useState({ title: '', content: '', color: '#0ea5e9' });
   const [editingId, setEditingId] = useState(null);
@@ -32,8 +34,24 @@ const NotesModule = () => {
         [ITEM_ACTIONS.DELETE]: (payload) => {
           const note = notes.find(n => n.id === payload.itemId);
           if (note) {
+            // Snapshot for undo
+            const deletedNote = { ...note };
+            
             addNoteToTrash(note);
             deleteNote(note.id);
+            
+            // Push undo entry
+            pushUndo({
+              label: `Smazat poznámku "${note.title || 'Bez názvu'}"`,
+              undo: () => {
+                // Restore note back to notes array
+                setNotes(prev => {
+                  if (prev.some(n => n.id === deletedNote.id)) return prev;
+                  return [...prev, deletedNote];
+                });
+              }
+            });
+            
             toast({ title: 'Poznámka smazána', description: note.title });
           }
         },
