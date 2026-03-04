@@ -33,6 +33,9 @@ const moduleComponents = {
   skilltree: SkillTreeModule
 };
 
+// Modules that need full-height content without padding (canvas-style modules)
+const FULL_VIEWPORT_MODULES = ['skilltree', 'projects'];
+
 // Snap zone detection threshold in pixels
 const SNAP_THRESHOLD = 50;
 // Magnetism threshold - how close modules need to be to snap together
@@ -828,7 +831,11 @@ const DraggableModule = ({ module }) => {
           </Button>
         </div>
       </div>
-      <div className="module-content p-4 h-[calc(100%-3rem)] overflow-y-auto overflow-x-hidden">
+      <div className={`module-content h-[calc(100%-3rem)] ${
+        FULL_VIEWPORT_MODULES.includes(module.type) 
+          ? 'overflow-hidden min-h-0' 
+          : 'p-4 overflow-y-auto overflow-x-hidden'
+      }`}>
         <ModuleComponent 
           initialViewState={module.viewState}
           onViewStateChange={(vs) => updateModuleViewState(module.id, vs)}

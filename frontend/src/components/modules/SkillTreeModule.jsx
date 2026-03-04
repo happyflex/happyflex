@@ -312,8 +312,9 @@ const SkillTreeModule = () => {
   const [newSkillCategory, setNewSkillCategory] = useState('skill');
   const [draggedNode, setDraggedNode] = useState(null);
   const svgRef = useRef(null);
-  const containerRef = useRef(null);
-  const [dimensions, setDimensions] = useState({ width: 600, height: 400 });
+  const viewportRef = useRef(null); // SkillTreeViewport ref
+  const [viewportSize, setViewportSize] = useState({ width: 400, height: 300 }); // Default valid size
+  const sizeRef = useRef({ width: 400, height: 300 }); // Track size without re-renders
 
   // Load skill tree from localStorage
   useEffect(() => {
@@ -341,27 +342,50 @@ const SkillTreeModule = () => {
     }
   }, [skillTree]);
 
-  // Update dimensions on resize
+  // Update viewport size using ResizeObserver on SkillTreeViewport
   useEffect(() => {
-    const updateDimensions = () => {
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        setDimensions({ width: rect.width, height: rect.height - 60 });
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+
+    const updateSize = () => {
+      const rect = viewport.getBoundingClientRect();
+      const newWidth = Math.floor(rect.width);
+      const newHeight = Math.floor(rect.height);
+      
+      // Only update state if size actually changed (use ref to track)
+      if (newWidth > 50 && newHeight > 50) {
+        if (newWidth !== sizeRef.current.width || newHeight !== sizeRef.current.height) {
+          sizeRef.current = { width: newWidth, height: newHeight };
+          setViewportSize({ width: newWidth, height: newHeight });
+        }
       }
     };
-    
-    updateDimensions();
-    window.addEventListener('resize', updateDimensions);
-    return () => window.removeEventListener('resize', updateDimensions);
+
+    // Initial size with delay
+    const timeoutId = setTimeout(updateSize, 100);
+
+    // ResizeObserver with debounce
+    let rafId = null;
+    const resizeObserver = new ResizeObserver(() => {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(updateSize);
+    });
+
+    resizeObserver.observe(viewport);
+    return () => {
+      clearTimeout(timeoutId);
+      if (rafId) cancelAnimationFrame(rafId);
+      resizeObserver.disconnect();
+    };
   }, []);
 
   // Calculate node positions using radiální layout
   const calculatePositions = useCallback(() => {
-    if (!skillTree) return [];
+    if (!skillTree || viewportSize.width < 100 || viewportSize.height < 100) return [];
     
     const positions = [];
-    const centerX = dimensions.width / 2;
-    const centerY = dimensions.height / 2;
+    const centerX = viewportSize.width / 2;
+    const centerY = viewportSize.height / 2;
     
     // Recursive function to calculate positions
     const layoutNode = (node, depth, angleStart, angleEnd, parentX, parentY) => {
@@ -388,7 +412,7 @@ const SkillTreeModule = () => {
     layoutNode(skillTree, 0, 0, 360, centerX, centerY);
     
     return positions;
-  }, [skillTree, dimensions]);
+  }, [skillTree, viewportSize]);
 
   const nodePositions = calculatePositions();
 
@@ -554,7 +578,7 @@ const SkillTreeModule = () => {
     : 0;
 
   return (
-    <div className="h-full flex flex-col" ref={containerRef}>
+    <div className="h-full flex flex-col min-h-0 min-w-0">
       <ModuleHeader
         icon={Brain}
         title="Skill Tree"
@@ -572,101 +596,112 @@ const SkillTreeModule = () => {
         }
       />
 
-      <div className="flex-1 flex">
-        {/* SVG Canvas */}
-        <div className="flex-1 relative overflow-hidden">
-          <svg
-            ref={svgRef}
-            width={dimensions.width}
-            height={dimensions.height}
-            className="bg-[#050a15]"
+      {/* SkillTreeRoot - main content area */}
+      <div className="flex-1 flex flex-row min-h-0 min-w-0 h-full">
+        {/* LeftPane - visualization area */}
+        <div className="flex-1 flex flex-col min-h-0 min-w-0 h-full">
+          {/* SkillTreeViewport - the actual canvas/workspace */}
+          <div 
+            ref={viewportRef}
+            className="flex-1 w-full h-full min-h-0 min-w-0 relative overflow-hidden bg-[#050a15]"
           >
-            {/* Background grid pattern */}
-            <defs>
-              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(34, 211, 238, 0.05)" strokeWidth="1"/>
-              </pattern>
-              <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="rgba(34, 211, 238, 0.2)" />
-                <stop offset="100%" stopColor="rgba(34, 211, 238, 0)" />
-              </radialGradient>
-            </defs>
-            
-            <rect width="100%" height="100%" fill="url(#grid)" />
-            
-            {/* Center glow */}
-            <circle 
-              cx={dimensions.width / 2} 
-              cy={dimensions.height / 2} 
-              r={200} 
-              fill="url(#centerGlow)" 
-            />
-            
-            {/* Connection lines */}
-            {nodePositions.filter(p => p.depth > 0).map(({ node, x, y, parentX, parentY }) => {
-              const colors = CATEGORY_COLORS[node.category] || CATEGORY_COLORS.skill;
-              return (
-                <line
-                  key={`line-${node.id}`}
-                  x1={parentX}
-                  y1={parentY}
-                  x2={x}
-                  y2={y}
-                  stroke={colors.primary}
-                  strokeWidth={2}
-                  opacity={0.4}
-                  strokeDasharray="8 4"
-                />
-              );
-            })}
-            
-            {/* Nodes */}
-            {nodePositions.map(({ node, x, y }) => (
-              <SkillNode
-                key={node.id}
-                node={node}
-                x={x}
-                y={y}
-                isSelected={selectedNode?.id === node.id}
-                onSelect={handleSelectNode}
-                onContextMenu={handleContextMenu}
-                onDragStart={handleDragStart}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-              />
-            ))}
-          </svg>
-
-          {/* Context Menu */}
-          {contextMenu && (
-            <div
-              className="fixed z-50 bg-[#0a1628] border border-cyan-500/30 rounded-lg shadow-lg shadow-cyan-500/20 py-1 min-w-[160px]"
-              style={{ left: contextMenu.x, top: contextMenu.y }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                className="w-full px-4 py-2 text-left text-sm text-white hover:bg-cyan-500/20 flex items-center gap-2"
-                onClick={() => handleAddSubskill(contextMenu.node)}
+            {/* Only render SVG if viewport has valid size */}
+            {viewportSize.width >= 100 && viewportSize.height >= 100 ? (
+              <svg
+                ref={svgRef}
+                width="100%"
+                height="100%"
+                className="absolute inset-0"
+                style={{ display: 'block' }}
               >
-                <Plus className="h-4 w-4 text-cyan-400" />
-                Přidat Subskill
-              </button>
-              {!['physical', 'skills', 'knowledge'].includes(contextMenu.node.id) && (
+                {/* Background grid pattern */}
+                <defs>
+                  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(34, 211, 238, 0.05)" strokeWidth="1"/>
+                  </pattern>
+                  <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="rgba(34, 211, 238, 0.2)" />
+                    <stop offset="100%" stopColor="rgba(34, 211, 238, 0)" />
+                  </radialGradient>
+                </defs>
+                
+                <rect width="100%" height="100%" fill="url(#grid)" />
+                
+                {/* Center glow */}
+                <circle 
+                  cx={viewportSize.width / 2} 
+                  cy={viewportSize.height / 2} 
+                  r={200} 
+                  fill="url(#centerGlow)" 
+                />
+                
+                {/* Connection lines */}
+                {nodePositions.filter(p => p.depth > 0).map(({ node, x, y, parentX, parentY }) => {
+                  const colors = CATEGORY_COLORS[node.category] || CATEGORY_COLORS.skill;
+                  return (
+                    <line
+                      key={`line-${node.id}`}
+                      x1={parentX}
+                      y1={parentY}
+                      x2={x}
+                      y2={y}
+                      stroke={colors.primary}
+                      strokeWidth={2}
+                      opacity={0.4}
+                      strokeDasharray="8 4"
+                    />
+                  );
+                })}
+                
+                {/* Nodes */}
+                {nodePositions.map(({ node, x, y }) => (
+                  <SkillNode
+                    key={node.id}
+                    node={node}
+                    x={x}
+                    y={y}
+                    isSelected={selectedNode?.id === node.id}
+                    onSelect={handleSelectNode}
+                    onContextMenu={handleContextMenu}
+                    onDragStart={handleDragStart}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                  />
+                ))}
+              </svg>
+            ) : null}
+
+            {/* Context Menu */}
+            {contextMenu && (
+              <div
+                className="fixed z-50 bg-[#0a1628] border border-cyan-500/30 rounded-lg shadow-lg shadow-cyan-500/20 py-1 min-w-[160px]"
+                style={{ left: contextMenu.x, top: contextMenu.y }}
+                onClick={(e) => e.stopPropagation()}
+              >
                 <button
-                  className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/20 flex items-center gap-2"
-                  onClick={() => handleDeleteSkill(contextMenu.node)}
+                  className="w-full px-4 py-2 text-left text-sm text-white hover:bg-cyan-500/20 flex items-center gap-2"
+                  onClick={() => handleAddSubskill(contextMenu.node)}
                 >
-                  <Trash2 className="h-4 w-4" />
-                  Smazat
+                  <Plus className="h-4 w-4 text-cyan-400" />
+                  Přidat Subskill
                 </button>
-              )}
-            </div>
-          )}
+                {!['physical', 'skills', 'knowledge'].includes(contextMenu.node.id) && (
+                  <button
+                    className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/20 flex items-center gap-2"
+                    onClick={() => handleDeleteSkill(contextMenu.node)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Smazat
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Detail Panel */}
+        {/* RightSidebar - Detail Panel */}
         {selectedNode && (
-          <div className="w-64 border-l border-cyan-500/20 bg-[#0a1628]/80 p-4">
+          <div className="flex-shrink-0 w-64 h-full min-h-0 border-l border-cyan-500/20 bg-[#0a1628]/80 p-4 overflow-y-auto">
             <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
               <ChevronRight className="h-4 w-4 text-cyan-400" />
               Detail Skillu
