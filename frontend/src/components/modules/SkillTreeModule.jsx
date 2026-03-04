@@ -579,22 +579,25 @@ const SkillTreeModule = () => {
 
   return (
     <div className="h-full flex flex-col min-h-0 min-w-0">
-      <ModuleHeader
-        icon={Brain}
-        title="Skill Tree"
-        subtitle={`${skillCount} skills · Avg LVL ${avgLevel}`}
-        iconColor="text-purple-400"
-        actions={
-          <Button
-            size="sm"
-            onClick={() => handleAddSubskill(skillTree)}
-            className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 border border-purple-500/40"
-          >
-            <Plus className="h-4 w-4 mr-1" />
-            Nový Skill
-          </Button>
-        }
-      />
+      {/* Header with padding - consistent with other modules */}
+      <div className="px-6 pt-4">
+        <ModuleHeader
+          icon={Brain}
+          title="Skill Tree"
+          subtitle={`${skillCount} skills · Avg LVL ${avgLevel}`}
+          iconColor="text-purple-400"
+          actions={
+            <Button
+              size="sm"
+              onClick={() => handleAddSubskill(skillTree)}
+              className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 border border-purple-500/40"
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              Nový Skill
+            </Button>
+          }
+        />
+      </div>
 
       {/* SkillTreeRoot - main content area */}
       <div className="flex-1 flex flex-row min-h-0 min-w-0 h-full">
