@@ -17,7 +17,8 @@ import {
   Music,
   Grid3x3,
   Trash2,
-  Folder
+  Folder,
+  Brain
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { useWorkspace } from '../context/WorkspaceContext';
@@ -73,6 +74,7 @@ const toolbarItems = [
   { id: 'file', icon: ListChecks, label: 'Úkoly', type: 'tasks' },
   { id: 'timer', icon: Timer, label: 'Časovač', type: 'timer' },
   { id: 'calendar', icon: Calendar, label: 'Kalendář', type: 'calendar' },
+  { id: 'skilltree', icon: Brain, label: 'Skill Tree', type: 'skilltree' },
   { id: 'chart', icon: BarChart3, label: 'Graf', type: 'chart' },
   { id: 'music', icon: Music, label: 'Hudba', type: 'music' },
   { id: 'video', icon: Video, label: 'Video', type: 'video' },
@@ -246,7 +248,7 @@ const BottomToolbar = () => {
   }, [addModule, modules, deferredModules, bringToFront, restoreModule]);
 
   const handleToolClick = (item) => {
-    if (['notes', 'tasks', 'people', 'projects', 'goals', 'processes', 'chart', 'timer', 'calendar', 'music', 'files'].includes(item.type)) {
+    if (['notes', 'tasks', 'people', 'projects', 'goals', 'processes', 'chart', 'timer', 'calendar', 'music', 'files', 'skilltree'].includes(item.type)) {
       addModule(item.type);
       toast({
         title: 'Modul přidán',
