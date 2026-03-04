@@ -580,7 +580,7 @@ const SkillTreeModule = () => {
   return (
     <div className="h-full flex flex-col min-h-0 min-w-0">
       {/* Header with padding - consistent with other modules */}
-      <div className="px-6 pt-4">
+      <div className="pl-[18px] pr-6 pt-4">
         <ModuleHeader
           icon={Brain}
           title="Skill Tree"
