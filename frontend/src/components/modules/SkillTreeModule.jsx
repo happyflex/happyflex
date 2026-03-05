@@ -14,7 +14,7 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Dna, Plus, Trash2, ChevronRight, Zap, Book, Dumbbell, Brain } from 'lucide-react';
+import { PersonStanding, Plus, Trash2, ChevronRight, Zap, Book, Dumbbell, Brain } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Slider } from '../ui/slider';
@@ -1004,7 +1004,7 @@ const SkillTreeModule = () => {
       {/* Header with padding - consistent with other modules */}
       <div className="pl-[18px] pr-6 pt-4">
         <ModuleHeader
-          icon={Dna}
+          icon={PersonStanding}
           title="Skill Tree"
           subtitle={`${skillCount} skills · Avg LVL ${avgLevel}`}
           iconColor="text-purple-400"

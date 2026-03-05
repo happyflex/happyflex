@@ -18,7 +18,7 @@ import {
   Grid3x3,
   Trash2,
   Folder,
-  Dna
+  PersonStanding
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { useWorkspace } from '../context/WorkspaceContext';
@@ -74,7 +74,7 @@ const toolbarItems = [
   { id: 'file', icon: ListChecks, label: 'Úkoly', type: 'tasks' },
   { id: 'timer', icon: Timer, label: 'Časovač', type: 'timer' },
   { id: 'calendar', icon: Calendar, label: 'Kalendář', type: 'calendar' },
-  { id: 'skilltree', icon: Dna, label: 'Skill Tree', type: 'skilltree' },
+  { id: 'skilltree', icon: PersonStanding, label: 'Skill Tree', type: 'skilltree' },
   { id: 'chart', icon: BarChart3, label: 'Graf', type: 'chart' },
   { id: 'music', icon: Music, label: 'Hudba', type: 'music' },
   { id: 'video', icon: Video, label: 'Video', type: 'video' },
