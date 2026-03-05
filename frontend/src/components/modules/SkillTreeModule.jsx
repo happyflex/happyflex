@@ -313,8 +313,8 @@ const SkillTreeModule = () => {
   const [draggedNode, setDraggedNode] = useState(null);
   const svgRef = useRef(null);
   const viewportRef = useRef(null); // SkillTreeViewport ref
+  const resizeObserverRef = useRef(null);
   const [viewportSize, setViewportSize] = useState({ width: 400, height: 300 }); // Default valid size
-  const sizeRef = useRef({ width: 400, height: 300 }); // Track size without re-renders
 
   // Canvas navigation state
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -354,58 +354,61 @@ const SkillTreeModule = () => {
   }, [skillTree]);
 
   // Update viewport size using ResizeObserver on SkillTreeViewport
-  useEffect(() => {
-    const viewport = viewportRef.current;
-    if (!viewport) return;
-
-    const updateSize = () => {
-      const rect = viewport.getBoundingClientRect();
-      const newWidth = Math.floor(rect.width);
-      const newHeight = Math.floor(rect.height);
-      
-      // Only update state if size actually changed (use ref to track)
-      if (newWidth > 50 && newHeight > 50) {
-        if (newWidth !== sizeRef.current.width || newHeight !== sizeRef.current.height) {
-          sizeRef.current = { width: newWidth, height: newHeight };
-          setViewportSize({ width: newWidth, height: newHeight });
+  // Using callback ref pattern to ensure we attach when element is ready
+  const setViewportRef = useCallback((node) => {
+    // Cleanup previous observer
+    if (resizeObserverRef.current) {
+      resizeObserverRef.current.disconnect();
+    }
+    
+    viewportRef.current = node;
+    
+    if (node) {
+      const updateSize = () => {
+        const rect = node.getBoundingClientRect();
+        const newWidth = Math.floor(rect.width);
+        const newHeight = Math.floor(rect.height);
+        
+        if (newWidth > 50 && newHeight > 50) {
+          setViewportSize(prev => {
+            if (prev.width !== newWidth || prev.height !== newHeight) {
+              return { width: newWidth, height: newHeight };
+            }
+            return prev;
+          });
         }
-      }
-    };
+      };
 
-    // Initial size with delay
-    const timeoutId = setTimeout(updateSize, 100);
+      // Immediate update
+      updateSize();
+      
+      // Also update after layout settling
+      setTimeout(updateSize, 100);
 
-    // ResizeObserver with debounce
-    let rafId = null;
-    const resizeObserver = new ResizeObserver(() => {
-      if (rafId) cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(updateSize);
-    });
-
-    resizeObserver.observe(viewport);
-    return () => {
-      clearTimeout(timeoutId);
-      if (rafId) cancelAnimationFrame(rafId);
-      resizeObserver.disconnect();
-    };
+      // ResizeObserver
+      resizeObserverRef.current = new ResizeObserver(() => {
+        requestAnimationFrame(updateSize);
+      });
+      resizeObserverRef.current.observe(node);
+    }
   }, []);
 
   // Calculate node positions using radiální layout
+  // Nodes are calculated from (0,0) as center - transform will move them to viewport center
   const calculatePositions = useCallback(() => {
     if (!skillTree || viewportSize.width < 100 || viewportSize.height < 100) return [];
     
     const positions = [];
-    const centerX = viewportSize.width / 2;
-    const centerY = viewportSize.height / 2;
     
-    // Recursive function to calculate positions
+    // Recursive function to calculate positions from (0,0) as center
     const layoutNode = (node, depth, angleStart, angleEnd, parentX, parentY) => {
       const radius = depth === 0 ? 0 : 80 + (depth - 1) * 100;
       const angle = (angleStart + angleEnd) / 2;
       const angleRad = (angle * Math.PI) / 180;
       
-      const x = depth === 0 ? centerX : parentX + radius * Math.cos(angleRad);
-      const y = depth === 0 ? centerY : parentY + radius * Math.sin(angleRad);
+      // Root is at (0,0), children spread out from there
+      const x = depth === 0 ? 0 : parentX + radius * Math.cos(angleRad);
+      const y = depth === 0 ? 0 : parentY + radius * Math.sin(angleRad);
       
       positions.push({ node, x, y, parentX, parentY, depth });
       
@@ -419,8 +422,8 @@ const SkillTreeModule = () => {
       }
     };
     
-    // Start layout from root
-    layoutNode(skillTree, 0, 0, 360, centerX, centerY);
+    // Start layout from root at origin (0,0)
+    layoutNode(skillTree, 0, 0, 360, 0, 0);
     
     return positions;
   }, [skillTree, viewportSize]);
@@ -691,7 +694,7 @@ const SkillTreeModule = () => {
         <div className="flex-1 flex flex-col min-h-0 min-w-0 h-full">
           {/* SkillTreeViewport - the actual canvas/workspace */}
           <div 
-            ref={viewportRef}
+            ref={setViewportRef}
             className="flex-1 w-full h-full min-h-0 min-w-0 relative overflow-hidden bg-[#050a15]"
             style={{ cursor: isPanning ? 'grabbing' : 'grab' }}
             onMouseDown={handlePanStart}
@@ -739,12 +742,12 @@ const SkillTreeModule = () => {
                 {/* Static background grid */}
                 <rect width="100%" height="100%" fill="url(#skillTreeGrid)" />
                 
-                {/* Transformable content group */}
-                <g transform={`translate(${pan.x}, ${pan.y}) scale(${zoom})`}>
-                  {/* Center glow - follows transform */}
+                {/* Transformable content group - translate to center, then apply pan and zoom */}
+                <g transform={`translate(${viewportSize.width / 2 + pan.x}, ${viewportSize.height / 2 + pan.y}) scale(${zoom})`}>
+                  {/* Center glow - at origin (0,0) which is now the viewport center */}
                   <circle 
-                    cx={viewportSize.width / 2} 
-                    cy={viewportSize.height / 2} 
+                    cx={0} 
+                    cy={0} 
                     r={200} 
                     fill="url(#skillTreeCenterGlow)" 
                   />
