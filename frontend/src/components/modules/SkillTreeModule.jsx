@@ -246,14 +246,14 @@ const ORBIT_RADII = {
 };
 
 const NODE_SIZES = {
-  core: 75,      // CORE - largest (1.7x of primary)
+  core: 95,      // CORE - largest, visual center of skill tree
   primary: 45,   // Primary skills
   secondary: 35, // Subskills
   tertiary: 28   // Sub-subskills
 };
 
 // ============================================================================
-// CORE NODE COMPONENT - Tony Stark HUD Style
+// CORE NODE COMPONENT - Tony Stark / JARVIS HUD Style
 // ============================================================================
 
 const CoreNode = ({ 
@@ -267,7 +267,7 @@ const CoreNode = ({
   const colors = CATEGORY_COLORS.core;
   const nodeSize = NODE_SIZES.core;
   
-  // Mock user data for HUD labels
+  // User data for HUD panel
   const userData = {
     age: 29,
     energy: 74,
@@ -281,16 +281,16 @@ const CoreNode = ({
       style={{ cursor: 'pointer' }}
       onClick={() => onSelect(node)}
     >
-      {/* ===== OUTER HUD RING - Dashed rotating ring ===== */}
+      {/* ===== OUTER SCAN RING - Rotating dashed ring ===== */}
       <circle
-        r={nodeSize + 28}
+        r={nodeSize + 25}
         fill="none"
         stroke={colors.primary}
         strokeWidth={1.5}
         opacity={0.5}
-        strokeDasharray="12 6 4 6"
+        strokeDasharray="16 8 6 8"
         style={{
-          filter: `drop-shadow(0 0 8px ${colors.glow})`
+          filter: `drop-shadow(0 0 10px ${colors.glow})`
         }}
       >
         <animateTransform
@@ -305,12 +305,12 @@ const CoreNode = ({
       
       {/* Secondary outer ring - counter rotation */}
       <circle
-        r={nodeSize + 22}
+        r={nodeSize + 18}
         fill="none"
         stroke={colors.primary}
         strokeWidth={1}
-        opacity={0.3}
-        strokeDasharray="8 4"
+        opacity={0.35}
+        strokeDasharray="10 5"
       >
         <animateTransform
           attributeName="transform"
@@ -322,24 +322,24 @@ const CoreNode = ({
         />
       </circle>
       
-      {/* ===== INNER POWER RING - Level progress with pulse ===== */}
+      {/* ===== POWER RING - Level progress with pulse ===== */}
       <circle
-        r={nodeSize + 6}
+        r={nodeSize + 8}
         fill="none"
         stroke={colors.primary}
         strokeWidth={4}
-        strokeDasharray={`${(node.level / 100) * 2 * Math.PI * (nodeSize + 6)} ${2 * Math.PI * (nodeSize + 6)}`}
+        strokeDasharray={`${(node.level / 100) * 2 * Math.PI * (nodeSize + 8)} ${2 * Math.PI * (nodeSize + 8)}`}
         strokeLinecap="round"
         opacity={0.9}
         transform="rotate(-90)"
         style={{
-          filter: `drop-shadow(0 0 12px ${colors.glow})`
+          filter: `drop-shadow(0 0 14px ${colors.glow})`
         }}
       >
         <animate
           attributeName="opacity"
-          values="0.9;1;0.9"
-          dur="2s"
+          values="0.85;1;0.85"
+          dur="2.5s"
           repeatCount="indefinite"
         />
       </circle>
@@ -347,223 +347,284 @@ const CoreNode = ({
       {/* ===== MAIN CORE CIRCLE ===== */}
       <circle
         r={nodeSize}
-        fill="rgba(10, 22, 40, 0.95)"
+        fill="rgba(8, 18, 32, 0.97)"
         stroke={colors.primary}
         strokeWidth={isSelected ? 4 : 3}
         style={{
-          filter: `drop-shadow(0 0 ${isSelected ? 25 : 15}px ${colors.glow})`
+          filter: `drop-shadow(0 0 ${isSelected ? 30 : 18}px ${colors.glow})`
         }}
       />
       
-      {/* ===== HOLOGRAPHIC GRID BACKGROUND ===== */}
-      <clipPath id="coreClip">
-        <circle r={nodeSize - 4} />
+      {/* ===== ENERGY CORE CENTER - Reactor glow ===== */}
+      <defs>
+        <radialGradient id="energyCoreGradient" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="rgba(34, 211, 238, 0.5)" />
+          <stop offset="40%" stopColor="rgba(34, 211, 238, 0.2)" />
+          <stop offset="70%" stopColor="rgba(34, 211, 238, 0.08)" />
+          <stop offset="100%" stopColor="rgba(34, 211, 238, 0)" />
+        </radialGradient>
+      </defs>
+      <circle
+        r={nodeSize - 5}
+        fill="url(#energyCoreGradient)"
+        opacity={1}
+      >
+        <animate
+          attributeName="opacity"
+          values="0.8;1;0.8"
+          dur="3s"
+          repeatCount="indefinite"
+        />
+      </circle>
+      
+      {/* ===== HUD GRID BACKGROUND ===== */}
+      <clipPath id="coreGridClip">
+        <circle r={nodeSize - 6} />
       </clipPath>
-      <g clipPath="url(#coreClip)">
+      <g clipPath="url(#coreGridClip)" opacity={0.07}>
         {/* Vertical grid lines */}
-        {[-40, -20, 0, 20, 40].map((offset, i) => (
+        {[-60, -40, -20, 0, 20, 40, 60].map((offset, i) => (
           <line
-            key={`v-${i}`}
+            key={`cv-${i}`}
             x1={offset}
             y1={-nodeSize}
             x2={offset}
             y2={nodeSize}
             stroke={colors.primary}
             strokeWidth={0.5}
-            opacity={0.08}
           />
         ))}
         {/* Horizontal grid lines */}
-        {[-40, -20, 0, 20, 40].map((offset, i) => (
+        {[-60, -40, -20, 0, 20, 40, 60].map((offset, i) => (
           <line
-            key={`h-${i}`}
+            key={`ch-${i}`}
             x1={-nodeSize}
             y1={offset}
             x2={nodeSize}
             y2={offset}
             stroke={colors.primary}
             strokeWidth={0.5}
-            opacity={0.08}
           />
         ))}
-        {/* Inner circle grid */}
-        <circle
-          r={nodeSize - 20}
-          fill="none"
-          stroke={colors.primary}
-          strokeWidth={0.5}
-          opacity={0.08}
-        />
+        {/* Concentric circles */}
+        <circle r={30} fill="none" stroke={colors.primary} strokeWidth={0.5} />
+        <circle r={55} fill="none" stroke={colors.primary} strokeWidth={0.5} />
+        <circle r={80} fill="none" stroke={colors.primary} strokeWidth={0.5} />
       </g>
       
-      {/* ===== INNER DECORATION RING ===== */}
+      {/* ===== INNER DECORATION RINGS ===== */}
       <circle
-        r={nodeSize - 10}
+        r={nodeSize - 12}
         fill="none"
         stroke={colors.primary}
-        strokeWidth={1.5}
-        opacity={0.4}
-        strokeDasharray="6 3"
+        strokeWidth={1}
+        opacity={0.25}
+        strokeDasharray="8 4"
       />
-      
-      {/* Inner glow */}
       <circle
-        r={nodeSize - 15}
-        fill="url(#innerGlow-core)"
-        opacity={0.4}
+        r={nodeSize - 20}
+        fill="none"
+        stroke={colors.primary}
+        strokeWidth={0.5}
+        opacity={0.2}
       />
       
-      {/* ===== HUMAN BLUEPRINT - Vitruvian Man Style ===== */}
-      <g opacity={0.85} style={{ filter: `drop-shadow(0 0 4px ${colors.glow})` }}>
-        {/* Head */}
-        <circle cx={0} cy={-28} r={8} fill="none" stroke={colors.primary} strokeWidth={1.5} />
+      {/* ===== HUMAN BLUEPRINT - Vitruvian Style Holographic Scan ===== */}
+      <g opacity={0.75} style={{ filter: `drop-shadow(0 0 6px ${colors.glow})` }}>
+        {/* Head - detailed */}
+        <circle cx={0} cy={-38} r={10} fill="none" stroke={colors.primary} strokeWidth={1.2} />
+        <circle cx={0} cy={-38} r={6} fill="none" stroke={colors.primary} strokeWidth={0.5} opacity={0.5} />
         
-        {/* Body/Spine */}
-        <line x1={0} y1={-20} x2={0} y2={12} stroke={colors.primary} strokeWidth={1.5} />
+        {/* Neck */}
+        <line x1={0} y1={-28} x2={0} y2={-22} stroke={colors.primary} strokeWidth={1.2} />
         
-        {/* Shoulders */}
-        <line x1={-18} y1={-14} x2={18} y2={-14} stroke={colors.primary} strokeWidth={1.5} />
+        {/* Shoulders line */}
+        <line x1={-24} y1={-18} x2={24} y2={-18} stroke={colors.primary} strokeWidth={1.2} />
         
-        {/* Arms */}
-        <line x1={-18} y1={-14} x2={-28} y2={4} stroke={colors.primary} strokeWidth={1.5} />
-        <line x1={18} y1={-14} x2={28} y2={4} stroke={colors.primary} strokeWidth={1.5} />
+        {/* Torso outline */}
+        <path 
+          d="M -24 -18 L -20 8 L -12 16 L 12 16 L 20 8 L 24 -18" 
+          fill="none" 
+          stroke={colors.primary} 
+          strokeWidth={1}
+          opacity={0.6}
+        />
+        
+        {/* Spine */}
+        <line x1={0} y1={-22} x2={0} y2={16} stroke={colors.primary} strokeWidth={1.2} />
+        
+        {/* Arms - main position */}
+        <line x1={-24} y1={-18} x2={-38} y2={5} stroke={colors.primary} strokeWidth={1.2} />
+        <line x1={24} y1={-18} x2={38} y2={5} stroke={colors.primary} strokeWidth={1.2} />
+        
+        {/* Forearms */}
+        <line x1={-38} y1={5} x2={-45} y2={25} stroke={colors.primary} strokeWidth={1} />
+        <line x1={38} y1={5} x2={45} y2={25} stroke={colors.primary} strokeWidth={1} />
         
         {/* Hands */}
-        <circle cx={-28} cy={4} r={3} fill="none" stroke={colors.primary} strokeWidth={1} />
-        <circle cx={28} cy={4} r={3} fill="none" stroke={colors.primary} strokeWidth={1} />
+        <circle cx={-45} cy={25} r={4} fill="none" stroke={colors.primary} strokeWidth={0.8} />
+        <circle cx={45} cy={25} r={4} fill="none" stroke={colors.primary} strokeWidth={0.8} />
         
         {/* Hips */}
-        <line x1={-10} y1={12} x2={10} y2={12} stroke={colors.primary} strokeWidth={1.5} />
+        <line x1={-12} y1={16} x2={12} y2={16} stroke={colors.primary} strokeWidth={1.2} />
         
         {/* Legs */}
-        <line x1={-10} y1={12} x2={-16} y2={35} stroke={colors.primary} strokeWidth={1.5} />
-        <line x1={10} y1={12} x2={16} y2={35} stroke={colors.primary} strokeWidth={1.5} />
+        <line x1={-12} y1={16} x2={-18} y2={48} stroke={colors.primary} strokeWidth={1.2} />
+        <line x1={12} y1={16} x2={18} y2={48} stroke={colors.primary} strokeWidth={1.2} />
         
         {/* Feet */}
-        <line x1={-16} y1={35} x2={-22} y2={38} stroke={colors.primary} strokeWidth={1} />
-        <line x1={16} y1={35} x2={22} y2={38} stroke={colors.primary} strokeWidth={1} />
+        <ellipse cx={-18} cy={52} rx={5} ry={3} fill="none" stroke={colors.primary} strokeWidth={0.8} />
+        <ellipse cx={18} cy={52} rx={5} ry={3} fill="none" stroke={colors.primary} strokeWidth={0.8} />
         
-        {/* Vitruvian extended arms (faint) */}
-        <line x1={-18} y1={-14} x2={-38} y2={-8} stroke={colors.primary} strokeWidth={0.8} opacity={0.4} />
-        <line x1={18} y1={-14} x2={38} y2={-8} stroke={colors.primary} strokeWidth={0.8} opacity={0.4} />
+        {/* Vitruvian extended arms (ghosted) */}
+        <line x1={-24} y1={-18} x2={-55} y2={-10} stroke={colors.primary} strokeWidth={0.6} opacity={0.3} />
+        <line x1={24} y1={-18} x2={55} y2={-10} stroke={colors.primary} strokeWidth={0.6} opacity={0.3} />
+        <circle cx={-55} cy={-10} r={3} fill="none" stroke={colors.primary} strokeWidth={0.5} opacity={0.3} />
+        <circle cx={55} cy={-10} r={3} fill="none" stroke={colors.primary} strokeWidth={0.5} opacity={0.3} />
         
-        {/* Vitruvian extended legs (faint) */}
-        <line x1={-10} y1={12} x2={-30} y2={28} stroke={colors.primary} strokeWidth={0.8} opacity={0.4} />
-        <line x1={10} y1={12} x2={30} y2={28} stroke={colors.primary} strokeWidth={0.8} opacity={0.4} />
+        {/* Vitruvian extended legs (ghosted) */}
+        <line x1={-12} y1={16} x2={-40} y2={40} stroke={colors.primary} strokeWidth={0.6} opacity={0.3} />
+        <line x1={12} y1={16} x2={40} y2={40} stroke={colors.primary} strokeWidth={0.6} opacity={0.3} />
         
-        {/* Center point / heart */}
-        <circle cx={0} cy={-4} r={4} fill={colors.primary} opacity={0.6}>
+        {/* Heart / Energy center */}
+        <circle cx={0} cy={-5} r={6} fill={colors.primary} opacity={0.4}>
           <animate
             attributeName="opacity"
-            values="0.6;0.9;0.6"
+            values="0.3;0.6;0.3"
             dur="1.5s"
             repeatCount="indefinite"
           />
         </circle>
+        <circle cx={0} cy={-5} r={3} fill={colors.primary} opacity={0.7}>
+          <animate
+            attributeName="opacity"
+            values="0.5;0.9;0.5"
+            dur="1.5s"
+            repeatCount="indefinite"
+          />
+        </circle>
+        
+        {/* Tech detail lines on body */}
+        <line x1={-8} y1={-10} x2={-8} y2={0} stroke={colors.primary} strokeWidth={0.5} opacity={0.4} />
+        <line x1={8} y1={-10} x2={8} y2={0} stroke={colors.primary} strokeWidth={0.5} opacity={0.4} />
       </g>
       
       {/* ===== SCANNING EFFECT ===== */}
-      <clipPath id="coreScanClip">
-        <circle r={nodeSize - 4} />
+      <clipPath id="coreScanClipNew">
+        <circle r={nodeSize - 6} />
       </clipPath>
-      <g clipPath="url(#coreScanClip)">
-        <line
-          x1={-nodeSize}
-          y1={0}
-          x2={nodeSize}
-          y2={0}
-          stroke={colors.primary}
-          strokeWidth={2}
-          opacity={0.6}
-          style={{
-            filter: `drop-shadow(0 0 8px ${colors.glow})`
-          }}
+      <g clipPath="url(#coreScanClipNew)">
+        <rect
+          x={-nodeSize}
+          y={-2}
+          width={nodeSize * 2}
+          height={4}
+          fill={`url(#scanLineGradient)`}
+          opacity={0.7}
         >
           <animateTransform
             attributeName="transform"
             type="translate"
             values={`0 ${-nodeSize}; 0 ${nodeSize}; 0 ${nodeSize}`}
-            keyTimes="0; 0.4; 1"
-            dur="4s"
+            keyTimes="0; 0.35; 1"
+            dur="5s"
             repeatCount="indefinite"
           />
           <animate
             attributeName="opacity"
-            values="0;0.6;0.6;0"
-            keyTimes="0;0.1;0.35;0.4"
-            dur="4s"
+            values="0;0.7;0.7;0"
+            keyTimes="0;0.05;0.3;0.35"
+            dur="5s"
             repeatCount="indefinite"
           />
-        </line>
+        </rect>
+        <defs>
+          <linearGradient id="scanLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="rgba(34, 211, 238, 0)" />
+            <stop offset="30%" stopColor="rgba(34, 211, 238, 0.8)" />
+            <stop offset="50%" stopColor="rgba(34, 211, 238, 1)" />
+            <stop offset="70%" stopColor="rgba(34, 211, 238, 0.8)" />
+            <stop offset="100%" stopColor="rgba(34, 211, 238, 0)" />
+          </linearGradient>
+        </defs>
       </g>
       
-      {/* ===== HUD DATA LABELS ===== */}
-      {/* Top-left: AGE */}
-      <g transform={`translate(${-nodeSize - 8}, ${-nodeSize + 15})`}>
+      {/* ===== DATA HUD PANEL - Inside core, horizontally aligned ===== */}
+      <g transform="translate(0, 68)">
+        {/* Panel background */}
+        <rect
+          x={-70}
+          y={-10}
+          width={140}
+          height={20}
+          fill="rgba(8, 18, 32, 0.8)"
+          stroke={colors.primary}
+          strokeWidth={0.5}
+          rx={3}
+          opacity={0.6}
+        />
+        {/* Data items */}
         <text
-          textAnchor="end"
+          x={-62}
+          y={4}
           fill={colors.primary}
           fontSize={8}
           fontFamily="monospace"
-          opacity={0.7}
+          opacity={0.9}
           style={{ filter: `drop-shadow(0 0 3px ${colors.glow})` }}
         >
-          AGE: {userData.age}
+          AGE:{userData.age}
         </text>
-      </g>
-      
-      {/* Top-right: ENERGY */}
-      <g transform={`translate(${nodeSize + 8}, ${-nodeSize + 15})`}>
         <text
-          textAnchor="start"
+          x={-22}
+          y={4}
           fill={colors.primary}
           fontSize={8}
           fontFamily="monospace"
-          opacity={0.7}
+          opacity={0.9}
           style={{ filter: `drop-shadow(0 0 3px ${colors.glow})` }}
         >
-          ENERGY: {userData.energy}%
+          E:{userData.energy}%
         </text>
-      </g>
-      
-      {/* Bottom-left: FOCUS */}
-      <g transform={`translate(${-nodeSize - 8}, ${nodeSize - 5})`}>
         <text
-          textAnchor="end"
+          x={18}
+          y={4}
           fill={colors.primary}
           fontSize={8}
           fontFamily="monospace"
-          opacity={0.7}
+          opacity={0.9}
           style={{ filter: `drop-shadow(0 0 3px ${colors.glow})` }}
         >
-          FOCUS: {userData.focus}%
+          F:{userData.focus}%
         </text>
-      </g>
-      
-      {/* Bottom-right: SKILLS */}
-      <g transform={`translate(${nodeSize + 8}, ${nodeSize - 5})`}>
         <text
-          textAnchor="start"
+          x={52}
+          y={4}
           fill={colors.primary}
           fontSize={8}
           fontFamily="monospace"
-          opacity={0.7}
+          opacity={0.9}
           style={{ filter: `drop-shadow(0 0 3px ${colors.glow})` }}
         >
-          SKILLS: {userData.skills}
+          S:{userData.skills}
         </text>
+        {/* Separator lines */}
+        <line x1={-26} y1={-6} x2={-26} y2={6} stroke={colors.primary} strokeWidth={0.5} opacity={0.4} />
+        <line x1={14} y1={-6} x2={14} y2={6} stroke={colors.primary} strokeWidth={0.5} opacity={0.4} />
+        <line x1={48} y1={-6} x2={48} y2={6} stroke={colors.primary} strokeWidth={0.5} opacity={0.4} />
       </g>
       
       {/* ===== CORE LABEL ===== */}
       <text
-        y={nodeSize + 22}
+        y={nodeSize + 32}
         textAnchor="middle"
         fill="white"
-        fontSize={16}
+        fontSize={18}
         fontWeight="bold"
         fontFamily="system-ui"
+        letterSpacing={2}
         style={{
-          filter: `drop-shadow(0 0 6px ${colors.glow})`
+          filter: `drop-shadow(0 0 8px ${colors.glow})`
         }}
       >
         CORE
@@ -571,13 +632,13 @@ const CoreNode = ({
       
       {/* Secondary label */}
       <text
-        y={nodeSize + 38}
+        y={nodeSize + 50}
         textAnchor="middle"
         fill={colors.primary}
         fontSize={8}
         fontFamily="monospace"
-        opacity={0.6}
-        letterSpacing={2}
+        opacity={0.5}
+        letterSpacing={3}
       >
         STEWARD USER CORE
       </text>
@@ -588,9 +649,9 @@ const CoreNode = ({
           r={nodeSize + 35}
           fill="none"
           stroke={colors.primary}
-          strokeWidth={2}
-          opacity={0.6}
-          strokeDasharray="16 8"
+          strokeWidth={2.5}
+          opacity={0.7}
+          strokeDasharray="20 10"
         >
           <animateTransform
             attributeName="transform"
