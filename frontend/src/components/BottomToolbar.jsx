@@ -450,6 +450,7 @@ const BottomToolbar = () => {
         <div className="flex items-center gap-2">
           {toolbarItems.map((item) => {
             const Icon = item.icon;
+            const isActive = modules.some(m => m.type === item.type);
             return (
               <Button
                 key={item.id}
@@ -470,6 +471,21 @@ const BottomToolbar = () => {
                 {item.id === 'search' && (
                   <span className="absolute top-1 right-1 w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></span>
                 )}
+                {/* Active module indicator - Stark HUD style */}
+                <span 
+                  className={`
+                    absolute -bottom-1 left-1/2 -translate-x-1/2
+                    w-[18px] h-[2px] rounded-full
+                    bg-cyan-400
+                    transition-opacity duration-150 ease-out
+                    ${isActive ? 'opacity-100' : 'opacity-0'}
+                  `}
+                  style={{
+                    boxShadow: isActive 
+                      ? '0 0 6px rgba(34, 211, 238, 0.8), 0 0 10px rgba(34, 211, 238, 0.4)' 
+                      : 'none'
+                  }}
+                />
               </Button>
             );
           })}
