@@ -181,13 +181,33 @@ const updateNode = (tree, nodeId, updates) => {
 };
 
 // ============================================================================
-// SKILL NODE COMPONENT
+// GALAXY MAP LAYOUT CONSTANTS
+// ============================================================================
+
+const ORBIT_RADII = {
+  0: 0,      // CORE at center
+  1: 180,   // Primary skills orbit
+  2: 320,   // Subskills orbit
+  3: 460,   // Sub-subskills orbit
+  4: 580    // Level 4+ orbit
+};
+
+const NODE_SIZES = {
+  core: 70,      // CORE - largest
+  primary: 45,   // Primary skills
+  secondary: 35, // Subskills
+  tertiary: 28   // Sub-subskills
+};
+
+// ============================================================================
+// SKILL NODE COMPONENT - Galaxy Map Style
 // ============================================================================
 
 const SkillNode = ({ 
   node, 
   x, 
   y, 
+  depth,
   isSelected, 
   onSelect, 
   onContextMenu,
@@ -199,7 +219,17 @@ const SkillNode = ({
   const Icon = CATEGORY_ICONS[node.category] || Brain;
   const glow = getLevelGlow(node.level, colors);
   const isCore = node.id === 'core';
-  const nodeSize = isCore ? 60 : 40;
+  
+  // Size based on depth
+  const getNodeSize = () => {
+    if (isCore) return NODE_SIZES.core;
+    if (depth === 1) return NODE_SIZES.primary;
+    if (depth === 2) return NODE_SIZES.secondary;
+    return NODE_SIZES.tertiary;
+  };
+  
+  const nodeSize = getNodeSize();
+  const glowIntensity = isCore ? 1.5 : depth === 1 ? 1 : 0.6;
   
   return (
     <g 
@@ -212,73 +242,124 @@ const SkillNode = ({
       onDragOver={(e) => onDragOver(e, node)}
       onDrop={(e) => onDrop(e, node)}
     >
-      {/* Outer glow ring */}
+      {/* Outer glow effect - stronger for CORE */}
       <circle
-        r={nodeSize + 8}
-        fill="none"
-        stroke={colors.primary}
-        strokeWidth={2}
-        opacity={glow.opacity * 0.3}
-        filter={`blur(${glow.blur}px)`}
+        r={nodeSize + 20}
+        fill={`url(#glow-${node.category})`}
+        opacity={glow.opacity * glowIntensity * 0.4}
       />
       
-      {/* Level ring (progress) */}
+      {/* HUD ring - only for CORE and primary */}
+      {(isCore || depth === 1) && (
+        <>
+          <circle
+            r={nodeSize + 12}
+            fill="none"
+            stroke={colors.primary}
+            strokeWidth={1}
+            opacity={0.3}
+            strokeDasharray="8 4"
+          >
+            <animateTransform
+              attributeName="transform"
+              type="rotate"
+              from="0"
+              to="360"
+              dur={isCore ? "20s" : "30s"}
+              repeatCount="indefinite"
+            />
+          </circle>
+          <circle
+            r={nodeSize + 8}
+            fill="none"
+            stroke={colors.primary}
+            strokeWidth={1}
+            opacity={0.2}
+            strokeDasharray="4 8"
+          >
+            <animateTransform
+              attributeName="transform"
+              type="rotate"
+              from="360"
+              to="0"
+              dur={isCore ? "15s" : "25s"}
+              repeatCount="indefinite"
+            />
+          </circle>
+        </>
+      )}
+      
+      {/* Level progress ring */}
       <circle
         r={nodeSize + 4}
         fill="none"
         stroke={colors.primary}
-        strokeWidth={3}
+        strokeWidth={isCore ? 4 : 3}
         strokeDasharray={`${(node.level / 100) * 2 * Math.PI * (nodeSize + 4)} ${2 * Math.PI * (nodeSize + 4)}`}
         strokeLinecap="round"
-        opacity={0.8}
+        opacity={0.9}
         transform="rotate(-90)"
+        style={{
+          filter: `drop-shadow(0 0 ${glow.blur * glowIntensity}px ${colors.glow})`
+        }}
       />
       
       {/* Main node circle */}
       <circle
         r={nodeSize}
-        fill={colors.bg}
+        fill={isCore ? 'rgba(10, 22, 40, 0.95)' : colors.bg}
         stroke={colors.primary}
-        strokeWidth={isSelected ? 3 : 2}
-        opacity={isSelected ? 1 : 0.9}
+        strokeWidth={isSelected ? 4 : 2}
         style={{
-          filter: isSelected ? `drop-shadow(0 0 ${glow.blur}px ${colors.glow})` : 'none'
+          filter: `drop-shadow(0 0 ${isSelected ? 20 : glow.blur * glowIntensity}px ${colors.glow})`
         }}
       />
       
       {/* Inner decoration ring */}
+      {(isCore || depth <= 2) && (
+        <circle
+          r={nodeSize - 8}
+          fill="none"
+          stroke={colors.primary}
+          strokeWidth={1}
+          opacity={0.4}
+          strokeDasharray={isCore ? "6 3" : "4 4"}
+        />
+      )}
+      
+      {/* Inner glow */}
       <circle
-        r={nodeSize - 8}
-        fill="none"
-        stroke={colors.primary}
-        strokeWidth={1}
-        opacity={0.4}
-        strokeDasharray="4 4"
+        r={nodeSize - 12}
+        fill={`url(#innerGlow-${node.category})`}
+        opacity={0.3}
       />
       
       {/* Icon */}
       <foreignObject 
-        x={-12} 
-        y={-12} 
-        width={24} 
-        height={24}
+        x={isCore ? -16 : -12} 
+        y={isCore ? -16 : -12} 
+        width={isCore ? 32 : 24} 
+        height={isCore ? 32 : 24}
         style={{ pointerEvents: 'none' }}
       >
         <Icon 
-          className="w-6 h-6" 
+          className={isCore ? "w-8 h-8" : "w-6 h-6"}
           style={{ color: colors.primary }} 
         />
       </foreignObject>
       
-      {/* Level text */}
+      {/* Level text - positioned based on node size */}
       {!isCore && (
         <text
-          y={nodeSize + 16}
+          y={nodeSize + 14}
           textAnchor="middle"
           fill={colors.primary}
-          fontSize={10}
+          fontSize={depth <= 2 ? 10 : 9}
           fontFamily="monospace"
           opacity={0.8}
+          style={{
+            filter: `drop-shadow(0 0 4px ${colors.glow})`
+          }}
         >
           LVL {node.level}
         </text>
@@ -286,15 +367,39 @@ const SkillNode = ({
       
       {/* Name label */}
       <text
-        y={nodeSize + (isCore ? 20 : 28)}
+        y={nodeSize + (isCore ? 22 : depth <= 2 ? 26 : 24)}
         textAnchor="middle"
         fill="white"
-        fontSize={isCore ? 14 : 11}
-        fontWeight={isCore ? 'bold' : 'normal'}
+        fontSize={isCore ? 16 : depth === 1 ? 12 : 10}
+        fontWeight={isCore ? 'bold' : depth === 1 ? '600' : 'normal'}
         fontFamily="system-ui"
+        style={{
+          filter: 'drop-shadow(0 0 4px rgba(0,0,0,0.8))'
+        }}
       >
         {node.name}
       </text>
+      
+      {/* Selection indicator */}
+      {isSelected && (
+        <circle
+          r={nodeSize + 16}
+          fill="none"
+          stroke={colors.primary}
+          strokeWidth={2}
+          opacity={0.6}
+          strokeDasharray="12 6"
+        >
+          <animateTransform
+            attributeName="transform"
+            type="rotate"
+            from="0"
+            to="360"
+            dur="3s"
+            repeatCount="indefinite"
+          />
+        </circle>
+      )}
     </g>
   );
 };
@@ -393,37 +498,82 @@ const SkillTreeModule = () => {
     }
   }, []);
 
-  // Calculate node positions using radiální layout
-  // Nodes are calculated from (0,0) as center - transform will move them to viewport center
+  // Calculate node positions using Galaxy Map radiální layout
+  // CORE at center, skills orbit in concentric circles by depth
   const calculatePositions = useCallback(() => {
     if (!skillTree || viewportSize.width < 100 || viewportSize.height < 100) return [];
     
     const positions = [];
     
-    // Recursive function to calculate positions from (0,0) as center
-    const layoutNode = (node, depth, angleStart, angleEnd, parentX, parentY) => {
-      const radius = depth === 0 ? 0 : 80 + (depth - 1) * 100;
-      const angle = (angleStart + angleEnd) / 2;
-      const angleRad = (angle * Math.PI) / 180;
-      
-      // Root is at (0,0), children spread out from there
-      const x = depth === 0 ? 0 : parentX + radius * Math.cos(angleRad);
-      const y = depth === 0 ? 0 : parentY + radius * Math.sin(angleRad);
-      
-      positions.push({ node, x, y, parentX, parentY, depth });
+    // Group nodes by depth level
+    const nodesByDepth = {};
+    
+    const collectNodesByDepth = (node, depth, parentAngle = null) => {
+      if (!nodesByDepth[depth]) nodesByDepth[depth] = [];
+      nodesByDepth[depth].push({ node, parentAngle });
       
       if (node.children && node.children.length > 0) {
-        const childAngleSpan = (angleEnd - angleStart) / node.children.length;
+        const childCount = node.children.length;
+        // Calculate angle spread for children (max ±25° from parent)
+        const maxSpread = depth === 0 ? 360 : Math.min(50, 120 / childCount);
+        const startAngle = parentAngle !== null ? parentAngle - maxSpread / 2 : 0;
+        const angleStep = childCount > 1 ? maxSpread / (childCount - 1) : 0;
+        
         node.children.forEach((child, index) => {
-          const childAngleStart = angleStart + index * childAngleSpan;
-          const childAngleEnd = childAngleStart + childAngleSpan;
-          layoutNode(child, depth + 1, childAngleStart, childAngleEnd, x, y);
+          const childAngle = depth === 0 
+            ? (360 / childCount) * index 
+            : startAngle + angleStep * index;
+          collectNodesByDepth(child, depth + 1, childAngle);
         });
       }
     };
     
-    // Start layout from root at origin (0,0)
-    layoutNode(skillTree, 0, 0, 360, 0, 0);
+    // Collect all nodes by depth
+    collectNodesByDepth(skillTree, 0);
+    
+    // Calculate positions for each depth level
+    Object.keys(nodesByDepth).forEach(depthStr => {
+      const depth = parseInt(depthStr);
+      const nodes = nodesByDepth[depth];
+      const radius = ORBIT_RADII[depth] || ORBIT_RADII[4];
+      
+      nodes.forEach(({ node, parentAngle }, index) => {
+        let x, y, angle;
+        
+        if (depth === 0) {
+          // CORE at center
+          x = 0;
+          y = 0;
+          angle = 0;
+        } else {
+          // Use parent angle for positioning (creates branch effect)
+          angle = parentAngle !== null ? parentAngle : (360 / nodes.length) * index;
+          const angleRad = (angle * Math.PI) / 180;
+          x = Math.cos(angleRad) * radius;
+          y = Math.sin(angleRad) * radius;
+        }
+        
+        // Find parent position for line drawing
+        let parentX = 0, parentY = 0;
+        if (node.parentId) {
+          const parentPos = positions.find(p => p.node.id === node.parentId);
+          if (parentPos) {
+            parentX = parentPos.x;
+            parentY = parentPos.y;
+          }
+        }
+        
+        positions.push({ 
+          node, 
+          x, 
+          y, 
+          parentX, 
+          parentY, 
+          depth,
+          angle
+        });
+      });
+    });
     
     return positions;
   }, [skillTree, viewportSize]);
@@ -728,15 +878,71 @@ const SkillTreeModule = () => {
                 className="absolute inset-0"
                 style={{ display: 'block' }}
               >
-                {/* Background grid pattern */}
+                {/* SVG Definitions for Galaxy Map effects */}
                 <defs>
-                  <pattern id="skillTreeGrid" width="40" height="40" patternUnits="userSpaceOnUse">
-                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(34, 211, 238, 0.05)" strokeWidth="1"/>
+                  {/* Grid pattern */}
+                  <pattern id="skillTreeGrid" width="60" height="60" patternUnits="userSpaceOnUse">
+                    <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(34, 211, 238, 0.03)" strokeWidth="1"/>
                   </pattern>
+                  
+                  {/* Radial grid circles */}
+                  <pattern id="skillTreeRadialGrid" width="100%" height="100%" patternUnits="objectBoundingBox">
+                    <circle cx="50%" cy="50%" r="180" fill="none" stroke="rgba(34, 211, 238, 0.08)" strokeWidth="1"/>
+                    <circle cx="50%" cy="50%" r="320" fill="none" stroke="rgba(34, 211, 238, 0.06)" strokeWidth="1"/>
+                    <circle cx="50%" cy="50%" r="460" fill="none" stroke="rgba(34, 211, 238, 0.04)" strokeWidth="1"/>
+                  </pattern>
+                  
+                  {/* Center glow */}
                   <radialGradient id="skillTreeCenterGlow" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="rgba(34, 211, 238, 0.2)" />
+                    <stop offset="0%" stopColor="rgba(34, 211, 238, 0.3)" />
+                    <stop offset="50%" stopColor="rgba(34, 211, 238, 0.1)" />
                     <stop offset="100%" stopColor="rgba(34, 211, 238, 0)" />
                   </radialGradient>
+                  
+                  {/* Category glow gradients */}
+                  <radialGradient id="glow-core" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="rgba(34, 211, 238, 0.6)" />
+                    <stop offset="100%" stopColor="rgba(34, 211, 238, 0)" />
+                  </radialGradient>
+                  <radialGradient id="glow-physical" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="rgba(249, 115, 22, 0.6)" />
+                    <stop offset="100%" stopColor="rgba(249, 115, 22, 0)" />
+                  </radialGradient>
+                  <radialGradient id="glow-skill" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="rgba(168, 85, 247, 0.6)" />
+                    <stop offset="100%" stopColor="rgba(168, 85, 247, 0)" />
+                  </radialGradient>
+                  <radialGradient id="glow-knowledge" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="rgba(34, 197, 94, 0.6)" />
+                    <stop offset="100%" stopColor="rgba(34, 197, 94, 0)" />
+                  </radialGradient>
+                  
+                  {/* Inner glow gradients */}
+                  <radialGradient id="innerGlow-core" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="rgba(34, 211, 238, 0.3)" />
+                    <stop offset="100%" stopColor="rgba(34, 211, 238, 0)" />
+                  </radialGradient>
+                  <radialGradient id="innerGlow-physical" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="rgba(249, 115, 22, 0.3)" />
+                    <stop offset="100%" stopColor="rgba(249, 115, 22, 0)" />
+                  </radialGradient>
+                  <radialGradient id="innerGlow-skill" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="rgba(168, 85, 247, 0.3)" />
+                    <stop offset="100%" stopColor="rgba(168, 85, 247, 0)" />
+                  </radialGradient>
+                  <radialGradient id="innerGlow-knowledge" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="rgba(34, 197, 94, 0.3)" />
+                    <stop offset="100%" stopColor="rgba(34, 197, 94, 0)" />
+                  </radialGradient>
+                  
+                  {/* Neon line filter */}
+                  <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="3" result="blur"/>
+                    <feMerge>
+                      <feMergeNode in="blur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
                 </defs>
                 
                 {/* Static background grid */}
@@ -744,39 +950,73 @@ const SkillTreeModule = () => {
                 
                 {/* Transformable content group - translate to center, then apply pan and zoom */}
                 <g transform={`translate(${viewportSize.width / 2 + pan.x}, ${viewportSize.height / 2 + pan.y}) scale(${zoom})`}>
-                  {/* Center glow - at origin (0,0) which is now the viewport center */}
+                  {/* Galaxy center glow */}
                   <circle 
                     cx={0} 
                     cy={0} 
-                    r={200} 
+                    r={300} 
                     fill="url(#skillTreeCenterGlow)" 
                   />
                   
-                  {/* Connection lines */}
-                  {nodePositions.filter(p => p.depth > 0).map(({ node, x, y, parentX, parentY }) => {
+                  {/* Orbit rings (visual guides) */}
+                  {Object.entries(ORBIT_RADII).filter(([d]) => parseInt(d) > 0).map(([depth, radius]) => (
+                    <circle
+                      key={`orbit-${depth}`}
+                      cx={0}
+                      cy={0}
+                      r={radius}
+                      fill="none"
+                      stroke="rgba(34, 211, 238, 0.08)"
+                      strokeWidth={1}
+                      strokeDasharray="4 8"
+                    />
+                  ))}
+                  
+                  {/* Connection lines with neon glow effect */}
+                  {nodePositions.filter(p => p.depth > 0).map(({ node, x, y, parentX, parentY, depth }) => {
                     const colors = CATEGORY_COLORS[node.category] || CATEGORY_COLORS.skill;
+                    const lineOpacity = depth === 1 ? 0.6 : depth === 2 ? 0.4 : 0.3;
+                    const lineWidth = depth === 1 ? 2 : depth === 2 ? 1.5 : 1;
+                    
                     return (
-                      <line
-                        key={`line-${node.id}`}
-                        x1={parentX}
-                        y1={parentY}
-                        x2={x}
-                        y2={y}
-                        stroke={colors.primary}
-                        strokeWidth={2 / zoom}
-                        opacity={0.4}
-                        strokeDasharray="8 4"
-                      />
+                      <g key={`line-${node.id}`}>
+                        {/* Glow line */}
+                        <line
+                          x1={parentX}
+                          y1={parentY}
+                          x2={x}
+                          y2={y}
+                          stroke={colors.glow}
+                          strokeWidth={(lineWidth + 4) / zoom}
+                          opacity={lineOpacity * 0.3}
+                          strokeLinecap="round"
+                        />
+                        {/* Main line */}
+                        <line
+                          x1={parentX}
+                          y1={parentY}
+                          x2={x}
+                          y2={y}
+                          stroke={colors.primary}
+                          strokeWidth={lineWidth / zoom}
+                          opacity={lineOpacity}
+                          strokeLinecap="round"
+                          filter="url(#neonGlow)"
+                        />
+                      </g>
                     );
                   })}
                   
-                  {/* Nodes */}
-                  {nodePositions.map(({ node, x, y }) => (
+                  {/* Nodes - render in order by depth (core first, then children) */}
+                  {nodePositions
+                    .sort((a, b) => a.depth - b.depth)
+                    .map(({ node, x, y, depth }) => (
                     <SkillNode
                       key={node.id}
                       node={node}
                       x={x}
                       y={y}
+                      depth={depth}
                       isSelected={selectedNode?.id === node.id}
                       onSelect={handleSelectNode}
                       onContextMenu={handleContextMenu}
