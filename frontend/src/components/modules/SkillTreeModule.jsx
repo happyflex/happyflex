@@ -261,7 +261,9 @@ const SkillNode = ({
   x, 
   y, 
   depth,
-  isSelected, 
+  isSelected,
+  isInParentChain,
+  labelScale = 1,
   onSelect, 
   onContextMenu,
   onDragStart,
@@ -283,6 +285,8 @@ const SkillNode = ({
   
   const nodeSize = getNodeSize();
   const glowIntensity = isCore ? 1.5 : depth === 1 ? 1 : 0.6;
+  const highlightBoost = isInParentChain ? 1.3 : 1;
+  const safeLabelScale = isNaN(labelScale) ? 1 : labelScale;
   
   return (
     <g 
@@ -295,11 +299,11 @@ const SkillNode = ({
       onDragOver={(e) => onDragOver(e, node)}
       onDrop={(e) => onDrop(e, node)}
     >
-      {/* Outer glow effect - stronger for CORE */}
+      {/* Outer glow effect - stronger for CORE and highlighted nodes */}
       <circle
         r={nodeSize + 20}
         fill={`url(#glow-${node.category})`}
-        opacity={glow.opacity * glowIntensity * 0.4}
+        opacity={glow.opacity * glowIntensity * highlightBoost * 0.4}
       />
       
       {/* HUD ring - only for CORE and primary */}
@@ -418,12 +422,12 @@ const SkillNode = ({
         </text>
       )}
       
-      {/* Name label */}
+      {/* Name label - scaled based on zoom */}
       <text
         y={nodeSize + (isCore ? 22 : depth <= 2 ? 26 : 24)}
         textAnchor="middle"
         fill="white"
-        fontSize={isCore ? 16 : depth === 1 ? 12 : 10}
+        fontSize={(isCore ? 16 : depth === 1 ? 12 : 10) * safeLabelScale}
         fontWeight={isCore ? 'bold' : depth === 1 ? '600' : 'normal'}
         fontFamily="system-ui"
         style={{
@@ -432,6 +436,18 @@ const SkillNode = ({
       >
         {node.name}
       </text>
+      
+      {/* Parent chain highlight */}
+      {isInParentChain && !isSelected && (
+        <circle
+          r={nodeSize + 14}
+          fill="none"
+          stroke={colors.primary}
+          strokeWidth={1.5}
+          opacity={0.4}
+          strokeDasharray="6 4"
+        />
+      )}
       
       {/* Selection indicator */}
       {isSelected && (
@@ -482,9 +498,9 @@ const SkillTreeModule = () => {
   const panStartRef = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
 
   // Zoom constraints
-  const ZOOM_MIN = 0.5;
-  const ZOOM_MAX = 2.5;
-  const ZOOM_SPEED = 0.002;
+  const ZOOM_MIN = 0.3;
+  const ZOOM_MAX = 1.8;
+  const ZOOM_STEP = 0.1;
 
   // Load skill tree from localStorage
   useEffect(() => {
@@ -868,8 +884,11 @@ const SkillTreeModule = () => {
     setIsPanning(false);
   }, []);
 
-  // Zoom handler - zoom centered on cursor position
+  // Zoom handler - Ctrl + wheel to zoom, centered on cursor position
   const handleWheel = useCallback((e) => {
+    // Only zoom with Ctrl key held
+    if (!e.ctrlKey) return;
+    
     e.preventDefault();
     
     const viewport = viewportRef.current;
@@ -881,14 +900,13 @@ const SkillTreeModule = () => {
     const cursorX = e.clientX - rect.left;
     const cursorY = e.clientY - rect.top;
     
-    // Calculate new zoom
-    const delta = -e.deltaY * ZOOM_SPEED;
-    const newZoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, zoom + delta));
+    // Calculate new zoom (step-based)
+    const direction = e.deltaY < 0 ? 1 : -1;
+    const newZoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, zoom + direction * ZOOM_STEP));
     
     if (newZoom === zoom) return;
     
     // Zoom centered on cursor position
-    // Formula: newPan = cursorPos - (cursorPos - oldPan) * (newZoom / oldZoom)
     const zoomRatio = newZoom / zoom;
     const newPanX = cursorX - (cursorX - pan.x) * zoomRatio;
     const newPanY = cursorY - (cursorY - pan.y) * zoomRatio;
@@ -896,6 +914,17 @@ const SkillTreeModule = () => {
     setZoom(newZoom);
     setPan({ x: newPanX, y: newPanY });
   }, [zoom, pan]);
+
+  // Zoom in/out buttons
+  const handleZoomIn = useCallback(() => {
+    const newZoom = Math.min(ZOOM_MAX, zoom + ZOOM_STEP);
+    setZoom(newZoom);
+  }, [zoom]);
+
+  const handleZoomOut = useCallback(() => {
+    const newZoom = Math.max(ZOOM_MIN, zoom - ZOOM_STEP);
+    setZoom(newZoom);
+  }, [zoom]);
 
   // Attach wheel event with passive: false to enable preventDefault
   useEffect(() => {
@@ -911,6 +940,50 @@ const SkillTreeModule = () => {
     setPan({ x: 0, y: 0 });
     setZoom(1);
   }, []);
+
+  // Focus on selected node - center view on the node
+  const focusOnSelectedNode = useCallback(() => {
+    if (!selectedNode) return;
+    
+    // Find position of selected node
+    const nodePos = nodePositions.find(p => p.node.id === selectedNode.id);
+    if (!nodePos) return;
+    
+    // Calculate pan to center the node
+    // Node is at (nodePos.x, nodePos.y) in transformed space
+    // We want to translate so that node is at viewport center
+    const newPanX = -nodePos.x * zoom;
+    const newPanY = -nodePos.y * zoom;
+    
+    setPan({ x: newPanX, y: newPanY });
+  }, [selectedNode, nodePositions, zoom]);
+
+  // Get parent chain for highlighting
+  const getParentChain = useCallback((nodeId) => {
+    if (!skillTree || !nodeId) return new Set();
+    const chain = new Set();
+    let currentId = nodeId;
+    
+    while (currentId) {
+      chain.add(currentId);
+      const node = findNode(skillTree, currentId);
+      if (!node || !node.parentId || node.parentId === currentId) break;
+      currentId = node.parentId;
+    }
+    
+    return chain;
+  }, [skillTree]);
+
+  // Parent chain for selected node (for highlighting)
+  const selectedParentChain = selectedNode ? getParentChain(selectedNode.id) : new Set();
+
+  // Calculate label scale based on zoom
+  const getLabelScale = useCallback(() => {
+    const safeZoom = isNaN(zoom) ? 1 : zoom;
+    if (safeZoom < 0.6) return 0.85;
+    if (safeZoom > 1.2) return 1.15;
+    return 1;
+  }, [zoom]);
 
   if (!skillTree) {
     return (
@@ -962,22 +1035,57 @@ const SkillTreeModule = () => {
             onMouseUp={handlePanEnd}
             onMouseLeave={handlePanEnd}
           >
-            {/* Zoom indicator */}
-            {zoom !== 1 && (
-              <div className="absolute top-2 left-2 z-10 px-2 py-1 rounded bg-cyan-500/20 border border-cyan-500/30 text-xs text-cyan-400 font-mono">
-                {Math.round(zoom * 100)}%
-              </div>
-            )}
-            
-            {/* Reset view button */}
-            {(zoom !== 1 || pan.x !== 0 || pan.y !== 0) && (
+            {/* Zoom controls panel */}
+            <div className="absolute top-2 left-2 z-10 flex items-center gap-1">
               <button
-                onClick={resetView}
-                className="absolute top-2 right-2 z-10 px-2 py-1 rounded bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 text-xs text-cyan-400 transition-colors"
+                onClick={handleZoomOut}
+                disabled={zoom <= ZOOM_MIN}
+                className="w-7 h-7 flex items-center justify-center rounded bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 text-cyan-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                title="Oddálit (−)"
               >
-                Reset
+                <span className="text-lg font-bold leading-none">−</span>
               </button>
-            )}
+              <div className="px-2 py-1 rounded bg-cyan-500/20 border border-cyan-500/30 text-xs text-cyan-400 font-mono min-w-[50px] text-center">
+                {Math.round((isNaN(zoom) ? 1 : zoom) * 100)}%
+              </div>
+              <button
+                onClick={handleZoomIn}
+                disabled={zoom >= ZOOM_MAX}
+                className="w-7 h-7 flex items-center justify-center rounded bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 text-cyan-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                title="Přiblížit (+)"
+              >
+                <span className="text-lg font-bold leading-none">+</span>
+              </button>
+            </div>
+            
+            {/* Right-side controls: Focus + Reset */}
+            <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
+              {/* Focus button - only show when node is selected */}
+              {selectedNode && (
+                <button
+                  onClick={focusOnSelectedNode}
+                  className="w-7 h-7 flex items-center justify-center rounded bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 text-purple-400 transition-colors"
+                  title={`Zaměřit na "${selectedNode.name}"`}
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <circle cx="12" cy="12" r="6"/>
+                    <circle cx="12" cy="12" r="2"/>
+                  </svg>
+                </button>
+              )}
+              
+              {/* Reset view button */}
+              {(zoom !== 1 || pan.x !== 0 || pan.y !== 0) && (
+                <button
+                  onClick={resetView}
+                  className="px-2 py-1 rounded bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 text-xs text-cyan-400 transition-colors"
+                  title="Reset pohledu"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
             
             {/* Only render SVG if viewport has valid size */}
             {viewportSize.width >= 100 && viewportSize.height >= 100 ? (
@@ -1085,8 +1193,9 @@ const SkillTreeModule = () => {
                   {/* Connection lines with neon glow effect */}
                   {nodePositions.filter(p => p.depth > 0).map(({ node, x, y, parentX, parentY, depth }) => {
                     const colors = CATEGORY_COLORS[node.category] || CATEGORY_COLORS.skill;
-                    const lineOpacity = depth === 1 ? 0.6 : depth === 2 ? 0.4 : 0.3;
-                    const lineWidth = depth === 1 ? 2 : depth === 2 ? 1.5 : 1;
+                    const isHighlighted = selectedParentChain.has(node.id);
+                    const lineOpacity = isHighlighted ? 0.8 : (depth === 1 ? 0.6 : depth === 2 ? 0.4 : 0.3);
+                    const lineWidth = isHighlighted ? 3 : (depth === 1 ? 2 : depth === 2 ? 1.5 : 1);
                     
                     return (
                       <g key={`line-${node.id}`}>
@@ -1098,7 +1207,7 @@ const SkillTreeModule = () => {
                           y2={y}
                           stroke={colors.glow}
                           strokeWidth={(lineWidth + 4) / zoom}
-                          opacity={lineOpacity * 0.3}
+                          opacity={lineOpacity * (isHighlighted ? 0.5 : 0.3)}
                           strokeLinecap="round"
                         />
                         {/* Main line */}
@@ -1128,6 +1237,8 @@ const SkillTreeModule = () => {
                       y={y}
                       depth={depth}
                       isSelected={selectedNode?.id === node.id}
+                      isInParentChain={selectedParentChain.has(node.id)}
+                      labelScale={getLabelScale()}
                       onSelect={handleSelectNode}
                       onContextMenu={handleContextMenu}
                       onDragStart={handleDragStart}
