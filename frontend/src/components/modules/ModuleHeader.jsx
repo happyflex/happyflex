@@ -9,6 +9,7 @@ import React from 'react';
  * - title: string - název modulu
  * - subtitle: string (volitelné) - popis nebo počet položek
  * - iconColor: string (výchozí 'text-cyan-400') - barva ikony
+ * - iconStyle: object (volitelné) - inline styly pro ikonu (např. scale)
  * - actions: ReactNode (volitelné) - tlačítka vpravo
  */
 const ModuleHeader = ({ 
@@ -16,6 +17,7 @@ const ModuleHeader = ({
   title, 
   subtitle, 
   iconColor = 'text-cyan-400',
+  iconStyle,
   actions 
 }) => {
   return (
@@ -23,7 +25,7 @@ const ModuleHeader = ({
       <div className="flex items-center justify-between mb-1">
         <div>
           <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-            <Icon className={`h-5 w-5 ${iconColor}`} />
+            <Icon className={`h-5 w-5 ${iconColor}`} style={iconStyle} />
             {title}
           </h3>
           {subtitle && (

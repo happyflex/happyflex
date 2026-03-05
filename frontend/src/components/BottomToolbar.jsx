@@ -74,7 +74,7 @@ const toolbarItems = [
   { id: 'file', icon: ListChecks, label: 'Úkoly', type: 'tasks' },
   { id: 'timer', icon: Timer, label: 'Časovač', type: 'timer' },
   { id: 'calendar', icon: Calendar, label: 'Kalendář', type: 'calendar' },
-  { id: 'skilltree', icon: PersonStanding, label: 'Skill Tree', type: 'skilltree' },
+  { id: 'skilltree', icon: PersonStanding, label: 'Skill Tree', type: 'skilltree', iconStyle: { transform: 'scale(1.2)', transformOrigin: 'center' } },
   { id: 'chart', icon: BarChart3, label: 'Graf', type: 'chart' },
   { id: 'music', icon: Music, label: 'Hudba', type: 'music' },
   { id: 'video', icon: Video, label: 'Video', type: 'video' },
@@ -466,7 +466,7 @@ const BottomToolbar = () => {
                 `}
                 title={item.label}
               >
-                <Icon className="h-5 w-5" />
+                <Icon className="h-5 w-5" style={item.iconStyle} />
                 {item.id === 'search' && (
                   <span className="absolute top-1 right-1 w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></span>
                 )}

@@ -1008,6 +1008,7 @@ const SkillTreeModule = () => {
           title="Skill Tree"
           subtitle={`${skillCount} skills · Avg LVL ${avgLevel}`}
           iconColor="text-purple-400"
+          iconStyle={{ transform: 'scale(1.2)', transformOrigin: 'center' }}
           actions={
             <Button
               size="sm"
