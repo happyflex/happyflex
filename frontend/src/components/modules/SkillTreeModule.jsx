@@ -89,8 +89,9 @@ const getLevelGlow = (level, color) => {
  * Flatten tree to array for easy lookup
  */
 const flattenTree = (node, result = []) => {
+  if (!node) return result;
   result.push(node);
-  if (node.children) {
+  if (node.children && Array.isArray(node.children)) {
     node.children.forEach(child => flattenTree(child, result));
   }
   return result;
@@ -100,8 +101,9 @@ const flattenTree = (node, result = []) => {
  * Find node by ID in tree
  */
 const findNode = (tree, id) => {
+  if (!tree || !id) return null;
   if (tree.id === id) return tree;
-  if (tree.children) {
+  if (tree.children && Array.isArray(tree.children)) {
     for (const child of tree.children) {
       const found = findNode(child, id);
       if (found) return found;
@@ -114,18 +116,69 @@ const findNode = (tree, id) => {
  * Check if nodeId is descendant of ancestorId
  */
 const isDescendant = (tree, nodeId, ancestorId) => {
+  if (!tree || !nodeId || !ancestorId) return false;
   const ancestor = findNode(tree, ancestorId);
   if (!ancestor) return false;
   
   const checkChildren = (node) => {
+    if (!node) return false;
     if (node.id === nodeId) return true;
-    if (node.children) {
+    if (node.children && Array.isArray(node.children)) {
       return node.children.some(checkChildren);
     }
     return false;
   };
   
   return checkChildren(ancestor);
+};
+
+/**
+ * Get all descendants of a node (for cycle prevention)
+ */
+const getAllDescendantIds = (node, ids = new Set()) => {
+  if (!node) return ids;
+  if (node.children && Array.isArray(node.children)) {
+    node.children.forEach(child => {
+      if (child && child.id) {
+        ids.add(child.id);
+        getAllDescendantIds(child, ids);
+      }
+    });
+  }
+  return ids;
+};
+
+/**
+ * Check if changing parent would create a cycle
+ */
+const wouldCreateCycle = (tree, nodeId, newParentId) => {
+  if (!tree || !nodeId || !newParentId) return false;
+  // Can't set self as parent
+  if (nodeId === newParentId) return true;
+  // Can't set a descendant as parent
+  const node = findNode(tree, nodeId);
+  if (!node) return false;
+  const descendants = getAllDescendantIds(node);
+  return descendants.has(newParentId);
+};
+
+/**
+ * Get valid parent options for a node (excludes self and descendants)
+ */
+const getValidParentOptions = (tree, excludeNodeId = null) => {
+  const allNodes = flattenTree(tree);
+  
+  if (!excludeNodeId) {
+    // For new node, all existing nodes are valid
+    return allNodes.map(n => ({ id: n.id, name: n.name, category: n.category }));
+  }
+  
+  const nodeToExclude = findNode(tree, excludeNodeId);
+  const descendantIds = nodeToExclude ? getAllDescendantIds(nodeToExclude) : new Set();
+  
+  return allNodes
+    .filter(n => n.id !== excludeNodeId && !descendantIds.has(n.id))
+    .map(n => ({ id: n.id, name: n.name, category: n.category }));
 };
 
 /**
@@ -415,6 +468,7 @@ const SkillTreeModule = () => {
   const [isAddingSkill, setIsAddingSkill] = useState(false);
   const [newSkillName, setNewSkillName] = useState('');
   const [newSkillCategory, setNewSkillCategory] = useState('skill');
+  const [newSkillParentId, setNewSkillParentId] = useState('core'); // Parent for new skill
   const [draggedNode, setDraggedNode] = useState(null);
   const svgRef = useRef(null);
   const viewportRef = useRef(null); // SkillTreeViewport ref
@@ -610,31 +664,87 @@ const SkillTreeModule = () => {
     setIsAddingSkill(true);
     setNewSkillName('');
     setNewSkillCategory(parentNode.category === 'core' ? 'skill' : parentNode.category);
+    setNewSkillParentId(parentNode.id); // Set selected node as default parent
     closeContextMenu();
   };
 
   // Confirm add skill
   const confirmAddSkill = () => {
-    if (!newSkillName.trim() || !selectedNode) return;
+    if (!newSkillName.trim() || !skillTree) return;
+    
+    // Validate parent exists
+    const parentNode = findNode(skillTree, newSkillParentId);
+    if (!parentNode) {
+      toast({
+        title: 'Chyba',
+        description: 'Parent skill nebyl nalezen',
+        variant: 'destructive'
+      });
+      return;
+    }
     
     const newSkill = {
       id: `skill-${Date.now()}`,
       name: newSkillName.trim(),
       category: newSkillCategory,
       level: 0,
-      parentId: selectedNode.id,
+      parentId: newSkillParentId,
       children: [],
       createdAt: Date.now(),
       updatedAt: Date.now()
     };
     
-    setSkillTree(prev => addChildToNode(prev, selectedNode.id, newSkill));
+    setSkillTree(prev => addChildToNode(prev, newSkillParentId, newSkill));
     setIsAddingSkill(false);
     setNewSkillName('');
+    setNewSkillParentId('core');
     
     toast({
       title: 'Skill přidán',
-      description: `"${newSkill.name}" byl přidán`
+      description: `"${newSkill.name}" byl přidán pod "${parentNode.name}"`
+    });
+  };
+
+  // Change parent of existing skill
+  const handleParentChange = (newParentId) => {
+    if (!selectedNode || !skillTree) return;
+    
+    // Check for cycle
+    if (wouldCreateCycle(skillTree, selectedNode.id, newParentId)) {
+      toast({
+        title: 'Nelze změnit parent',
+        description: 'Změna by vytvořila cyklus v hierarchii',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    // Find new parent
+    const newParent = findNode(skillTree, newParentId);
+    if (!newParent) {
+      toast({
+        title: 'Chyba',
+        description: 'Parent skill nebyl nalezen',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    // Remove from old parent and add to new parent
+    const updatedNode = { ...selectedNode, parentId: newParentId };
+    
+    // First remove the node from tree
+    let newTree = removeNode(skillTree, selectedNode.id);
+    
+    // Then add it to new parent
+    newTree = addChildToNode(newTree, newParentId, updatedNode);
+    
+    setSkillTree(newTree);
+    setSelectedNode(updatedNode);
+    
+    toast({
+      title: 'Parent změněn',
+      description: `"${selectedNode.name}" je nyní pod "${newParent.name}"`
     });
   };
 
@@ -1113,12 +1223,27 @@ const SkillTreeModule = () => {
                   </div>
                 </div>
                 
-                {/* Parent */}
+                {/* Parent - Dropdown for non-core skills */}
                 <div>
                   <label className="text-xs text-gray-500 uppercase tracking-wide">Parent</label>
-                  <div className="mt-1 px-3 py-2 rounded bg-[#0f1d35] border border-cyan-500/30 text-gray-400 text-sm">
-                    {findNode(skillTree, selectedNode.parentId)?.name || 'CORE'}
-                  </div>
+                  {['physical', 'skills', 'knowledge'].includes(selectedNode.id) ? (
+                    // Root categories can't change parent
+                    <div className="mt-1 px-3 py-2 rounded bg-[#0f1d35] border border-cyan-500/30 text-gray-400 text-sm">
+                      CORE (nelze změnit)
+                    </div>
+                  ) : (
+                    <select
+                      value={selectedNode.parentId}
+                      onChange={(e) => handleParentChange(e.target.value)}
+                      className="mt-1 w-full px-3 py-2 rounded bg-[#0f1d35] border border-cyan-500/30 text-white text-sm focus:outline-none focus:border-cyan-400"
+                    >
+                      {getValidParentOptions(skillTree, selectedNode.id).map(opt => (
+                        <option key={opt.id} value={opt.id}>
+                          {opt.name} {opt.id === 'core' ? '' : `(${opt.category})`}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
                 
                 {/* Actions */}
@@ -1180,9 +1305,18 @@ const SkillTreeModule = () => {
               </div>
               
               <div>
-                <label className="text-xs text-gray-500 uppercase tracking-wide">
-                  Parent: {selectedNode?.name}
-                </label>
+                <label className="text-xs text-gray-500 uppercase tracking-wide">Parent</label>
+                <select
+                  value={newSkillParentId}
+                  onChange={(e) => setNewSkillParentId(e.target.value)}
+                  className="mt-1 w-full px-3 py-2 rounded bg-[#0f1d35] border border-cyan-500/30 text-white text-sm focus:outline-none focus:border-cyan-400"
+                >
+                  {getValidParentOptions(skillTree).map(opt => (
+                    <option key={opt.id} value={opt.id}>
+                      {opt.name} {opt.id === 'core' ? '' : `(${opt.category})`}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
             
