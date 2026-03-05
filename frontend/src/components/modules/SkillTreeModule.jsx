@@ -316,6 +316,17 @@ const SkillTreeModule = () => {
   const [viewportSize, setViewportSize] = useState({ width: 400, height: 300 }); // Default valid size
   const sizeRef = useRef({ width: 400, height: 300 }); // Track size without re-renders
 
+  // Canvas navigation state
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [isPanning, setIsPanning] = useState(false);
+  const panStartRef = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
+
+  // Zoom constraints
+  const ZOOM_MIN = 0.5;
+  const ZOOM_MAX = 2.5;
+  const ZOOM_SPEED = 0.002;
+
   // Load skill tree from localStorage
   useEffect(() => {
     try {
@@ -563,6 +574,81 @@ const SkillTreeModule = () => {
     }
   }, [contextMenu]);
 
+  // Pan handlers
+  const handlePanStart = useCallback((e) => {
+    // Only start pan on middle mouse button or when not clicking on a node
+    if (e.button === 1 || (e.button === 0 && !e.target.closest('g[style*="cursor: pointer"]'))) {
+      e.preventDefault();
+      setIsPanning(true);
+      panStartRef.current = {
+        x: e.clientX,
+        y: e.clientY,
+        panX: pan.x,
+        panY: pan.y
+      };
+    }
+  }, [pan]);
+
+  const handlePanMove = useCallback((e) => {
+    if (!isPanning) return;
+    
+    const deltaX = e.clientX - panStartRef.current.x;
+    const deltaY = e.clientY - panStartRef.current.y;
+    
+    setPan({
+      x: panStartRef.current.panX + deltaX,
+      y: panStartRef.current.panY + deltaY
+    });
+  }, [isPanning]);
+
+  const handlePanEnd = useCallback(() => {
+    setIsPanning(false);
+  }, []);
+
+  // Zoom handler - zoom centered on cursor position
+  const handleWheel = useCallback((e) => {
+    e.preventDefault();
+    
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    
+    const rect = viewport.getBoundingClientRect();
+    
+    // Cursor position relative to viewport
+    const cursorX = e.clientX - rect.left;
+    const cursorY = e.clientY - rect.top;
+    
+    // Calculate new zoom
+    const delta = -e.deltaY * ZOOM_SPEED;
+    const newZoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, zoom + delta));
+    
+    if (newZoom === zoom) return;
+    
+    // Zoom centered on cursor position
+    // Formula: newPan = cursorPos - (cursorPos - oldPan) * (newZoom / oldZoom)
+    const zoomRatio = newZoom / zoom;
+    const newPanX = cursorX - (cursorX - pan.x) * zoomRatio;
+    const newPanY = cursorY - (cursorY - pan.y) * zoomRatio;
+    
+    setZoom(newZoom);
+    setPan({ x: newPanX, y: newPanY });
+  }, [zoom, pan]);
+
+  // Attach wheel event with passive: false to enable preventDefault
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    
+    viewport.addEventListener('wheel', handleWheel, { passive: false });
+    return () => viewport.removeEventListener('wheel', handleWheel);
+  }, [handleWheel]);
+
+  // Reset view to center
+  const resetView = useCallback(() => {
+    setPan({ x: 0, y: 0 });
+    setZoom(1);
+  }, []);
+
   if (!skillTree) {
     return (
       <div className="h-full flex items-center justify-center">
@@ -607,7 +693,29 @@ const SkillTreeModule = () => {
           <div 
             ref={viewportRef}
             className="flex-1 w-full h-full min-h-0 min-w-0 relative overflow-hidden bg-[#050a15]"
+            style={{ cursor: isPanning ? 'grabbing' : 'grab' }}
+            onMouseDown={handlePanStart}
+            onMouseMove={handlePanMove}
+            onMouseUp={handlePanEnd}
+            onMouseLeave={handlePanEnd}
           >
+            {/* Zoom indicator */}
+            {zoom !== 1 && (
+              <div className="absolute top-2 left-2 z-10 px-2 py-1 rounded bg-cyan-500/20 border border-cyan-500/30 text-xs text-cyan-400 font-mono">
+                {Math.round(zoom * 100)}%
+              </div>
+            )}
+            
+            {/* Reset view button */}
+            {(zoom !== 1 || pan.x !== 0 || pan.y !== 0) && (
+              <button
+                onClick={resetView}
+                className="absolute top-2 right-2 z-10 px-2 py-1 rounded bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 text-xs text-cyan-400 transition-colors"
+              >
+                Reset
+              </button>
+            )}
+            
             {/* Only render SVG if viewport has valid size */}
             {viewportSize.width >= 100 && viewportSize.height >= 100 ? (
               <svg
@@ -619,58 +727,62 @@ const SkillTreeModule = () => {
               >
                 {/* Background grid pattern */}
                 <defs>
-                  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <pattern id="skillTreeGrid" width="40" height="40" patternUnits="userSpaceOnUse">
                     <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(34, 211, 238, 0.05)" strokeWidth="1"/>
                   </pattern>
-                  <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
+                  <radialGradient id="skillTreeCenterGlow" cx="50%" cy="50%" r="50%">
                     <stop offset="0%" stopColor="rgba(34, 211, 238, 0.2)" />
                     <stop offset="100%" stopColor="rgba(34, 211, 238, 0)" />
                   </radialGradient>
                 </defs>
                 
-                <rect width="100%" height="100%" fill="url(#grid)" />
+                {/* Static background grid */}
+                <rect width="100%" height="100%" fill="url(#skillTreeGrid)" />
                 
-                {/* Center glow */}
-                <circle 
-                  cx={viewportSize.width / 2} 
-                  cy={viewportSize.height / 2} 
-                  r={200} 
-                  fill="url(#centerGlow)" 
-                />
-                
-                {/* Connection lines */}
-                {nodePositions.filter(p => p.depth > 0).map(({ node, x, y, parentX, parentY }) => {
-                  const colors = CATEGORY_COLORS[node.category] || CATEGORY_COLORS.skill;
-                  return (
-                    <line
-                      key={`line-${node.id}`}
-                      x1={parentX}
-                      y1={parentY}
-                      x2={x}
-                      y2={y}
-                      stroke={colors.primary}
-                      strokeWidth={2}
-                      opacity={0.4}
-                      strokeDasharray="8 4"
-                    />
-                  );
-                })}
-                
-                {/* Nodes */}
-                {nodePositions.map(({ node, x, y }) => (
-                  <SkillNode
-                    key={node.id}
-                    node={node}
-                    x={x}
-                    y={y}
-                    isSelected={selectedNode?.id === node.id}
-                    onSelect={handleSelectNode}
-                    onContextMenu={handleContextMenu}
-                    onDragStart={handleDragStart}
-                    onDragOver={handleDragOver}
-                    onDrop={handleDrop}
+                {/* Transformable content group */}
+                <g transform={`translate(${pan.x}, ${pan.y}) scale(${zoom})`}>
+                  {/* Center glow - follows transform */}
+                  <circle 
+                    cx={viewportSize.width / 2} 
+                    cy={viewportSize.height / 2} 
+                    r={200} 
+                    fill="url(#skillTreeCenterGlow)" 
                   />
-                ))}
+                  
+                  {/* Connection lines */}
+                  {nodePositions.filter(p => p.depth > 0).map(({ node, x, y, parentX, parentY }) => {
+                    const colors = CATEGORY_COLORS[node.category] || CATEGORY_COLORS.skill;
+                    return (
+                      <line
+                        key={`line-${node.id}`}
+                        x1={parentX}
+                        y1={parentY}
+                        x2={x}
+                        y2={y}
+                        stroke={colors.primary}
+                        strokeWidth={2 / zoom}
+                        opacity={0.4}
+                        strokeDasharray="8 4"
+                      />
+                    );
+                  })}
+                  
+                  {/* Nodes */}
+                  {nodePositions.map(({ node, x, y }) => (
+                    <SkillNode
+                      key={node.id}
+                      node={node}
+                      x={x}
+                      y={y}
+                      isSelected={selectedNode?.id === node.id}
+                      onSelect={handleSelectNode}
+                      onContextMenu={handleContextMenu}
+                      onDragStart={handleDragStart}
+                      onDragOver={handleDragOver}
+                      onDrop={handleDrop}
+                    />
+                  ))}
+                </g>
               </svg>
             ) : null}
 
