@@ -246,10 +246,364 @@ const ORBIT_RADII = {
 };
 
 const NODE_SIZES = {
-  core: 70,      // CORE - largest
+  core: 75,      // CORE - largest (1.7x of primary)
   primary: 45,   // Primary skills
   secondary: 35, // Subskills
   tertiary: 28   // Sub-subskills
+};
+
+// ============================================================================
+// CORE NODE COMPONENT - Tony Stark HUD Style
+// ============================================================================
+
+const CoreNode = ({ 
+  node, 
+  x, 
+  y, 
+  isSelected,
+  onSelect,
+  totalSkills = 0
+}) => {
+  const colors = CATEGORY_COLORS.core;
+  const nodeSize = NODE_SIZES.core;
+  
+  // Mock user data for HUD labels
+  const userData = {
+    age: 29,
+    energy: 74,
+    focus: 61,
+    skills: totalSkills
+  };
+  
+  return (
+    <g 
+      transform={`translate(${x}, ${y})`}
+      style={{ cursor: 'pointer' }}
+      onClick={() => onSelect(node)}
+    >
+      {/* ===== OUTER HUD RING - Dashed rotating ring ===== */}
+      <circle
+        r={nodeSize + 28}
+        fill="none"
+        stroke={colors.primary}
+        strokeWidth={1.5}
+        opacity={0.5}
+        strokeDasharray="12 6 4 6"
+        style={{
+          filter: `drop-shadow(0 0 8px ${colors.glow})`
+        }}
+      >
+        <animateTransform
+          attributeName="transform"
+          type="rotate"
+          from="0"
+          to="360"
+          dur="20s"
+          repeatCount="indefinite"
+        />
+      </circle>
+      
+      {/* Secondary outer ring - counter rotation */}
+      <circle
+        r={nodeSize + 22}
+        fill="none"
+        stroke={colors.primary}
+        strokeWidth={1}
+        opacity={0.3}
+        strokeDasharray="8 4"
+      >
+        <animateTransform
+          attributeName="transform"
+          type="rotate"
+          from="360"
+          to="0"
+          dur="15s"
+          repeatCount="indefinite"
+        />
+      </circle>
+      
+      {/* ===== INNER POWER RING - Level progress with pulse ===== */}
+      <circle
+        r={nodeSize + 6}
+        fill="none"
+        stroke={colors.primary}
+        strokeWidth={4}
+        strokeDasharray={`${(node.level / 100) * 2 * Math.PI * (nodeSize + 6)} ${2 * Math.PI * (nodeSize + 6)}`}
+        strokeLinecap="round"
+        opacity={0.9}
+        transform="rotate(-90)"
+        style={{
+          filter: `drop-shadow(0 0 12px ${colors.glow})`
+        }}
+      >
+        <animate
+          attributeName="opacity"
+          values="0.9;1;0.9"
+          dur="2s"
+          repeatCount="indefinite"
+        />
+      </circle>
+      
+      {/* ===== MAIN CORE CIRCLE ===== */}
+      <circle
+        r={nodeSize}
+        fill="rgba(10, 22, 40, 0.95)"
+        stroke={colors.primary}
+        strokeWidth={isSelected ? 4 : 3}
+        style={{
+          filter: `drop-shadow(0 0 ${isSelected ? 25 : 15}px ${colors.glow})`
+        }}
+      />
+      
+      {/* ===== HOLOGRAPHIC GRID BACKGROUND ===== */}
+      <clipPath id="coreClip">
+        <circle r={nodeSize - 4} />
+      </clipPath>
+      <g clipPath="url(#coreClip)">
+        {/* Vertical grid lines */}
+        {[-40, -20, 0, 20, 40].map((offset, i) => (
+          <line
+            key={`v-${i}`}
+            x1={offset}
+            y1={-nodeSize}
+            x2={offset}
+            y2={nodeSize}
+            stroke={colors.primary}
+            strokeWidth={0.5}
+            opacity={0.08}
+          />
+        ))}
+        {/* Horizontal grid lines */}
+        {[-40, -20, 0, 20, 40].map((offset, i) => (
+          <line
+            key={`h-${i}`}
+            x1={-nodeSize}
+            y1={offset}
+            x2={nodeSize}
+            y2={offset}
+            stroke={colors.primary}
+            strokeWidth={0.5}
+            opacity={0.08}
+          />
+        ))}
+        {/* Inner circle grid */}
+        <circle
+          r={nodeSize - 20}
+          fill="none"
+          stroke={colors.primary}
+          strokeWidth={0.5}
+          opacity={0.08}
+        />
+      </g>
+      
+      {/* ===== INNER DECORATION RING ===== */}
+      <circle
+        r={nodeSize - 10}
+        fill="none"
+        stroke={colors.primary}
+        strokeWidth={1.5}
+        opacity={0.4}
+        strokeDasharray="6 3"
+      />
+      
+      {/* Inner glow */}
+      <circle
+        r={nodeSize - 15}
+        fill="url(#innerGlow-core)"
+        opacity={0.4}
+      />
+      
+      {/* ===== HUMAN BLUEPRINT - Vitruvian Man Style ===== */}
+      <g opacity={0.85} style={{ filter: `drop-shadow(0 0 4px ${colors.glow})` }}>
+        {/* Head */}
+        <circle cx={0} cy={-28} r={8} fill="none" stroke={colors.primary} strokeWidth={1.5} />
+        
+        {/* Body/Spine */}
+        <line x1={0} y1={-20} x2={0} y2={12} stroke={colors.primary} strokeWidth={1.5} />
+        
+        {/* Shoulders */}
+        <line x1={-18} y1={-14} x2={18} y2={-14} stroke={colors.primary} strokeWidth={1.5} />
+        
+        {/* Arms */}
+        <line x1={-18} y1={-14} x2={-28} y2={4} stroke={colors.primary} strokeWidth={1.5} />
+        <line x1={18} y1={-14} x2={28} y2={4} stroke={colors.primary} strokeWidth={1.5} />
+        
+        {/* Hands */}
+        <circle cx={-28} cy={4} r={3} fill="none" stroke={colors.primary} strokeWidth={1} />
+        <circle cx={28} cy={4} r={3} fill="none" stroke={colors.primary} strokeWidth={1} />
+        
+        {/* Hips */}
+        <line x1={-10} y1={12} x2={10} y2={12} stroke={colors.primary} strokeWidth={1.5} />
+        
+        {/* Legs */}
+        <line x1={-10} y1={12} x2={-16} y2={35} stroke={colors.primary} strokeWidth={1.5} />
+        <line x1={10} y1={12} x2={16} y2={35} stroke={colors.primary} strokeWidth={1.5} />
+        
+        {/* Feet */}
+        <line x1={-16} y1={35} x2={-22} y2={38} stroke={colors.primary} strokeWidth={1} />
+        <line x1={16} y1={35} x2={22} y2={38} stroke={colors.primary} strokeWidth={1} />
+        
+        {/* Vitruvian extended arms (faint) */}
+        <line x1={-18} y1={-14} x2={-38} y2={-8} stroke={colors.primary} strokeWidth={0.8} opacity={0.4} />
+        <line x1={18} y1={-14} x2={38} y2={-8} stroke={colors.primary} strokeWidth={0.8} opacity={0.4} />
+        
+        {/* Vitruvian extended legs (faint) */}
+        <line x1={-10} y1={12} x2={-30} y2={28} stroke={colors.primary} strokeWidth={0.8} opacity={0.4} />
+        <line x1={10} y1={12} x2={30} y2={28} stroke={colors.primary} strokeWidth={0.8} opacity={0.4} />
+        
+        {/* Center point / heart */}
+        <circle cx={0} cy={-4} r={4} fill={colors.primary} opacity={0.6}>
+          <animate
+            attributeName="opacity"
+            values="0.6;0.9;0.6"
+            dur="1.5s"
+            repeatCount="indefinite"
+          />
+        </circle>
+      </g>
+      
+      {/* ===== SCANNING EFFECT ===== */}
+      <clipPath id="coreScanClip">
+        <circle r={nodeSize - 4} />
+      </clipPath>
+      <g clipPath="url(#coreScanClip)">
+        <line
+          x1={-nodeSize}
+          y1={0}
+          x2={nodeSize}
+          y2={0}
+          stroke={colors.primary}
+          strokeWidth={2}
+          opacity={0.6}
+          style={{
+            filter: `drop-shadow(0 0 8px ${colors.glow})`
+          }}
+        >
+          <animateTransform
+            attributeName="transform"
+            type="translate"
+            values={`0 ${-nodeSize}; 0 ${nodeSize}; 0 ${nodeSize}`}
+            keyTimes="0; 0.4; 1"
+            dur="4s"
+            repeatCount="indefinite"
+          />
+          <animate
+            attributeName="opacity"
+            values="0;0.6;0.6;0"
+            keyTimes="0;0.1;0.35;0.4"
+            dur="4s"
+            repeatCount="indefinite"
+          />
+        </line>
+      </g>
+      
+      {/* ===== HUD DATA LABELS ===== */}
+      {/* Top-left: AGE */}
+      <g transform={`translate(${-nodeSize - 8}, ${-nodeSize + 15})`}>
+        <text
+          textAnchor="end"
+          fill={colors.primary}
+          fontSize={8}
+          fontFamily="monospace"
+          opacity={0.7}
+          style={{ filter: `drop-shadow(0 0 3px ${colors.glow})` }}
+        >
+          AGE: {userData.age}
+        </text>
+      </g>
+      
+      {/* Top-right: ENERGY */}
+      <g transform={`translate(${nodeSize + 8}, ${-nodeSize + 15})`}>
+        <text
+          textAnchor="start"
+          fill={colors.primary}
+          fontSize={8}
+          fontFamily="monospace"
+          opacity={0.7}
+          style={{ filter: `drop-shadow(0 0 3px ${colors.glow})` }}
+        >
+          ENERGY: {userData.energy}%
+        </text>
+      </g>
+      
+      {/* Bottom-left: FOCUS */}
+      <g transform={`translate(${-nodeSize - 8}, ${nodeSize - 5})`}>
+        <text
+          textAnchor="end"
+          fill={colors.primary}
+          fontSize={8}
+          fontFamily="monospace"
+          opacity={0.7}
+          style={{ filter: `drop-shadow(0 0 3px ${colors.glow})` }}
+        >
+          FOCUS: {userData.focus}%
+        </text>
+      </g>
+      
+      {/* Bottom-right: SKILLS */}
+      <g transform={`translate(${nodeSize + 8}, ${nodeSize - 5})`}>
+        <text
+          textAnchor="start"
+          fill={colors.primary}
+          fontSize={8}
+          fontFamily="monospace"
+          opacity={0.7}
+          style={{ filter: `drop-shadow(0 0 3px ${colors.glow})` }}
+        >
+          SKILLS: {userData.skills}
+        </text>
+      </g>
+      
+      {/* ===== CORE LABEL ===== */}
+      <text
+        y={nodeSize + 22}
+        textAnchor="middle"
+        fill="white"
+        fontSize={16}
+        fontWeight="bold"
+        fontFamily="system-ui"
+        style={{
+          filter: `drop-shadow(0 0 6px ${colors.glow})`
+        }}
+      >
+        CORE
+      </text>
+      
+      {/* Secondary label */}
+      <text
+        y={nodeSize + 38}
+        textAnchor="middle"
+        fill={colors.primary}
+        fontSize={8}
+        fontFamily="monospace"
+        opacity={0.6}
+        letterSpacing={2}
+      >
+        STEWARD USER CORE
+      </text>
+      
+      {/* ===== SELECTION INDICATOR ===== */}
+      {isSelected && (
+        <circle
+          r={nodeSize + 35}
+          fill="none"
+          stroke={colors.primary}
+          strokeWidth={2}
+          opacity={0.6}
+          strokeDasharray="16 8"
+        >
+          <animateTransform
+            attributeName="transform"
+            type="rotate"
+            from="0"
+            to="360"
+            dur="3s"
+            repeatCount="indefinite"
+          />
+        </circle>
+      )}
+    </g>
+  );
 };
 
 // ============================================================================
@@ -1230,23 +1584,39 @@ const SkillTreeModule = () => {
                   {/* Nodes - render in order by depth (core first, then children) */}
                   {nodePositions
                     .sort((a, b) => a.depth - b.depth)
-                    .map(({ node, x, y, depth }) => (
-                    <SkillNode
-                      key={node.id}
-                      node={node}
-                      x={x}
-                      y={y}
-                      depth={depth}
-                      isSelected={selectedNode?.id === node.id}
-                      isInParentChain={selectedParentChain.has(node.id)}
-                      labelScale={getLabelScale()}
-                      onSelect={handleSelectNode}
-                      onContextMenu={handleContextMenu}
-                      onDragStart={handleDragStart}
-                      onDragOver={handleDragOver}
-                      onDrop={handleDrop}
-                    />
-                  ))}
+                    .map(({ node, x, y, depth }) => {
+                      // Use specialized CoreNode for CORE, SkillNode for others
+                      if (node.id === 'core') {
+                        return (
+                          <CoreNode
+                            key={node.id}
+                            node={node}
+                            x={x}
+                            y={y}
+                            isSelected={selectedNode?.id === node.id}
+                            onSelect={handleSelectNode}
+                            totalSkills={nodePositions.length - 1}
+                          />
+                        );
+                      }
+                      return (
+                        <SkillNode
+                          key={node.id}
+                          node={node}
+                          x={x}
+                          y={y}
+                          depth={depth}
+                          isSelected={selectedNode?.id === node.id}
+                          isInParentChain={selectedParentChain.has(node.id)}
+                          labelScale={getLabelScale()}
+                          onSelect={handleSelectNode}
+                          onContextMenu={handleContextMenu}
+                          onDragStart={handleDragStart}
+                          onDragOver={handleDragOver}
+                          onDrop={handleDrop}
+                        />
+                      );
+                    })}
                 </g>
               </svg>
             ) : null}
