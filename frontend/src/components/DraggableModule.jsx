@@ -34,7 +34,7 @@ const moduleComponents = {
 };
 
 // Modules that need full-height content without padding (canvas-style modules)
-const FULL_VIEWPORT_MODULES = ['skilltree', 'projects'];
+const FULL_VIEWPORT_MODULES = ['skilltree'];
 
 // Snap zone detection threshold in pixels
 const SNAP_THRESHOLD = 50;
