@@ -490,21 +490,26 @@ const CoreNode = ({
         />
       </g>
       
-      {/* ===== VITRUVIAN MAN - DETAILED WIREFRAME ===== */}
-      <g style={{ filter: `drop-shadow(0 0 3px ${colors.glow})` }}>
+      {/* ===== VITRUVIAN MAN - ANATOMICAL SILHOUETTE ===== */}
+      <g style={{ filter: `drop-shadow(0 0 4px ${colors.glow})` }}>
         
         {/* === HEAD === */}
         <ellipse cx={0} cy={vs(-52)} rx={vs(12)} ry={vs(14)} fill="none" stroke={colors.primary} strokeWidth={1.2} opacity={0.8} />
         <ellipse cx={0} cy={vs(-52)} rx={vs(8)} ry={vs(10)} fill="none" stroke={colors.primary} strokeWidth={0.5} opacity={0.4} />
-        {/* Face details */}
-        <line x1={vs(-4)} y1={vs(-55)} x2={vs(-4)} y2={vs(-50)} stroke={colors.primary} strokeWidth={0.5} opacity={0.3} />
-        <line x1={vs(4)} y1={vs(-55)} x2={vs(4)} y2={vs(-50)} stroke={colors.primary} strokeWidth={0.5} opacity={0.3} />
         
         {/* === NECK === */}
-        <line x1={vs(-5)} y1={vs(-38)} x2={vs(-7)} y2={vs(-30)} stroke={colors.primary} strokeWidth={1} opacity={0.7} />
-        <line x1={vs(5)} y1={vs(-38)} x2={vs(7)} y2={vs(-30)} stroke={colors.primary} strokeWidth={1} opacity={0.7} />
+        <path
+          d={`M ${vs(-5)} ${vs(-38)} 
+              C ${vs(-6)} ${vs(-35)}, ${vs(-7)} ${vs(-32)}, ${vs(-7)} ${vs(-30)}
+              L ${vs(7)} ${vs(-30)}
+              C ${vs(7)} ${vs(-32)}, ${vs(6)} ${vs(-35)}, ${vs(5)} ${vs(-38)}`}
+          fill="none"
+          stroke={colors.primary}
+          strokeWidth={1}
+          opacity={0.7}
+        />
         
-        {/* === TORSO - Primary position === */}
+        {/* === TORSO === */}
         <path
           d={`M ${vs(-7)} ${vs(-30)} 
               L ${vs(-25)} ${vs(-26)} 
@@ -523,71 +528,239 @@ const CoreNode = ({
           opacity={0.6}
         />
         {/* Spine */}
-        <line x1={0} y1={vs(-30)} x2={0} y2={vs(22)} stroke={colors.primary} strokeWidth={1.2} opacity={0.7} />
+        <line x1={0} y1={vs(-30)} x2={0} y2={vs(22)} stroke={colors.primary} strokeWidth={0.8} opacity={0.5} />
         {/* Ribs hint */}
+        <path d={`M ${vs(-18)} ${vs(-15)} Q ${vs(0)} ${vs(-10)} ${vs(18)} ${vs(-15)}`} fill="none" stroke={colors.primary} strokeWidth={0.5} opacity={0.3} />
+        <path d={`M ${vs(-20)} ${vs(-5)} Q ${vs(0)} ${vs(0)} ${vs(20)} ${vs(-5)}`} fill="none" stroke={colors.primary} strokeWidth={0.5} opacity={0.3} />
+        
+        {/* === LEFT ARM - Primary position (horizontal) - ANATOMICAL PATH === */}
         <path
-          d={`M ${vs(-18)} ${vs(-15)} Q ${vs(0)} ${vs(-10)} ${vs(18)} ${vs(-15)}`}
+          d={`M ${vs(-25)} ${vs(-26)}
+              C ${vs(-28)} ${vs(-27)}, ${vs(-32)} ${vs(-27)}, ${vs(-35)} ${vs(-26)}
+              L ${vs(-45)} ${vs(-22)}
+              C ${vs(-47)} ${vs(-21)}, ${vs(-48)} ${vs(-20)}, ${vs(-48)} ${vs(-18)}
+              L ${vs(-50)} ${vs(-18)}
+              C ${vs(-52)} ${vs(-18)}, ${vs(-54)} ${vs(-17)}, ${vs(-56)} ${vs(-16)}
+              L ${vs(-65)} ${vs(-14)}
+              C ${vs(-67)} ${vs(-13)}, ${vs(-68)} ${vs(-12)}, ${vs(-68)} ${vs(-10)}
+              L ${vs(-72)} ${vs(-10)}
+              C ${vs(-74)} ${vs(-10)}, ${vs(-75)} ${vs(-12)}, ${vs(-75)} ${vs(-14)}
+              C ${vs(-75)} ${vs(-16)}, ${vs(-74)} ${vs(-18)}, ${vs(-72)} ${vs(-18)}
+              L ${vs(-68)} ${vs(-18)}
+              C ${vs(-68)} ${vs(-20)}, ${vs(-67)} ${vs(-21)}, ${vs(-65)} ${vs(-22)}
+              L ${vs(-56)} ${vs(-24)}
+              C ${vs(-54)} ${vs(-25)}, ${vs(-52)} ${vs(-26)}, ${vs(-50)} ${vs(-26)}
+              L ${vs(-48)} ${vs(-26)}
+              C ${vs(-48)} ${vs(-28)}, ${vs(-47)} ${vs(-29)}, ${vs(-45)} ${vs(-30)}
+              L ${vs(-35)} ${vs(-34)}
+              C ${vs(-32)} ${vs(-35)}, ${vs(-28)} ${vs(-35)}, ${vs(-25)} ${vs(-34)}
+              Z`}
           fill="none"
           stroke={colors.primary}
-          strokeWidth={0.5}
-          opacity={0.3}
+          strokeWidth={1}
+          opacity={0.75}
         />
+        
+        {/* === RIGHT ARM - Primary position (horizontal) - ANATOMICAL PATH === */}
         <path
-          d={`M ${vs(-20)} ${vs(-5)} Q ${vs(0)} ${vs(0)} ${vs(20)} ${vs(-5)}`}
+          d={`M ${vs(25)} ${vs(-26)}
+              C ${vs(28)} ${vs(-27)}, ${vs(32)} ${vs(-27)}, ${vs(35)} ${vs(-26)}
+              L ${vs(45)} ${vs(-22)}
+              C ${vs(47)} ${vs(-21)}, ${vs(48)} ${vs(-20)}, ${vs(48)} ${vs(-18)}
+              L ${vs(50)} ${vs(-18)}
+              C ${vs(52)} ${vs(-18)}, ${vs(54)} ${vs(-17)}, ${vs(56)} ${vs(-16)}
+              L ${vs(65)} ${vs(-14)}
+              C ${vs(67)} ${vs(-13)}, ${vs(68)} ${vs(-12)}, ${vs(68)} ${vs(-10)}
+              L ${vs(72)} ${vs(-10)}
+              C ${vs(74)} ${vs(-10)}, ${vs(75)} ${vs(-12)}, ${vs(75)} ${vs(-14)}
+              C ${vs(75)} ${vs(-16)}, ${vs(74)} ${vs(-18)}, ${vs(72)} ${vs(-18)}
+              L ${vs(68)} ${vs(-18)}
+              C ${vs(68)} ${vs(-20)}, ${vs(67)} ${vs(-21)}, ${vs(65)} ${vs(-22)}
+              L ${vs(56)} ${vs(-24)}
+              C ${vs(54)} ${vs(-25)}, ${vs(52)} ${vs(-26)}, ${vs(50)} ${vs(-26)}
+              L ${vs(48)} ${vs(-26)}
+              C ${vs(48)} ${vs(-28)}, ${vs(47)} ${vs(-29)}, ${vs(45)} ${vs(-30)}
+              L ${vs(35)} ${vs(-34)}
+              C ${vs(32)} ${vs(-35)}, ${vs(28)} ${vs(-35)}, ${vs(25)} ${vs(-34)}
+              Z`}
           fill="none"
           stroke={colors.primary}
-          strokeWidth={0.5}
+          strokeWidth={1}
+          opacity={0.75}
+        />
+        
+        {/* === LEFT ARM - Secondary position (raised) - ANATOMICAL PATH === */}
+        <path
+          d={`M ${vs(-25)} ${vs(-26)}
+              C ${vs(-30)} ${vs(-32)}, ${vs(-35)} ${vs(-38)}, ${vs(-40)} ${vs(-42)}
+              L ${vs(-48)} ${vs(-48)}
+              C ${vs(-50)} ${vs(-50)}, ${vs(-52)} ${vs(-52)}, ${vs(-55)} ${vs(-53)}
+              L ${vs(-62)} ${vs(-56)}
+              C ${vs(-65)} ${vs(-57)}, ${vs(-68)} ${vs(-58)}, ${vs(-70)} ${vs(-58)}
+              L ${vs(-74)} ${vs(-60)}
+              C ${vs(-76)} ${vs(-61)}, ${vs(-77)} ${vs(-60)}, ${vs(-77)} ${vs(-58)}
+              C ${vs(-77)} ${vs(-56)}, ${vs(-76)} ${vs(-55)}, ${vs(-74)} ${vs(-54)}
+              L ${vs(-70)} ${vs(-52)}
+              C ${vs(-68)} ${vs(-52)}, ${vs(-65)} ${vs(-51)}, ${vs(-62)} ${vs(-50)}
+              L ${vs(-55)} ${vs(-47)}
+              C ${vs(-52)} ${vs(-46)}, ${vs(-50)} ${vs(-44)}, ${vs(-48)} ${vs(-42)}
+              L ${vs(-40)} ${vs(-36)}
+              C ${vs(-35)} ${vs(-32)}, ${vs(-30)} ${vs(-28)}, ${vs(-25)} ${vs(-26)}`}
+          fill="none"
+          stroke={colors.primary}
+          strokeWidth={0.8}
           opacity={0.3}
         />
         
-        {/* === ARMS - Primary position (horizontal) === */}
-        {/* Left arm */}
-        <line x1={vs(-25)} y1={vs(-26)} x2={vs(-45)} y2={vs(-20)} stroke={colors.primary} strokeWidth={1.2} opacity={0.8} />
-        <line x1={vs(-45)} y1={vs(-20)} x2={vs(-65)} y2={vs(-15)} stroke={colors.primary} strokeWidth={1} opacity={0.7} />
-        <ellipse cx={vs(-68)} cy={vs(-14)} rx={vs(5)} ry={vs(4)} fill="none" stroke={colors.primary} strokeWidth={0.8} opacity={0.6} />
-        {/* Right arm */}
-        <line x1={vs(25)} y1={vs(-26)} x2={vs(45)} y2={vs(-20)} stroke={colors.primary} strokeWidth={1.2} opacity={0.8} />
-        <line x1={vs(45)} y1={vs(-20)} x2={vs(65)} y2={vs(-15)} stroke={colors.primary} strokeWidth={1} opacity={0.7} />
-        <ellipse cx={vs(68)} cy={vs(-14)} rx={vs(5)} ry={vs(4)} fill="none" stroke={colors.primary} strokeWidth={0.8} opacity={0.6} />
-        
-        {/* === ARMS - Secondary position (raised) === */}
-        {/* Left arm raised */}
-        <line x1={vs(-25)} y1={vs(-26)} x2={vs(-50)} y2={vs(-45)} stroke={colors.primary} strokeWidth={0.8} opacity={0.35} />
-        <line x1={vs(-50)} y1={vs(-45)} x2={vs(-70)} y2={vs(-55)} stroke={colors.primary} strokeWidth={0.6} opacity={0.3} />
-        <ellipse cx={vs(-73)} cy={vs(-57)} rx={vs(4)} ry={vs(3)} fill="none" stroke={colors.primary} strokeWidth={0.5} opacity={0.25} />
-        {/* Right arm raised */}
-        <line x1={vs(25)} y1={vs(-26)} x2={vs(50)} y2={vs(-45)} stroke={colors.primary} strokeWidth={0.8} opacity={0.35} />
-        <line x1={vs(50)} y1={vs(-45)} x2={vs(70)} y2={vs(-55)} stroke={colors.primary} strokeWidth={0.6} opacity={0.3} />
-        <ellipse cx={vs(73)} cy={vs(-57)} rx={vs(4)} ry={vs(3)} fill="none" stroke={colors.primary} strokeWidth={0.5} opacity={0.25} />
+        {/* === RIGHT ARM - Secondary position (raised) - ANATOMICAL PATH === */}
+        <path
+          d={`M ${vs(25)} ${vs(-26)}
+              C ${vs(30)} ${vs(-32)}, ${vs(35)} ${vs(-38)}, ${vs(40)} ${vs(-42)}
+              L ${vs(48)} ${vs(-48)}
+              C ${vs(50)} ${vs(-50)}, ${vs(52)} ${vs(-52)}, ${vs(55)} ${vs(-53)}
+              L ${vs(62)} ${vs(-56)}
+              C ${vs(65)} ${vs(-57)}, ${vs(68)} ${vs(-58)}, ${vs(70)} ${vs(-58)}
+              L ${vs(74)} ${vs(-60)}
+              C ${vs(76)} ${vs(-61)}, ${vs(77)} ${vs(-60)}, ${vs(77)} ${vs(-58)}
+              C ${vs(77)} ${vs(-56)}, ${vs(76)} ${vs(-55)}, ${vs(74)} ${vs(-54)}
+              L ${vs(70)} ${vs(-52)}
+              C ${vs(68)} ${vs(-52)}, ${vs(65)} ${vs(-51)}, ${vs(62)} ${vs(-50)}
+              L ${vs(55)} ${vs(-47)}
+              C ${vs(52)} ${vs(-46)}, ${vs(50)} ${vs(-44)}, ${vs(48)} ${vs(-42)}
+              L ${vs(40)} ${vs(-36)}
+              C ${vs(35)} ${vs(-32)}, ${vs(30)} ${vs(-28)}, ${vs(25)} ${vs(-26)}`}
+          fill="none"
+          stroke={colors.primary}
+          strokeWidth={0.8}
+          opacity={0.3}
+        />
         
         {/* === PELVIS === */}
         <path
-          d={`M ${vs(-12)} ${vs(22)} Q ${vs(0)} ${vs(28)} ${vs(12)} ${vs(22)}`}
+          d={`M ${vs(-12)} ${vs(22)} 
+              Q ${vs(-8)} ${vs(26)}, ${vs(0)} ${vs(28)}
+              Q ${vs(8)} ${vs(26)}, ${vs(12)} ${vs(22)}`}
           fill="none"
           stroke={colors.primary}
           strokeWidth={1}
           opacity={0.6}
         />
         
-        {/* === LEGS - Primary position (together) === */}
-        {/* Left leg */}
-        <line x1={vs(-10)} y1={vs(24)} x2={vs(-14)} y2={vs(50)} stroke={colors.primary} strokeWidth={1.2} opacity={0.8} />
-        <line x1={vs(-14)} y1={vs(50)} x2={vs(-16)} y2={vs(75)} stroke={colors.primary} strokeWidth={1} opacity={0.7} />
-        <ellipse cx={vs(-16)} cy={vs(80)} rx={vs(6)} ry={vs(3)} fill="none" stroke={colors.primary} strokeWidth={0.8} opacity={0.6} />
-        {/* Right leg */}
-        <line x1={vs(10)} y1={vs(24)} x2={vs(14)} y2={vs(50)} stroke={colors.primary} strokeWidth={1.2} opacity={0.8} />
-        <line x1={vs(14)} y1={vs(50)} x2={vs(16)} y2={vs(75)} stroke={colors.primary} strokeWidth={1} opacity={0.7} />
-        <ellipse cx={vs(16)} cy={vs(80)} rx={vs(6)} ry={vs(3)} fill="none" stroke={colors.primary} strokeWidth={0.8} opacity={0.6} />
+        {/* === LEFT LEG - Primary position - ANATOMICAL PATH === */}
+        <path
+          d={`M ${vs(-12)} ${vs(22)}
+              C ${vs(-14)} ${vs(26)}, ${vs(-16)} ${vs(30)}, ${vs(-17)} ${vs(35)}
+              L ${vs(-18)} ${vs(45)}
+              C ${vs(-18)} ${vs(48)}, ${vs(-17)} ${vs(50)}, ${vs(-16)} ${vs(52)}
+              L ${vs(-16)} ${vs(55)}
+              C ${vs(-16)} ${vs(58)}, ${vs(-17)} ${vs(62)}, ${vs(-18)} ${vs(68)}
+              L ${vs(-18)} ${vs(75)}
+              C ${vs(-18)} ${vs(77)}, ${vs(-20)} ${vs(79)}, ${vs(-22)} ${vs(80)}
+              L ${vs(-10)} ${vs(80)}
+              C ${vs(-12)} ${vs(79)}, ${vs(-14)} ${vs(77)}, ${vs(-14)} ${vs(75)}
+              L ${vs(-14)} ${vs(68)}
+              C ${vs(-13)} ${vs(62)}, ${vs(-12)} ${vs(58)}, ${vs(-12)} ${vs(55)}
+              L ${vs(-12)} ${vs(52)}
+              C ${vs(-11)} ${vs(50)}, ${vs(-10)} ${vs(48)}, ${vs(-10)} ${vs(45)}
+              L ${vs(-9)} ${vs(35)}
+              C ${vs(-8)} ${vs(30)}, ${vs(-6)} ${vs(26)}, ${vs(-4)} ${vs(24)}
+              Z`}
+          fill="none"
+          stroke={colors.primary}
+          strokeWidth={1}
+          opacity={0.75}
+        />
         
-        {/* === LEGS - Secondary position (spread) === */}
-        {/* Left leg spread */}
-        <line x1={vs(-10)} y1={vs(24)} x2={vs(-35)} y2={vs(50)} stroke={colors.primary} strokeWidth={0.8} opacity={0.35} />
-        <line x1={vs(-35)} y1={vs(50)} x2={vs(-55)} y2={vs(70)} stroke={colors.primary} strokeWidth={0.6} opacity={0.3} />
-        <ellipse cx={vs(-58)} cy={vs(73)} rx={vs(5)} ry={vs(2.5)} fill="none" stroke={colors.primary} strokeWidth={0.5} opacity={0.25} />
-        {/* Right leg spread */}
-        <line x1={vs(10)} y1={vs(24)} x2={vs(35)} y2={vs(50)} stroke={colors.primary} strokeWidth={0.8} opacity={0.35} />
-        <line x1={vs(35)} y1={vs(50)} x2={vs(55)} y2={vs(70)} stroke={colors.primary} strokeWidth={0.6} opacity={0.3} />
-        <ellipse cx={vs(58)} cy={vs(73)} rx={vs(5)} ry={vs(2.5)} fill="none" stroke={colors.primary} strokeWidth={0.5} opacity={0.25} />
+        {/* === RIGHT LEG - Primary position - ANATOMICAL PATH === */}
+        <path
+          d={`M ${vs(12)} ${vs(22)}
+              C ${vs(14)} ${vs(26)}, ${vs(16)} ${vs(30)}, ${vs(17)} ${vs(35)}
+              L ${vs(18)} ${vs(45)}
+              C ${vs(18)} ${vs(48)}, ${vs(17)} ${vs(50)}, ${vs(16)} ${vs(52)}
+              L ${vs(16)} ${vs(55)}
+              C ${vs(16)} ${vs(58)}, ${vs(17)} ${vs(62)}, ${vs(18)} ${vs(68)}
+              L ${vs(18)} ${vs(75)}
+              C ${vs(18)} ${vs(77)}, ${vs(20)} ${vs(79)}, ${vs(22)} ${vs(80)}
+              L ${vs(10)} ${vs(80)}
+              C ${vs(12)} ${vs(79)}, ${vs(14)} ${vs(77)}, ${vs(14)} ${vs(75)}
+              L ${vs(14)} ${vs(68)}
+              C ${vs(13)} ${vs(62)}, ${vs(12)} ${vs(58)}, ${vs(12)} ${vs(55)}
+              L ${vs(12)} ${vs(52)}
+              C ${vs(11)} ${vs(50)}, ${vs(10)} ${vs(48)}, ${vs(10)} ${vs(45)}
+              L ${vs(9)} ${vs(35)}
+              C ${vs(8)} ${vs(30)}, ${vs(6)} ${vs(26)}, ${vs(4)} ${vs(24)}
+              Z`}
+          fill="none"
+          stroke={colors.primary}
+          strokeWidth={1}
+          opacity={0.75}
+        />
+        
+        {/* === LEFT LEG - Secondary position (spread) - ANATOMICAL PATH === */}
+        <path
+          d={`M ${vs(-12)} ${vs(22)}
+              C ${vs(-18)} ${vs(28)}, ${vs(-25)} ${vs(35)}, ${vs(-32)} ${vs(42)}
+              L ${vs(-38)} ${vs(50)}
+              C ${vs(-40)} ${vs(52)}, ${vs(-42)} ${vs(54)}, ${vs(-44)} ${vs(56)}
+              L ${vs(-50)} ${vs(62)}
+              C ${vs(-52)} ${vs(64)}, ${vs(-54)} ${vs(66)}, ${vs(-56)} ${vs(68)}
+              L ${vs(-60)} ${vs(72)}
+              C ${vs(-62)} ${vs(74)}, ${vs(-64)} ${vs(74)}, ${vs(-65)} ${vs(73)}
+              C ${vs(-66)} ${vs(72)}, ${vs(-65)} ${vs(70)}, ${vs(-63)} ${vs(68)}
+              L ${vs(-59)} ${vs(64)}
+              C ${vs(-57)} ${vs(62)}, ${vs(-55)} ${vs(60)}, ${vs(-53)} ${vs(58)}
+              L ${vs(-47)} ${vs(52)}
+              C ${vs(-45)} ${vs(50)}, ${vs(-43)} ${vs(48)}, ${vs(-41)} ${vs(46)}
+              L ${vs(-35)} ${vs(38)}
+              C ${vs(-28)} ${vs(31)}, ${vs(-20)} ${vs(26)}, ${vs(-12)} ${vs(22)}`}
+          fill="none"
+          stroke={colors.primary}
+          strokeWidth={0.8}
+          opacity={0.3}
+        />
+        
+        {/* === RIGHT LEG - Secondary position (spread) - ANATOMICAL PATH === */}
+        <path
+          d={`M ${vs(12)} ${vs(22)}
+              C ${vs(18)} ${vs(28)}, ${vs(25)} ${vs(35)}, ${vs(32)} ${vs(42)}
+              L ${vs(38)} ${vs(50)}
+              C ${vs(40)} ${vs(52)}, ${vs(42)} ${vs(54)}, ${vs(44)} ${vs(56)}
+              L ${vs(50)} ${vs(62)}
+              C ${vs(52)} ${vs(64)}, ${vs(54)} ${vs(66)}, ${vs(56)} ${vs(68)}
+              L ${vs(60)} ${vs(72)}
+              C ${vs(62)} ${vs(74)}, ${vs(64)} ${vs(74)}, ${vs(65)} ${vs(73)}
+              C ${vs(66)} ${vs(72)}, ${vs(65)} ${vs(70)}, ${vs(63)} ${vs(68)}
+              L ${vs(59)} ${vs(64)}
+              C ${vs(57)} ${vs(62)}, ${vs(55)} ${vs(60)}, ${vs(53)} ${vs(58)}
+              L ${vs(47)} ${vs(52)}
+              C ${vs(45)} ${vs(50)}, ${vs(43)} ${vs(48)}, ${vs(41)} ${vs(46)}
+              L ${vs(35)} ${vs(38)}
+              C ${vs(28)} ${vs(31)}, ${vs(20)} ${vs(26)}, ${vs(12)} ${vs(22)}`}
+          fill="none"
+          stroke={colors.primary}
+          strokeWidth={0.8}
+          opacity={0.3}
+        />
+        
+        {/* === FEET === */}
+        {/* Left foot - primary */}
+        <ellipse cx={vs(-16)} cy={vs(82)} rx={vs(8)} ry={vs(3)} fill="none" stroke={colors.primary} strokeWidth={0.8} opacity={0.6} />
+        {/* Right foot - primary */}
+        <ellipse cx={vs(16)} cy={vs(82)} rx={vs(8)} ry={vs(3)} fill="none" stroke={colors.primary} strokeWidth={0.8} opacity={0.6} />
+        {/* Left foot - spread */}
+        <ellipse cx={vs(-62)} cy={vs(74)} rx={vs(6)} ry={vs(2.5)} fill="none" stroke={colors.primary} strokeWidth={0.5} opacity={0.25} />
+        {/* Right foot - spread */}
+        <ellipse cx={vs(62)} cy={vs(74)} rx={vs(6)} ry={vs(2.5)} fill="none" stroke={colors.primary} strokeWidth={0.5} opacity={0.25} />
+        
+        {/* === HANDS === */}
+        {/* Left hand - primary */}
+        <ellipse cx={vs(-73)} cy={vs(-14)} rx={vs(5)} ry={vs(4)} fill="none" stroke={colors.primary} strokeWidth={0.8} opacity={0.6} />
+        {/* Right hand - primary */}
+        <ellipse cx={vs(73)} cy={vs(-14)} rx={vs(5)} ry={vs(4)} fill="none" stroke={colors.primary} strokeWidth={0.8} opacity={0.6} />
+        {/* Left hand - raised */}
+        <ellipse cx={vs(-76)} cy={vs(-58)} rx={vs(4)} ry={vs(3)} fill="none" stroke={colors.primary} strokeWidth={0.5} opacity={0.25} />
+        {/* Right hand - raised */}
+        <ellipse cx={vs(76)} cy={vs(-58)} rx={vs(4)} ry={vs(3)} fill="none" stroke={colors.primary} strokeWidth={0.5} opacity={0.25} />
         
         {/* === BIOMETRIC GLOW POINTS === */}
         
@@ -615,18 +788,18 @@ const CoreNode = ({
         </circle>
         
         {/* Feet energy points */}
-        <circle cx={vs(-16)} cy={vs(80)} r={vs(3)} fill={colors.primary} opacity={0.4} filter="url(#bioGlow)">
+        <circle cx={vs(-16)} cy={vs(82)} r={vs(3)} fill={colors.primary} opacity={0.4} filter="url(#bioGlow)">
           <animate attributeName="opacity" values="0.3;0.5;0.3" dur="2.8s" repeatCount="indefinite" />
         </circle>
-        <circle cx={vs(16)} cy={vs(80)} r={vs(3)} fill={colors.primary} opacity={0.4} filter="url(#bioGlow)">
+        <circle cx={vs(16)} cy={vs(82)} r={vs(3)} fill={colors.primary} opacity={0.4} filter="url(#bioGlow)">
           <animate attributeName="opacity" values="0.3;0.5;0.3" dur="2.8s" repeatCount="indefinite" />
         </circle>
         
         {/* Hand energy points */}
-        <circle cx={vs(-68)} cy={vs(-14)} r={vs(2.5)} fill={colors.primary} opacity={0.35} filter="url(#bioGlow)">
+        <circle cx={vs(-73)} cy={vs(-14)} r={vs(2.5)} fill={colors.primary} opacity={0.35} filter="url(#bioGlow)">
           <animate attributeName="opacity" values="0.25;0.45;0.25" dur="2.2s" repeatCount="indefinite" />
         </circle>
-        <circle cx={vs(68)} cy={vs(-14)} r={vs(2.5)} fill={colors.primary} opacity={0.35} filter="url(#bioGlow)">
+        <circle cx={vs(73)} cy={vs(-14)} r={vs(2.5)} fill={colors.primary} opacity={0.35} filter="url(#bioGlow)">
           <animate attributeName="opacity" values="0.25;0.45;0.25" dur="2.2s" repeatCount="indefinite" />
         </circle>
       </g>
