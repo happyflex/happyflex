@@ -251,4 +251,4 @@ project_world_{projectId}: {
 - Skill Tree CORE node: Vizuálně ověřen screenshotem (6. března 2026)
 
 ## Preview URL
-https://holographic-core.preview.emergentagent.com
+https://core-redesign.preview.emergentagent.com
