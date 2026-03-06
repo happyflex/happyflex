@@ -220,11 +220,31 @@ project_world_{projectId}: {
 ### P2: Kalendář pro členy týmu
 - Plná implementace osobního kalendáře
 
+### Skill Tree Module UI Enhancements - IMPLEMENTOVÁNO
+- [x] Změna ikony Skill Tree (DNA → PersonStanding)
+- [x] Úprava velikosti ikony (scale 1.2)
+- [x] Indikátor aktivního modulu (svítící cyan podtržení v toolbaru)
+- [x] Oprava paddingu modulu Projekty
+- [x] Redesign CORE uzlu - holografický HUD styl (JARVIS)
+  - Rotující koncentrické prstence s animacemi
+  - HUD datové panely (AGE, ENERGY, FOCUS, SKILLS)
+  - Blueprint mřížka na pozadí
+  - Skenovací sweep efekt
+  - Vitruviánská geometrie (kruh + čtverec)
+- [x] Anatomická silueta Vitruviánského muže
+  - V-tvar trupu (širší ramena, užší pas)
+  - Plynulé napojení krk→ramena→trup (unified path)
+  - Silnější končetiny (+20% strokeWidth)
+  - 4 pozice končetin (Vitruviánský styl)
+  - Biometrické svítící body (hlava, hrudník, solar plexus, pánev, ramena, ruce, nohy)
+  - Jemné anatomické detaily (nízká opacity)
+
 ## Testing Status
 - Testing agent iteration_1: 95% (Relationship Logic)
 - Testing agent iteration_2: 100% (Modul Lidi)
 - Testing agent iteration_3: 100% (Pokročilá správa oken - Pin, Focus, Snap, Magnetismus)
 - Testing agent iteration_4: Pending (Kalendář - manuálně otestován)
+- Skill Tree CORE node: Vizuálně ověřen screenshotem (6. března 2026)
 
 ## Preview URL
-https://steward-demo.preview.emergentagent.com
+https://holographic-core.preview.emergentagent.com
