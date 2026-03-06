@@ -499,12 +499,23 @@ const CoreNode = ({
         <ellipse cx={0} cy={vs(-55)} rx={vs(6.5)} ry={vs(8.5)} 
           fill="none" stroke={colors.primary} strokeWidth={0.4} opacity={0.12} />
         
+        {/* === NECK (connecting head to torso) === */}
+        {/* Right neck contour - jaw to torso */}
+        <path d={`M ${vs(4)} ${vs(-41)} C ${vs(4)} ${vs(-39)}, ${vs(4.5)} ${vs(-37)}, ${vs(5.5)} ${vs(-35)}`}
+          fill="none" stroke={colors.primary} strokeWidth={1.1} opacity={0.7} />
+        {/* Left neck contour - jaw to torso */}
+        <path d={`M ${vs(-4)} ${vs(-41)} C ${vs(-4)} ${vs(-39)}, ${vs(-4.5)} ${vs(-37)}, ${vs(-5.5)} ${vs(-35)}`}
+          fill="none" stroke={colors.primary} strokeWidth={1.1} opacity={0.7} />
+        {/* Neck center hint */}
+        <line x1={0} y1={vs(-39)} x2={0} y2={vs(-35.5)} 
+          stroke={colors.primary} strokeWidth={0.3} opacity={0.08} />
+        
         {/* === TORSO (closed anatomical contour - chest > abdomen > waist > hips) === */}
         <path
           d={`
-            M 0 ${vs(-39.5)}
-            C ${vs(2.5)} ${vs(-39)}, ${vs(5)} ${vs(-38)}, ${vs(6)} ${vs(-36)}
-            C ${vs(8)} ${vs(-34)}, ${vs(12)} ${vs(-31)}, ${vs(18)} ${vs(-28)}
+            M 0 ${vs(-35)}
+            C ${vs(2)} ${vs(-35)}, ${vs(4)} ${vs(-34.5)}, ${vs(6)} ${vs(-34)}
+            C ${vs(9)} ${vs(-33)}, ${vs(14)} ${vs(-30.5)}, ${vs(18)} ${vs(-28)}
             C ${vs(21)} ${vs(-27)}, ${vs(23)} ${vs(-26)}, ${vs(25)} ${vs(-25)}
             C ${vs(27)} ${vs(-24)}, ${vs(28.5)} ${vs(-22)}, ${vs(28)} ${vs(-19)}
             C ${vs(27)} ${vs(-16)}, ${vs(25)} ${vs(-12)}, ${vs(23)} ${vs(-8)}
@@ -521,8 +532,8 @@ const CoreNode = ({
             C ${vs(-25)} ${vs(-12)}, ${vs(-27)} ${vs(-16)}, ${vs(-28)} ${vs(-19)}
             C ${vs(-28.5)} ${vs(-22)}, ${vs(-27)} ${vs(-24)}, ${vs(-25)} ${vs(-25)}
             C ${vs(-23)} ${vs(-26)}, ${vs(-21)} ${vs(-27)}, ${vs(-18)} ${vs(-28)}
-            C ${vs(-12)} ${vs(-31)}, ${vs(-8)} ${vs(-34)}, ${vs(-6)} ${vs(-36)}
-            C ${vs(-5)} ${vs(-38)}, ${vs(-2.5)} ${vs(-39)}, 0 ${vs(-39.5)}
+            C ${vs(-14)} ${vs(-30.5)}, ${vs(-9)} ${vs(-33)}, ${vs(-6)} ${vs(-34)}
+            C ${vs(-4)} ${vs(-34.5)}, ${vs(-2)} ${vs(-35)}, 0 ${vs(-35)}
             Z
           `}
           fill="rgba(34, 211, 238, 0.05)"
@@ -533,11 +544,16 @@ const CoreNode = ({
         {/* Clavicle lines */}
         <path d={`M ${vs(-20)} ${vs(-26)} Q 0 ${vs(-23)}, ${vs(20)} ${vs(-26)}`} 
           fill="none" stroke={colors.primary} strokeWidth={0.4} opacity={0.12} />
+        {/* Trapezius hint lines (neck to shoulders) */}
+        <path d={`M ${vs(-5.5)} ${vs(-35)} C ${vs(-10)} ${vs(-33)}, ${vs(-15)} ${vs(-30.5)}, ${vs(-20)} ${vs(-27.5)}`}
+          fill="none" stroke={colors.primary} strokeWidth={0.5} opacity={0.12} />
+        <path d={`M ${vs(5.5)} ${vs(-35)} C ${vs(10)} ${vs(-33)}, ${vs(15)} ${vs(-30.5)}, ${vs(20)} ${vs(-27.5)}`}
+          fill="none" stroke={colors.primary} strokeWidth={0.5} opacity={0.12} />
         {/* Pectoral line */}
         <path d={`M ${vs(-20)} ${vs(-13)} Q 0 ${vs(-8)}, ${vs(20)} ${vs(-13)}`} 
           fill="none" stroke={colors.primary} strokeWidth={0.5} opacity={0.15} />
         {/* Linea alba (center line) */}
-        <line x1={0} y1={vs(-25)} x2={0} y2={vs(32)} 
+        <line x1={0} y1={vs(-35)} x2={0} y2={vs(32)} 
           stroke={colors.primary} strokeWidth={0.4} opacity={0.1} />
         {/* Upper ab division */}
         <path d={`M ${vs(-11)} ${vs(-2)} Q 0 ${vs(1)}, ${vs(11)} ${vs(-2)}`} 
