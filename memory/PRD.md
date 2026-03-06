@@ -233,6 +233,7 @@ project_world_{projectId}: {
   - Vitruviánská geometrie (kruh + čtverec)
 - [x] Anatomická silueta Vitruviánského muže
   - V-tvar trupu (širší ramena, užší pas)
+  - Zúžení trupu dle zelené reference (ramena ±16, pas ±6)
   - Plynulé napojení krk→ramena→trup (unified path)
   - Silnější končetiny (+20% strokeWidth)
   - 4 pozice končetin (Vitruviánský styl)

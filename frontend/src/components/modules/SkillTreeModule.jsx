@@ -486,29 +486,29 @@ const CoreNode = ({
         <ellipse cx={0} cy={vs(-54)} rx={vs(11)} ry={vs(14)} fill="none" stroke={colors.primary} strokeWidth={1.3} opacity={0.85} />
         <ellipse cx={0} cy={vs(-54)} rx={vs(7)} ry={vs(9)} fill="none" stroke={colors.primary} strokeWidth={0.5} opacity={0.3} />
         
-        {/* === UNIFIED NECK + TORSO (seamless V-taper silhouette) === */}
+        {/* === UNIFIED NECK + TORSO (narrow, per green reference) === */}
         <path
           d={`M ${vs(-5.5)} ${vs(-40)}
               C ${vs(-6)} ${vs(-36)}, ${vs(-6.5)} ${vs(-33)}, ${vs(-7)} ${vs(-30)}
-              C ${vs(-12)} ${vs(-29)}, ${vs(-19)} ${vs(-27)}, ${vs(-26)} ${vs(-22)}
-              C ${vs(-28)} ${vs(-14)}, ${vs(-27)} ${vs(-4)}, ${vs(-24)} ${vs(6)}
-              C ${vs(-20)} ${vs(16)}, ${vs(-15)} ${vs(24)}, ${vs(-9)} ${vs(28)}
-              Q ${vs(0)} ${vs(33)}, ${vs(9)} ${vs(28)}
-              C ${vs(15)} ${vs(24)}, ${vs(20)} ${vs(16)}, ${vs(24)} ${vs(6)}
-              C ${vs(27)} ${vs(-4)}, ${vs(28)} ${vs(-14)}, ${vs(26)} ${vs(-22)}
-              C ${vs(19)} ${vs(-27)}, ${vs(12)} ${vs(-29)}, ${vs(7)} ${vs(-30)}
+              C ${vs(-10)} ${vs(-28)}, ${vs(-13)} ${vs(-26)}, ${vs(-16)} ${vs(-23)}
+              C ${vs(-17)} ${vs(-16)}, ${vs(-16)} ${vs(-8)}, ${vs(-15)} ${vs(0)}
+              C ${vs(-13)} ${vs(10)}, ${vs(-10)} ${vs(18)}, ${vs(-6)} ${vs(26)}
+              Q ${vs(0)} ${vs(31)}, ${vs(6)} ${vs(26)}
+              C ${vs(10)} ${vs(18)}, ${vs(13)} ${vs(10)}, ${vs(15)} ${vs(0)}
+              C ${vs(16)} ${vs(-8)}, ${vs(17)} ${vs(-16)}, ${vs(16)} ${vs(-23)}
+              C ${vs(13)} ${vs(-26)}, ${vs(10)} ${vs(-28)}, ${vs(7)} ${vs(-30)}
               C ${vs(6.5)} ${vs(-33)}, ${vs(6)} ${vs(-36)}, ${vs(5.5)} ${vs(-40)}`}
           fill="none" stroke={colors.primary} strokeWidth={1.3} opacity={0.75}
         />
         
         {/* Subtle anatomical detail lines */}
-        <path d={`M ${vs(-18)} ${vs(-14)} Q ${vs(0)} ${vs(-8)} ${vs(18)} ${vs(-14)}`} fill="none" stroke={colors.primary} strokeWidth={0.4} opacity={0.15} />
-        <line x1={0} y1={vs(-30)} x2={0} y2={vs(28)} stroke={colors.primary} strokeWidth={0.4} opacity={0.12} />
+        <path d={`M ${vs(-12)} ${vs(-12)} Q ${vs(0)} ${vs(-7)} ${vs(12)} ${vs(-12)}`} fill="none" stroke={colors.primary} strokeWidth={0.4} opacity={0.15} />
+        <line x1={0} y1={vs(-30)} x2={0} y2={vs(26)} stroke={colors.primary} strokeWidth={0.4} opacity={0.12} />
         
         {/* === LEFT ARM - PRIMARY (Horizontal, thicker) === */}
         <path
-          d={`M ${vs(-26)} ${vs(-22)}
-              C ${vs(-32)} ${vs(-22)}, ${vs(-40)} ${vs(-21)}, ${vs(-50)} ${vs(-19)}
+          d={`M ${vs(-16)} ${vs(-23)}
+              C ${vs(-24)} ${vs(-22)}, ${vs(-36)} ${vs(-21)}, ${vs(-50)} ${vs(-19)}
               Q ${vs(-60)} ${vs(-17)}, ${vs(-68)} ${vs(-16)}
               C ${vs(-76)} ${vs(-15)}, ${vs(-84)} ${vs(-15)}, ${vs(-90)} ${vs(-16)}
               L ${vs(-95)} ${vs(-17.5)}
@@ -517,14 +517,14 @@ const CoreNode = ({
               L ${vs(-90)} ${vs(-23)}
               C ${vs(-84)} ${vs(-22)}, ${vs(-76)} ${vs(-22)}, ${vs(-68)} ${vs(-23)}
               Q ${vs(-60)} ${vs(-24)}, ${vs(-50)} ${vs(-26)}
-              C ${vs(-40)} ${vs(-28)}, ${vs(-32)} ${vs(-29)}, ${vs(-26)} ${vs(-28)}`}
+              C ${vs(-36)} ${vs(-28)}, ${vs(-24)} ${vs(-29)}, ${vs(-16)} ${vs(-28)}`}
           fill="none" stroke={colors.primary} strokeWidth={1.2} opacity={0.8}
         />
         
         {/* === RIGHT ARM - PRIMARY (Horizontal, thicker) === */}
         <path
-          d={`M ${vs(26)} ${vs(-22)}
-              C ${vs(32)} ${vs(-22)}, ${vs(40)} ${vs(-21)}, ${vs(50)} ${vs(-19)}
+          d={`M ${vs(16)} ${vs(-23)}
+              C ${vs(24)} ${vs(-22)}, ${vs(36)} ${vs(-21)}, ${vs(50)} ${vs(-19)}
               Q ${vs(60)} ${vs(-17)}, ${vs(68)} ${vs(-16)}
               C ${vs(76)} ${vs(-15)}, ${vs(84)} ${vs(-15)}, ${vs(90)} ${vs(-16)}
               L ${vs(95)} ${vs(-17.5)}
@@ -533,14 +533,14 @@ const CoreNode = ({
               L ${vs(90)} ${vs(-23)}
               C ${vs(84)} ${vs(-22)}, ${vs(76)} ${vs(-22)}, ${vs(68)} ${vs(-23)}
               Q ${vs(60)} ${vs(-24)}, ${vs(50)} ${vs(-26)}
-              C ${vs(40)} ${vs(-28)}, ${vs(32)} ${vs(-29)}, ${vs(26)} ${vs(-28)}`}
+              C ${vs(36)} ${vs(-28)}, ${vs(24)} ${vs(-29)}, ${vs(16)} ${vs(-28)}`}
           fill="none" stroke={colors.primary} strokeWidth={1.2} opacity={0.8}
         />
         
         {/* === LEFT ARM - SECONDARY (Raised, thicker) === */}
         <path
-          d={`M ${vs(-26)} ${vs(-22)}
-              C ${vs(-34)} ${vs(-30)}, ${vs(-44)} ${vs(-42)}, ${vs(-54)} ${vs(-52)}
+          d={`M ${vs(-16)} ${vs(-23)}
+              C ${vs(-26)} ${vs(-30)}, ${vs(-40)} ${vs(-42)}, ${vs(-54)} ${vs(-52)}
               Q ${vs(-62)} ${vs(-58)}, ${vs(-70)} ${vs(-63)}
               C ${vs(-78)} ${vs(-68)}, ${vs(-86)} ${vs(-72)}, ${vs(-92)} ${vs(-76)}
               Q ${vs(-96)} ${vs(-79)}, ${vs(-97)} ${vs(-82)}
@@ -548,14 +548,14 @@ const CoreNode = ({
               L ${vs(-88)} ${vs(-78)}
               C ${vs(-82)} ${vs(-74)}, ${vs(-74)} ${vs(-68)}, ${vs(-66)} ${vs(-62)}
               Q ${vs(-58)} ${vs(-56)}, ${vs(-50)} ${vs(-48)}
-              C ${vs(-40)} ${vs(-38)}, ${vs(-32)} ${vs(-29)}, ${vs(-26)} ${vs(-22)}`}
+              C ${vs(-38)} ${vs(-38)}, ${vs(-26)} ${vs(-29)}, ${vs(-16)} ${vs(-23)}`}
           fill="none" stroke={colors.primary} strokeWidth={0.9} opacity={0.28}
         />
         
         {/* === RIGHT ARM - SECONDARY (Raised, thicker) === */}
         <path
-          d={`M ${vs(26)} ${vs(-22)}
-              C ${vs(34)} ${vs(-30)}, ${vs(44)} ${vs(-42)}, ${vs(54)} ${vs(-52)}
+          d={`M ${vs(16)} ${vs(-23)}
+              C ${vs(26)} ${vs(-30)}, ${vs(40)} ${vs(-42)}, ${vs(54)} ${vs(-52)}
               Q ${vs(62)} ${vs(-58)}, ${vs(70)} ${vs(-63)}
               C ${vs(78)} ${vs(-68)}, ${vs(86)} ${vs(-72)}, ${vs(92)} ${vs(-76)}
               Q ${vs(96)} ${vs(-79)}, ${vs(97)} ${vs(-82)}
@@ -563,20 +563,20 @@ const CoreNode = ({
               L ${vs(88)} ${vs(-78)}
               C ${vs(82)} ${vs(-74)}, ${vs(74)} ${vs(-68)}, ${vs(66)} ${vs(-62)}
               Q ${vs(58)} ${vs(-56)}, ${vs(50)} ${vs(-48)}
-              C ${vs(40)} ${vs(-38)}, ${vs(32)} ${vs(-29)}, ${vs(26)} ${vs(-22)}`}
+              C ${vs(38)} ${vs(-38)}, ${vs(26)} ${vs(-29)}, ${vs(16)} ${vs(-23)}`}
           fill="none" stroke={colors.primary} strokeWidth={0.9} opacity={0.28}
         />
         
-        {/* === PELVIS (seamless from torso) === */}
+        {/* === PELVIS (narrower to match torso) === */}
         <path
-          d={`M ${vs(-9)} ${vs(28)} Q ${vs(-5)} ${vs(35)}, ${vs(0)} ${vs(37)} Q ${vs(5)} ${vs(35)}, ${vs(9)} ${vs(28)}`}
+          d={`M ${vs(-6)} ${vs(26)} Q ${vs(-3)} ${vs(33)}, ${vs(0)} ${vs(35)} Q ${vs(3)} ${vs(33)}, ${vs(6)} ${vs(26)}`}
           fill="none" stroke={colors.primary} strokeWidth={1.2} opacity={0.6}
         />
         
         {/* === LEFT LEG - PRIMARY (Together, thicker) === */}
         <path
-          d={`M ${vs(-9)} ${vs(28)}
-              C ${vs(-12)} ${vs(37)}, ${vs(-15)} ${vs(49)}, ${vs(-16)} ${vs(59)}
+          d={`M ${vs(-6)} ${vs(26)}
+              C ${vs(-10)} ${vs(35)}, ${vs(-14)} ${vs(48)}, ${vs(-16)} ${vs(59)}
               Q ${vs(-17)} ${vs(67)}, ${vs(-16)} ${vs(73)}
               C ${vs(-15)} ${vs(83)}, ${vs(-16)} ${vs(93)}, ${vs(-17)} ${vs(101)}
               Q ${vs(-18)} ${vs(107)}, ${vs(-21)} ${vs(111)}
@@ -588,14 +588,14 @@ const CoreNode = ({
               C ${vs(-7)} ${vs(107)}, ${vs(-7)} ${vs(97)}, ${vs(-7)} ${vs(87)}
               Q ${vs(-7)} ${vs(79)}, ${vs(-6)} ${vs(73)}
               C ${vs(-5)} ${vs(65)}, ${vs(-3)} ${vs(53)}, ${vs(-1)} ${vs(41)}
-              Q ${vs(0)} ${vs(35)}, ${vs(2)} ${vs(31)}`}
+              Q ${vs(0)} ${vs(35)}, ${vs(2)} ${vs(30)}`}
           fill="none" stroke={colors.primary} strokeWidth={1.2} opacity={0.8}
         />
         
         {/* === RIGHT LEG - PRIMARY (Together, thicker) === */}
         <path
-          d={`M ${vs(9)} ${vs(28)}
-              C ${vs(12)} ${vs(37)}, ${vs(15)} ${vs(49)}, ${vs(16)} ${vs(59)}
+          d={`M ${vs(6)} ${vs(26)}
+              C ${vs(10)} ${vs(35)}, ${vs(14)} ${vs(48)}, ${vs(16)} ${vs(59)}
               Q ${vs(17)} ${vs(67)}, ${vs(16)} ${vs(73)}
               C ${vs(15)} ${vs(83)}, ${vs(16)} ${vs(93)}, ${vs(17)} ${vs(101)}
               Q ${vs(18)} ${vs(107)}, ${vs(21)} ${vs(111)}
@@ -607,14 +607,14 @@ const CoreNode = ({
               C ${vs(7)} ${vs(107)}, ${vs(7)} ${vs(97)}, ${vs(7)} ${vs(87)}
               Q ${vs(7)} ${vs(79)}, ${vs(6)} ${vs(73)}
               C ${vs(5)} ${vs(65)}, ${vs(3)} ${vs(53)}, ${vs(1)} ${vs(41)}
-              Q ${vs(0)} ${vs(35)}, ${vs(-2)} ${vs(31)}`}
+              Q ${vs(0)} ${vs(35)}, ${vs(-2)} ${vs(30)}`}
           fill="none" stroke={colors.primary} strokeWidth={1.2} opacity={0.8}
         />
         
         {/* === LEFT LEG - SECONDARY (Spread, thicker) === */}
         <path
-          d={`M ${vs(-9)} ${vs(28)}
-              C ${vs(-20)} ${vs(38)}, ${vs(-35)} ${vs(53)}, ${vs(-47)} ${vs(65)}
+          d={`M ${vs(-6)} ${vs(26)}
+              C ${vs(-18)} ${vs(37)}, ${vs(-34)} ${vs(52)}, ${vs(-47)} ${vs(65)}
               Q ${vs(-57)} ${vs(75)}, ${vs(-65)} ${vs(83)}
               C ${vs(-73)} ${vs(91)}, ${vs(-81)} ${vs(101)}, ${vs(-87)} ${vs(109)}
               L ${vs(-94)} ${vs(118)}
@@ -623,14 +623,14 @@ const CoreNode = ({
               L ${vs(-81)} ${vs(113)}
               C ${vs(-75)} ${vs(105)}, ${vs(-67)} ${vs(95)}, ${vs(-59)} ${vs(85)}
               Q ${vs(-51)} ${vs(75)}, ${vs(-43)} ${vs(65)}
-              C ${vs(-33)} ${vs(53)}, ${vs(-23)} ${vs(41)}, ${vs(-13)} ${vs(32)}`}
+              C ${vs(-33)} ${vs(53)}, ${vs(-22)} ${vs(40)}, ${vs(-10)} ${vs(30)}`}
           fill="none" stroke={colors.primary} strokeWidth={0.9} opacity={0.28}
         />
         
         {/* === RIGHT LEG - SECONDARY (Spread, thicker) === */}
         <path
-          d={`M ${vs(9)} ${vs(28)}
-              C ${vs(20)} ${vs(38)}, ${vs(35)} ${vs(53)}, ${vs(47)} ${vs(65)}
+          d={`M ${vs(6)} ${vs(26)}
+              C ${vs(18)} ${vs(37)}, ${vs(34)} ${vs(52)}, ${vs(47)} ${vs(65)}
               Q ${vs(57)} ${vs(75)}, ${vs(65)} ${vs(83)}
               C ${vs(73)} ${vs(91)}, ${vs(81)} ${vs(101)}, ${vs(87)} ${vs(109)}
               L ${vs(94)} ${vs(118)}
@@ -639,7 +639,7 @@ const CoreNode = ({
               L ${vs(81)} ${vs(113)}
               C ${vs(75)} ${vs(105)}, ${vs(67)} ${vs(95)}, ${vs(59)} ${vs(85)}
               Q ${vs(51)} ${vs(75)}, ${vs(43)} ${vs(65)}
-              C ${vs(33)} ${vs(53)}, ${vs(23)} ${vs(41)}, ${vs(13)} ${vs(32)}`}
+              C ${vs(33)} ${vs(53)}, ${vs(22)} ${vs(40)}, ${vs(10)} ${vs(30)}`}
           fill="none" stroke={colors.primary} strokeWidth={0.9} opacity={0.28}
         />
         
@@ -677,15 +677,15 @@ const CoreNode = ({
         </circle>
         
         {/* Pelvic */}
-        <circle cx={0} cy={vs(33)} r={vs(3)} fill={colors.primary} opacity={0.45} filter="url(#bioGlow)">
+        <circle cx={0} cy={vs(31)} r={vs(3)} fill={colors.primary} opacity={0.45} filter="url(#bioGlow)">
           <animate attributeName="opacity" values="0.35;0.55;0.35" dur="3.5s" repeatCount="indefinite" />
         </circle>
         
         {/* Shoulder joints */}
-        <circle cx={vs(-26)} cy={vs(-22)} r={vs(2.5)} fill={colors.primary} opacity={0.35} filter="url(#bioGlow)">
+        <circle cx={vs(-16)} cy={vs(-23)} r={vs(2.5)} fill={colors.primary} opacity={0.35} filter="url(#bioGlow)">
           <animate attributeName="opacity" values="0.25;0.45;0.25" dur="2.6s" repeatCount="indefinite" />
         </circle>
-        <circle cx={vs(26)} cy={vs(-22)} r={vs(2.5)} fill={colors.primary} opacity={0.35} filter="url(#bioGlow)">
+        <circle cx={vs(16)} cy={vs(-23)} r={vs(2.5)} fill={colors.primary} opacity={0.35} filter="url(#bioGlow)">
           <animate attributeName="opacity" values="0.25;0.45;0.25" dur="2.6s" repeatCount="indefinite" />
         </circle>
         
